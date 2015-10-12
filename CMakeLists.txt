@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(naomech)
+project(naomech C CXX)
 
 option(USE_QIBUILD "Build project with qibuild" ON)
 
@@ -46,10 +46,12 @@ foreach (MODULE ${RD_MODULES})
                 # Prepare sources list
                 set(${MODULE}_${TARGET}_SRCS)
                 foreach (SRC ${RD_SRCS})
-                    if(EXISTS ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC})
+                    if(EXISTS ${SRC})
+                        list(APPEND ${MODULE}_${TARGET}_SRCS ${SRC})
+                    elseif(EXISTS ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC})
                         list(APPEND ${MODULE}_${TARGET}_SRCS ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC})
                     else()
-                        message(WARNING "File ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC} don't exits")
+                        message(WARNING "File ${SRC} don't exits")
                     endif()
                 endforeach ()
 
@@ -62,7 +64,9 @@ foreach (MODULE ${RD_MODULES})
                         else()
                             qi_create_bin(${TARGET} ${${MODULE}_${TARGET}_SRCS} NO_INSTALL)
                         endif ()
-                        qi_use_lib(${TARGET} ${RD_REQUIRED_PACKAGES})
+                        if(NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
+                            qi_use_lib(${TARGET} ${RD_REQUIRED_PACKAGES})
+                        endif()
 
                         qi_install(TARGET ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
                     else()
@@ -76,16 +80,16 @@ foreach (MODULE ${RD_MODULES})
                             list(APPEND ${MODULE}_${TARGET}_INCLUDE_DIRS ${${PACKAGE}_INCLUDE_DIRS})
                         endforeach ()
 
-                        include_directories(${${MODULE}_${TARGET}_INCLUDE_DIRS})
-
-
                         if (${RD_SHARED})
                             add_library(${TARGET} ${${MODULE}_${TARGET}_SRCS})
                         else()
                             add_executable(${TARGET} ${${MODULE}_${TARGET}_SRCS})
                         endif ()
 
-                        target_link_libraries(${TARGET} ${${MODULE}_${TARGET}_LIBS})
+                        if(NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
+                            target_include_directories(${TARGET} PUBLIC ${${MODULE}_${TARGET}_INCLUDE_DIRS})
+                            target_link_libraries(${TARGET} ${${MODULE}_${TARGET}_LIBS})
+                        endif()
                         install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
 
                     endif ()
