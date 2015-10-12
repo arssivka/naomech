@@ -1,0 +1,447 @@
+//
+// Created by arssivka on 10/5/15.
+//
+
+#include "RD/HardwareAccessModule/HardwareAccessModule.h"
+
+#include <alcommon/alproxy.h>
+#include <alcommon/albroker.h>
+#include <alproxies/dcmproxy.h>
+#include <almemoryfastaccess/almemoryfastaccess.h>
+#include <alproxies/altexttospeechproxy.h>
+#include <algorithm>
+#include <fstream>
+
+using namespace RD;
+
+HardwareAccessModule::HardwareAccessModule(boost::shared_ptr<AL::ALBroker> broker,
+                                   const std::string &name)
+        : AL::ALModule(broker, name), mem(
+        boost::shared_ptr<AL::ALMemoryFastAccess>(
+                new AL::ALMemoryFastAccess())), sensor_keys(25),
+          local_sensor_values(SENSORS_COUNT),
+          work_actuator_values(new std::vector<float>(25)) {
+
+    this->setModuleDescription("Fast access to hardware.");
+
+    this->functionName("setJointValues", this->getName(),
+                       "change positions of all joint");
+    this->addParam("values", "new positions of all (25) joints");
+    BIND_METHOD(HardwareAccessModule::setJointValues);
+
+    this->functionName("setStiffness", this->getName(),
+                       "change stiffness of all joint");
+    this->addParam("value", "new stiffness value from 0.0 to 1.0");
+    BIND_METHOD(HardwareAccessModule::setStiffness);
+
+    this->functionName("getSensorsValues", this->getName(),
+                       "get data from all sensors");
+    this->setReturn("values", "return values from all sensors");
+    BIND_METHOD(HardwareAccessModule::getSensorsValues);
+
+    long isDCMRunning;
+    try {
+        this->dcm = this->getParentBroker()->getDcmProxy();
+    }
+    catch (AL::ALError &e) {
+        throw ALERROR(getName(), "startLoop()",
+                      "Impossible to create DCM Proxy : " +
+                      std::string(e.what()));
+    }
+    try {
+        isDCMRunning = this->getParentBroker()->getProxy(
+                "ALLauncher")->call<bool>("isModulePresent",
+                                          std::string("DCM"));
+    }
+    catch (AL::ALError &e) {
+        throw ALERROR(this->getName(), "startLoop()",
+                      "Error when connecting to DCM : " +
+                      std::string(e.what()));
+    }
+    if (!isDCMRunning) {
+        throw ALERROR(this->getName(), "startLoop()", "Error no DCM running ");
+    }
+
+    this->init();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+HardwareAccessModule::~HardwareAccessModule() {
+    this->stopLoop();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::startLoop() {
+    this->connectToDCMloop();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::stopLoop() {
+    this->setStiffness(0.0f);
+    this->dcm_post_process_connection.disconnect();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::setJointValues(const AL::ALValue &values) {
+    if (values.getSize() < 25) {
+        return;
+    }
+    boost::shared_ptr<std::vector<float> > local_actuator_values(new std::vector<float>(25));
+    for (int i = 0; i < 25; ++i) {
+        local_actuator_values->at(i) = (float) values[i];
+    }
+    boost::lock_guard<boost::mutex> guard(this->actuator_mutex);
+    this->work_actuator_values.swap(local_actuator_values);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::setStiffness(const float &stiffnessValue) {
+    AL::ALValue stiffnessCommands;
+    int DCMtime;
+    // increase stiffness with the "jointStiffness" Alias created at initialisation
+    try {
+        // Get time : return the time in 1 seconde
+        DCMtime = this->dcm->getTime(100);
+    } catch (const AL::ALError &e) {
+        throw ALERROR(getName(), "setStiffness()",
+                      "Error on DCM getTime : " + std::string(e.what()));
+    }
+
+    stiffnessCommands.arraySetSize(3);
+    stiffnessCommands[0] = std::string("jointStiffness");
+    stiffnessCommands[1] = std::string("Merge");
+    stiffnessCommands[2].arraySetSize(1);
+    stiffnessCommands[2][0].arraySetSize(2);
+    stiffnessCommands[2][0][0] = stiffnessValue;
+    stiffnessCommands[2][0][1] = DCMtime;
+    try {
+        this->dcm->set(stiffnessCommands);
+    } catch (const AL::ALError &e) {
+        throw ALERROR(this->getName(), "setStiffness()",
+                      "Error when sending stiffness to DCM : " +
+                      std::string(e.what()));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+AL::ALValue HardwareAccessModule::getSensorsValues() {
+    this->mem->GetValues(this->local_sensor_values);
+    for (int i = 0; i < SENSORS_COUNT; ++i) {
+        sensor_values[i] = this->local_sensor_values.at(i);
+    }
+    return sensor_values;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::init() {
+    this->initFastAccess();
+    this->createPositionActuatorAlias();
+    this->createHardnessActuatorAlias();
+    this->preparePositionActuatorCommand();
+    this->startLoop();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::initFastAccess() {
+    //  Here as an example inertial + joints + FSR are read
+    this->sensor_values.clear();
+    this->sensor_values.arraySetSize(SENSORS_COUNT);
+
+    this->sensor_keys.clear();
+    this->sensor_keys.resize(SENSORS_COUNT);
+    // Joints Sensor list
+    this->sensor_keys[HEAD_PITCH] = std::string(
+            "Device/SubDeviceList/HeadPitch/Position/Sensor/Value");
+    this->sensor_keys[HEAD_YAW] = std::string(
+            "Device/SubDeviceList/HeadYaw/Position/Sensor/Value");
+    this->sensor_keys[L_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/LAnklePitch/Position/Sensor/Value");
+    this->sensor_keys[L_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/LAnkleRoll/Position/Sensor/Value");
+    this->sensor_keys[L_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/LElbowRoll/Position/Sensor/Value");
+    this->sensor_keys[L_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/LElbowYaw/Position/Sensor/Value");
+    this->sensor_keys[L_HAND] = std::string(
+            "Device/SubDeviceList/LHand/Position/Sensor/Value");
+    this->sensor_keys[L_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/LHipPitch/Position/Sensor/Value");
+    this->sensor_keys[L_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/LHipRoll/Position/Sensor/Value");
+    this->sensor_keys[L_HIP_YAW_PITCH] = std::string(
+            "Device/SubDeviceList/LHipYawPitch/Position/Sensor/Value");
+    this->sensor_keys[L_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/LKneePitch/Position/Sensor/Value");
+    this->sensor_keys[L_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/LShoulderPitch/Position/Sensor/Value");
+    this->sensor_keys[L_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/LShoulderRoll/Position/Sensor/Value");
+    this->sensor_keys[L_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/LWristYaw/Position/Sensor/Value");
+    this->sensor_keys[R_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/RAnklePitch/Position/Sensor/Value");
+    this->sensor_keys[R_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/RAnkleRoll/Position/Sensor/Value");
+    this->sensor_keys[R_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/RElbowRoll/Position/Sensor/Value");
+    this->sensor_keys[R_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/RElbowYaw/Position/Sensor/Value");
+    this->sensor_keys[R_HAND] = std::string(
+            "Device/SubDeviceList/RHand/Position/Sensor/Value");
+    this->sensor_keys[R_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/RHipPitch/Position/Sensor/Value");
+    this->sensor_keys[R_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/RHipRoll/Position/Sensor/Value");
+    this->sensor_keys[R_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/RKneePitch/Position/Sensor/Value");
+    this->sensor_keys[R_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/RShoulderPitch/Position/Sensor/Value");
+    this->sensor_keys[R_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/RShoulderRoll/Position/Sensor/Value");
+    this->sensor_keys[R_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/RWristYaw/Position/Sensor/Value");
+    // Inertial sensors
+    this->sensor_keys[ACC_X] = std::string(
+            "Device/SubDeviceList/InertialSensor/AccX/Sensor/Value");
+    this->sensor_keys[ACC_Y] = std::string(
+            "Device/SubDeviceList/InertialSensor/AccY/Sensor/Value");
+    this->sensor_keys[ACC_Z] = std::string(
+            "Device/SubDeviceList/InertialSensor/AccZ/Sensor/Value");
+    this->sensor_keys[GYR_X] = std::string(
+            "Device/SubDeviceList/InertialSensor/GyrX/Sensor/Value");
+    this->sensor_keys[GYR_Y] = std::string(
+            "Device/SubDeviceList/InertialSensor/GyrY/Sensor/Value");
+    this->sensor_keys[ANGLE_X] = std::string(
+            "Device/SubDeviceList/InertialSensor/AngleX/Sensor/Value");
+    this->sensor_keys[ANGLE_Y] = std::string(
+            "Device/SubDeviceList/InertialSensor/AngleY/Sensor/Value");
+    // Some FSR sensors
+    this->sensor_keys[L_COP_X] = std::string(
+            "Device/SubDeviceList/LFoot/FSR/CenterOfPressure/X/Sensor/Value");
+    this->sensor_keys[L_COP_Y] = std::string(
+            "Device/SubDeviceList/LFoot/FSR/CenterOfPressure/Y/Sensor/Value");
+    this->sensor_keys[L_TOTAL_WEIGHT] = std::string(
+            "Device/SubDeviceList/LFoot/FSR/TotalWeight/Sensor/Value");
+    this->sensor_keys[R_COP_X] = std::string(
+            "Device/SubDeviceList/RFoot/FSR/CenterOfPressure/X/Sensor/Value");
+    this->sensor_keys[R_COP_Y] = std::string(
+            "Device/SubDeviceList/RFoot/FSR/CenterOfPressure/Y/Sensor/Value");
+    this->sensor_keys[R_TOTAL_WEIGHT] = std::string(
+            "Device/SubDeviceList/RFoot/FSR/TotalWeight/Sensor/Value");
+
+    this->mem->ConnectToVariables(this->getParentBroker(), this->sensor_keys,
+                                  false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::createPositionActuatorAlias() {
+    AL::ALValue joint_aliases;
+    joint_aliases.arraySetSize(2);
+    joint_aliases[0] = std::string("jointActuator");
+    joint_aliases[1].arraySetSize(25);
+    joint_aliases[1][HEAD_PITCH] = std::string(
+            "Device/SubDeviceList/HeadPitch/Position/Actuator/Value");
+    joint_aliases[1][HEAD_YAW] = std::string(
+            "Device/SubDeviceList/HeadYaw/Position/Actuator/Value");
+    joint_aliases[1][L_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/LAnklePitch/Position/Actuator/Value");
+    joint_aliases[1][L_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/LAnkleRoll/Position/Actuator/Value");
+    joint_aliases[1][L_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/LElbowRoll/Position/Actuator/Value");
+    joint_aliases[1][L_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/LElbowYaw/Position/Actuator/Value");
+    joint_aliases[1][L_HAND] = std::string(
+            "Device/SubDeviceList/LHand/Position/Actuator/Value");
+    joint_aliases[1][L_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/LHipPitch/Position/Actuator/Value");
+    joint_aliases[1][L_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/LHipRoll/Position/Actuator/Value");
+    joint_aliases[1][L_HIP_YAW_PITCH] = std::string(
+            "Device/SubDeviceList/LHipYawPitch/Position/Actuator/Value");
+    joint_aliases[1][L_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/LKneePitch/Position/Actuator/Value");
+    joint_aliases[1][L_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/LShoulderPitch/Position/Actuator/Value");
+    joint_aliases[1][L_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/LShoulderRoll/Position/Actuator/Value");
+    joint_aliases[1][L_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/LWristYaw/Position/Actuator/Value");
+    joint_aliases[1][R_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/RAnklePitch/Position/Actuator/Value");
+    joint_aliases[1][R_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/RAnkleRoll/Position/Actuator/Value");
+    joint_aliases[1][R_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/RElbowRoll/Position/Actuator/Value");
+    joint_aliases[1][R_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/RElbowYaw/Position/Actuator/Value");
+    joint_aliases[1][R_HAND] = std::string(
+            "Device/SubDeviceList/RHand/Position/Actuator/Value");
+    joint_aliases[1][R_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/RHipPitch/Position/Actuator/Value");
+    joint_aliases[1][R_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/RHipRoll/Position/Actuator/Value");
+    joint_aliases[1][R_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/RKneePitch/Position/Actuator/Value");
+    joint_aliases[1][R_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/RShoulderPitch/Position/Actuator/Value");
+    joint_aliases[1][R_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/RShoulderRoll/Position/Actuator/Value");
+    joint_aliases[1][R_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/RWristYaw/Position/Actuator/Value");
+
+    // Create alias
+    try {
+        this->dcm->createAlias(joint_aliases);
+    } catch (const AL::ALError &e) {
+        throw ALERROR(getName(), "createPositionActuatorAlias()",
+                      "Error when creating Alias : " + std::string(e.what()));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::createHardnessActuatorAlias() {
+    AL::ALValue joint_aliasses;
+    // Alias for all joint stiffness
+    joint_aliasses.clear();
+    joint_aliasses.arraySetSize(2);
+    joint_aliasses[0] = std::string(
+            "jointStiffness"); // Alias for all 25 actuators
+    joint_aliasses[1].arraySetSize(25);
+    // stiffness list
+    joint_aliasses[1][HEAD_PITCH] = std::string(
+            "Device/SubDeviceList/HeadPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][HEAD_YAW] = std::string(
+            "Device/SubDeviceList/HeadYaw/Hardness/Actuator/Value");
+    joint_aliasses[1][L_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/LAnklePitch/Hardness/Actuator/Value");
+    joint_aliasses[1][L_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/LAnkleRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][L_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/LElbowRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][L_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/LElbowYaw/Hardness/Actuator/Value");
+    joint_aliasses[1][L_HAND] = std::string(
+            "Device/SubDeviceList/LHand/Hardness/Actuator/Value");
+    joint_aliasses[1][L_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/LHipPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][L_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/LHipRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][L_HIP_YAW_PITCH] = std::string(
+            "Device/SubDeviceList/LHipYawPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][L_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/LKneePitch/Hardness/Actuator/Value");
+    joint_aliasses[1][L_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/LShoulderPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][L_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/LShoulderRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][L_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/LWristYaw/Hardness/Actuator/Value");
+    joint_aliasses[1][R_ANKLE_PITCH] = std::string(
+            "Device/SubDeviceList/RAnklePitch/Hardness/Actuator/Value");
+    joint_aliasses[1][R_ANKLE_ROLL] = std::string(
+            "Device/SubDeviceList/RAnkleRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][R_ELBOW_ROLL] = std::string(
+            "Device/SubDeviceList/RElbowRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][R_ELBOW_YAW] = std::string(
+            "Device/SubDeviceList/RElbowYaw/Hardness/Actuator/Value");
+    joint_aliasses[1][R_HAND] = std::string(
+            "Device/SubDeviceList/RHand/Hardness/Actuator/Value");
+    joint_aliasses[1][R_HIP_PITCH] = std::string(
+            "Device/SubDeviceList/RHipPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][R_HIP_ROLL] = std::string(
+            "Device/SubDeviceList/RHipRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][R_KNEE_PITCH] = std::string(
+            "Device/SubDeviceList/RKneePitch/Hardness/Actuator/Value");
+    joint_aliasses[1][R_SHOULDER_PITCH] = std::string(
+            "Device/SubDeviceList/RShoulderPitch/Hardness/Actuator/Value");
+    joint_aliasses[1][R_SHOULDER_ROLL] = std::string(
+            "Device/SubDeviceList/RShoulderRoll/Hardness/Actuator/Value");
+    joint_aliasses[1][R_WRIST_YAW] = std::string(
+            "Device/SubDeviceList/RWristYaw/Hardness/Actuator/Value");
+
+    try {
+        this->dcm->createAlias(joint_aliasses);
+    } catch (const AL::ALError &e) {
+        throw ALERROR(getName(), "createHardnessActuatorAlias()",
+                      "Error when creating Alias : " + std::string(e.what()));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::preparePositionActuatorCommand() {
+    this->commands.arraySetSize(6);
+    this->commands[0] = std::string("jointActuator");
+    this->commands[1] = std::string("ClearAll");
+    this->commands[2] = std::string("time-separate");
+    this->commands[3] = 0;
+    this->commands[4].arraySetSize(1);
+    this->commands[5].arraySetSize(25);
+
+    for (int i = 0; i < 25; i++) {
+        this->commands[5][i].arraySetSize(1);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::connectToDCMloop() {
+    this->mem->GetValues(this->local_sensor_values);
+    std::copy(this->local_sensor_values.begin(),
+              this->local_sensor_values.end(), work_actuator_values->begin());
+
+    try {
+        dcm_post_process_connection =
+                this->getParentBroker()->getProxy(
+                        "DCM")->getModule()->atPostProcess(
+                        boost::bind(&HardwareAccessModule::synchronisedDCMcallback,
+                                    this));
+    }
+    catch (const AL::ALError &e) {
+        throw ALERROR(this->getName(), "connectToDCMloop()",
+                      "Error when connecting to DCM postProccess: " +
+                      std::string(e.what()));
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::synchronisedDCMcallback() {
+    int dcm_time;
+
+    try {
+        dcm_time = this->dcm->getTime(0);
+    }
+    catch (const AL::ALError &e) {
+        throw ALERROR(this->getName(), "synchronisedDCMcallback()",
+                      "Error on DCM getTime : " + std::string(e.what()));
+    }
+
+    this->commands[4][0] = dcm_time;
+    {
+        boost::lock_guard<boost::mutex> guard(this->actuator_mutex);
+        for (int i = 0; i < 25; i++) {
+            this->commands[5][i][0] = this->work_actuator_values->at(i);
+        }
+    }
+
+    try {
+        this->dcm->setAlias(commands);
+    }
+    catch (const AL::ALError &e) {
+        throw ALERROR(this->getName(), "synchronisedDCMcallback()",
+                      "Error when sending command to DCM : " +
+                      std::string(e.what()));
+    }
+}
