@@ -5,7 +5,7 @@ option(USE_QIBUILD "Build project with qibuild" ON)
 
 set(RD_MODULES
         HardwareAccess
-        Kinematics
+#        Kinematics
 )
 
 ################################################################################
@@ -68,7 +68,9 @@ foreach (MODULE ${RD_MODULES})
                             qi_use_lib(${TARGET} ${RD_REQUIRED_PACKAGES})
                         endif()
 
-                        qi_install(TARGET ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
+                        if(NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
+                            qi_install(TARGET ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
+                        endif()
                     else()
                         # Build without qibuild
                         set(${MODULE}_${TARGET}_INCLUDE_DIRS)
@@ -87,10 +89,13 @@ foreach (MODULE ${RD_MODULES})
                         endif ()
 
                         if(NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
-                            target_include_directories(${TARGET} PUBLIC ${${MODULE}_${TARGET}_INCLUDE_DIRS})
+                            target_include_directories(${TARGET} PRIVATE ${${MODULE}_${TARGET}_INCLUDE_DIRS})
                             target_link_libraries(${TARGET} ${${MODULE}_${TARGET}_LIBS})
                         endif()
-                        install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
+
+                        if(NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
+                            install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
+                        endif()
 
                     endif ()
                 else()
