@@ -7,12 +7,15 @@ set(RD_TARGET
 )
 
 set(RD_SRCS
+	V4LRobotCamera.cpp
         HardwareAccessModule.cpp
         main.cpp
 )
 
 set(RD_REQUIRED_PACKAGES
         Boost
+	OPENCV2_CORE
+	OPENCV2_HIGHGUI
         ALCOMMON
         ALMEMORYFASTACCESS
         ALPROXIES
