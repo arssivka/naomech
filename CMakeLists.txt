@@ -69,7 +69,8 @@ foreach (MODULE ${RD_MODULES})
                         endif()
 
                         if(NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
-                            qi_install(TARGET ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
+                            # TODO use qi_build
+                            install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
                         endif()
                     else()
                         # Build without qibuild
