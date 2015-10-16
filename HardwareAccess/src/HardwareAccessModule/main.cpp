@@ -24,7 +24,7 @@ ALCALL int _createModule(boost::shared_ptr<AL::ALBroker> pBroker)
     AL::ALBrokerManager::setInstance(pBroker->fBrokerManager.lock());
     AL::ALBrokerManager::getInstance()->addBroker(pBroker);
     // create module instances
-    AL::ALModule::createModule<HardwareAccessModule>(pBroker, "RD/HardeareAccessModule");
+    AL::ALModule::createModule<HardwareAccessModule>(pBroker, "RD/HardwareAccessModule");
     return 0;
 }
 

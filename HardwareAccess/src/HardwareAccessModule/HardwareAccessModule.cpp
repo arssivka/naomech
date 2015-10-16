@@ -3,6 +3,7 @@
 //
 
 #include "RD/HardwareAccessModule/HardwareAccessModule.h"
+#include "RD/HardwareAccessModule/V4LRobotCamera.h"
 
 #include <alcommon/alproxy.h>
 #include <alcommon/albroker.h>
@@ -38,7 +39,22 @@ HardwareAccessModule::HardwareAccessModule(boost::shared_ptr<AL::ALBroker> broke
                        "get data from all sensors");
     this->setReturn("values", "return values from all sensors");
     BIND_METHOD(HardwareAccessModule::getSensorsValues);
+	
+	this->functionName("stopStream", this->getName(), "stop robot cameras");
+	BIND_METHOD(HardwareAccessModule::stopStream);
 
+	this->functionName("getImageBufferTop", this->getName(), "get image buffer from top camera");
+	this->setReturn("alvalue", "string with binary data");
+	BIND_METHOD(HardwareAccessModule::getImageBufferTop);
+
+	this->functionName("getImageBufferBot", this->getName(), "get image buffer from bottom camera");
+        this->setReturn("alvalue", "string with binary data");
+        BIND_METHOD(HardwareAccessModule::getImageBufferBot);
+
+	this->functionName("checkDevices", this->getName(), "check if cameras are ok");
+        this->setReturn("boolean", "true if cameras started normally");
+        BIND_METHOD(HardwareAccessModule::checkDevices);
+	
     long isDCMRunning;
     try {
         this->dcm = this->getParentBroker()->getDcmProxy();
@@ -141,6 +157,14 @@ AL::ALValue HardwareAccessModule::getSensorsValues() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void HardwareAccessModule::init() {
+
+	topCamera = boost::shared_ptr<V4LRobotCamera>(new V4LRobotCamera("/dev/video0", 320, 240, true));
+        bottomCamera = boost::shared_ptr<V4LRobotCamera>(new V4LRobotCamera("/dev/video1", 320, 240, true));
+        topCamera->setFPS(25);
+        bottomCamera->setFPS(25);
+        topCamera->startCapturing();
+        bottomCamera->startCapturing();	
+
     this->initFastAccess();
     this->createPositionActuatorAlias();
     this->createHardnessActuatorAlias();
@@ -445,3 +469,37 @@ void HardwareAccessModule::synchronisedDCMcallback() {
                       std::string(e.what()));
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool HardwareAccessModule::checkDevices() {
+        return (topCamera -> isStartOk() && bottomCamera -> isStartOk());
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+AL::ALValue HardwareAccessModule::getImageBufferTop() {
+        unsigned char* image = topCamera->captureImage();
+        AL::ALValue alimage;
+        alimage.arraySetSize(1);
+        alimage[0] = std::string(reinterpret_cast<char*>(image));
+        return alimage;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+AL::ALValue HardwareAccessModule::getImageBufferBot() {
+        unsigned char* image = bottomCamera->captureImage();
+        AL::ALValue alimage;
+        alimage.arraySetSize(1);
+        alimage[0] = std::string(reinterpret_cast<char*>(image));
+        return alimage;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::stopStream() {
+        topCamera->stopCapturing();
+        bottomCamera->stopCapturing();
+}
+

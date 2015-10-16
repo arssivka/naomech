@@ -5,6 +5,7 @@
 #ifndef NAOMECH_FASTACCESSMODULE_H
 #define NAOMECH_FASTACCESSMODULE_H
 
+#include "V4LRobotCamera.h"
 #include <alcommon/almodule.h>
 #include <boost/shared_ptr.hpp>
 
@@ -23,6 +24,14 @@ namespace RD {
         virtual ~HardwareAccessModule();
 
         virtual void init();
+
+	void stopStream();
+	
+	bool checkDevices();
+	
+	AL::ALValue getImageBufferTop();
+	
+	AL::ALValue getImageBufferBot();
 
     private:
         void setJointValues(const AL::ALValue &values);
@@ -60,6 +69,9 @@ namespace RD {
 
         boost::shared_ptr<std::vector<float> > work_actuator_values;
         AL::ALValue commands;
+	
+	boost::shared_ptr<V4LRobotCamera> topCamera;
+	boost::shared_ptr<V4LRobotCamera> bottomCamera;
     };
 
 
