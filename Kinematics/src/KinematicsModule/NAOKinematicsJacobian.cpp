@@ -1,5 +1,5 @@
-#include "libNAOKinematics/NAOKinematics.h"
-#include "libNAOKinematics/KinematicsDefines.h"
+#include "RD/KinematicsModule/NAOKinematics.h"
+#include "RD/KinematicsModule/KinematicsDefines.h"
 
 #define TOL 1e-2
 #define MAXITER 50

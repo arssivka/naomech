@@ -5,7 +5,7 @@ option(USE_QIBUILD "Build project with qibuild" ON)
 
 set(RD_MODULES
         HardwareAccess
-#        Kinematics
+        Kinematics
 )
 
 ################################################################################
