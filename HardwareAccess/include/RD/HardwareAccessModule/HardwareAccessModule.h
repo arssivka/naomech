@@ -2,8 +2,8 @@
 // Created by arssivka on 10/5/15.
 //
 
-#ifndef NAOMECH_FASTACCESSMODULE_H
-#define NAOMECH_FASTACCESSMODULE_H
+#ifndef NAOMECH_HARDWAREACCESSMODULE_H
+#define NAOMECH_HARDWAREACCESSMODULE_H
 
 #include "V4LRobotCamera.h"
 #include <alcommon/almodule.h>
@@ -19,19 +19,19 @@ namespace RD {
     class HardwareAccessModule : public AL::ALModule {
     public:
         HardwareAccessModule(boost::shared_ptr<AL::ALBroker> pBroker,
-                         const std::string &pName);
+                             const std::string &pName);
 
         virtual ~HardwareAccessModule();
 
         virtual void init();
 
-	void stopStream();
-	
-	bool checkDevices();
-	
-	AL::ALValue getImageBufferTop();
-	
-	AL::ALValue getImageBufferBot();
+        void stopStream();
+
+        bool checkDevices();
+
+        AL::ALValue getImageBufferTop();
+
+        AL::ALValue getImageBufferBot();
 
     private:
         void setJointValues(const AL::ALValue &values);
@@ -56,6 +56,8 @@ namespace RD {
 
         void preparePositionActuatorCommand();
 
+        void initDCM();
+
         ProcessSignalConnection dcm_post_process_connection;
         boost::shared_ptr<AL::ALMemoryFastAccess> mem;
         boost::shared_ptr<AL::DCMProxy> dcm;
@@ -69,9 +71,9 @@ namespace RD {
 
         boost::shared_ptr<std::vector<float> > work_actuator_values;
         AL::ALValue commands;
-	
-	boost::shared_ptr<V4LRobotCamera> topCamera;
-	boost::shared_ptr<V4LRobotCamera> bottomCamera;
+
+        boost::shared_ptr<V4LRobotCamera> top_camera;
+        boost::shared_ptr<V4LRobotCamera> bottom_camera;
     };
 
 
@@ -117,4 +119,4 @@ namespace RD {
     };
 }
 
-#endif //NAOMECH_FASTACCESSMODULE_H
+#endif //NAOMECH_HARDWAREACCESSMODULE_H

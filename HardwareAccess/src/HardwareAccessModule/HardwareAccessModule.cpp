@@ -3,20 +3,19 @@
 //
 
 #include "RD/HardwareAccessModule/HardwareAccessModule.h"
-#include "RD/HardwareAccessModule/V4LRobotCamera.h"
 
 #include <alcommon/alproxy.h>
 #include <alcommon/albroker.h>
 #include <alproxies/dcmproxy.h>
 #include <almemoryfastaccess/almemoryfastaccess.h>
 #include <alproxies/altexttospeechproxy.h>
-#include <algorithm>
 #include <fstream>
 
 using namespace RD;
 
-HardwareAccessModule::HardwareAccessModule(boost::shared_ptr<AL::ALBroker> broker,
-                                   const std::string &name)
+HardwareAccessModule::HardwareAccessModule(
+        boost::shared_ptr<AL::ALBroker> broker,
+        const std::string &name)
         : AL::ALModule(broker, name), mem(
         boost::shared_ptr<AL::ALMemoryFastAccess>(
                 new AL::ALMemoryFastAccess())), sensor_keys(25),
@@ -39,22 +38,25 @@ HardwareAccessModule::HardwareAccessModule(boost::shared_ptr<AL::ALBroker> broke
                        "get data from all sensors");
     this->setReturn("values", "return values from all sensors");
     BIND_METHOD(HardwareAccessModule::getSensorsValues);
-	
-	this->functionName("stopStream", this->getName(), "stop robot cameras");
-	BIND_METHOD(HardwareAccessModule::stopStream);
 
-	this->functionName("getImageBufferTop", this->getName(), "get image buffer from top camera");
-	this->setReturn("alvalue", "string with binary data");
-	BIND_METHOD(HardwareAccessModule::getImageBufferTop);
+    this->functionName("stopStream", this->getName(), "stop robot cameras");
+    BIND_METHOD(HardwareAccessModule::stopStream);
 
-	this->functionName("getImageBufferBot", this->getName(), "get image buffer from bottom camera");
-        this->setReturn("alvalue", "string with binary data");
-        BIND_METHOD(HardwareAccessModule::getImageBufferBot);
+    this->functionName("getImageBufferTop", this->getName(),
+                       "get image buffer from top camera");
+    this->setReturn("alvalue", "string with binary data");
+    BIND_METHOD(HardwareAccessModule::getImageBufferTop);
 
-	this->functionName("checkDevices", this->getName(), "check if cameras are ok");
-        this->setReturn("boolean", "true if cameras started normally");
-        BIND_METHOD(HardwareAccessModule::checkDevices);
-	
+    this->functionName("getImageBufferBot", this->getName(),
+                       "get image buffer from bottom camera");
+    this->setReturn("alvalue", "string with binary data");
+    BIND_METHOD(HardwareAccessModule::getImageBufferBot);
+
+    this->functionName("checkDevices", this->getName(),
+                       "check if cameras are ok");
+    this->setReturn("boolean", "true if cameras started normally");
+    BIND_METHOD(HardwareAccessModule::checkDevices);
+
     long isDCMRunning;
     try {
         this->dcm = this->getParentBroker()->getDcmProxy();
@@ -106,7 +108,8 @@ void HardwareAccessModule::setJointValues(const AL::ALValue &values) {
     if (values.getSize() < 25) {
         return;
     }
-    boost::shared_ptr<std::vector<float> > local_actuator_values(new std::vector<float>(25));
+    boost::shared_ptr<std::vector<float> > local_actuator_values(
+            new std::vector<float>(25));
     for (int i = 0; i < 25; ++i) {
         local_actuator_values->at(i) = (float) values[i];
     }
@@ -158,12 +161,14 @@ AL::ALValue HardwareAccessModule::getSensorsValues() {
 
 void HardwareAccessModule::init() {
 
-	topCamera = boost::shared_ptr<V4LRobotCamera>(new V4LRobotCamera("/dev/video0", 320, 240, true));
-        bottomCamera = boost::shared_ptr<V4LRobotCamera>(new V4LRobotCamera("/dev/video1", 320, 240, true));
-        topCamera->setFPS(25);
-        bottomCamera->setFPS(25);
-        topCamera->startCapturing();
-        bottomCamera->startCapturing();	
+    this->top_camera = boost::shared_ptr<V4LRobotCamera>(
+            new V4LRobotCamera("/dev/video0", 320, 240, true));
+    this->bottom_camera = boost::shared_ptr<V4LRobotCamera>(
+            new V4LRobotCamera("/dev/video1", 320, 240, true));
+    this->top_camera->setFPS(25);
+    this->bottom_camera->setFPS(25);
+    this->top_camera->startCapturing();
+    this->bottom_camera->startCapturing();
 
     this->initFastAccess();
     this->createPositionActuatorAlias();
@@ -422,15 +427,17 @@ void HardwareAccessModule::preparePositionActuatorCommand() {
 
 void HardwareAccessModule::connectToDCMloop() {
     this->mem->GetValues(this->local_sensor_values);
-    std::copy(this->local_sensor_values.begin(),
-              this->local_sensor_values.end(), work_actuator_values->begin());
+    for (int i = 0; i < 25; ++i) {
+        this->work_actuator_values->at(i) = this->local_sensor_values.at(i);
+    }
 
     try {
         dcm_post_process_connection =
                 this->getParentBroker()->getProxy(
                         "DCM")->getModule()->atPostProcess(
-                        boost::bind(&HardwareAccessModule::synchronisedDCMcallback,
-                                    this));
+                        boost::bind(
+                                &HardwareAccessModule::synchronisedDCMcallback,
+                                this));
     }
     catch (const AL::ALError &e) {
         throw ALERROR(this->getName(), "connectToDCMloop()",
@@ -473,33 +480,33 @@ void HardwareAccessModule::synchronisedDCMcallback() {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool HardwareAccessModule::checkDevices() {
-        return (topCamera -> isStartOk() && bottomCamera -> isStartOk());
+    return this->top_camera->isStartOk() && this->bottom_camera->isStartOk();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue HardwareAccessModule::getImageBufferTop() {
-        unsigned char* image = topCamera->captureImage();
-        AL::ALValue alimage;
-        alimage.arraySetSize(1);
-        alimage[0] = std::string(reinterpret_cast<char*>(image));
-        return alimage;
+    unsigned char *image = this->top_camera->captureImage();
+    AL::ALValue alimage;
+    alimage.arraySetSize(1);
+    alimage[0] = std::string(reinterpret_cast<char *>(image));
+    return alimage;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue HardwareAccessModule::getImageBufferBot() {
-        unsigned char* image = bottomCamera->captureImage();
-        AL::ALValue alimage;
-        alimage.arraySetSize(1);
-        alimage[0] = std::string(reinterpret_cast<char*>(image));
-        return alimage;
+    unsigned char *image = this->bottom_camera->captureImage();
+    AL::ALValue alimage;
+    alimage.arraySetSize(1);
+    alimage[0] = std::string(reinterpret_cast<char *>(image));
+    return alimage;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 
 void HardwareAccessModule::stopStream() {
-        topCamera->stopCapturing();
-        bottomCamera->stopCapturing();
+    this->top_camera->stopCapturing();
+    this->bottom_camera->stopCapturing();
 }
 
