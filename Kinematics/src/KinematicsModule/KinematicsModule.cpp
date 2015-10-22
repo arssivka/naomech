@@ -8,9 +8,6 @@
 #include <alcommon/albroker.h>
 #include <almemoryfastaccess/almemoryfastaccess.h>
 #include <alproxies/altexttospeechproxy.h>
-#include <algorithm>
-
-#include <RD/KinematicsModule/NAOKinematics.h>
 
 using namespace RD;
 using namespace boost;
@@ -30,7 +27,7 @@ KinematicsModule::KinematicsModule(shared_ptr<AL::ALBroker> pBroker,
                                    const string &pName)
         : AL::ALModule(pBroker, pName), mem(new AL::ALMemoryFastAccess()),
           positions(KDeviceLists::CHAINS_SIZE),
-          positions_mask(KDeviceLists::CHAINS_SIZE) {
+          positions_mask(KDeviceLists::CHAINS_SIZE, false) {
     this->setModuleDescription("NAO Kinematics module.");
 
 
@@ -71,12 +68,12 @@ KinematicsModule::KinematicsModule(shared_ptr<AL::ALBroker> pBroker,
     this->functionName("setLeftLegPosition", this->getName(),
                        "set left leg position and orientation in space");
     this->addParam("pos", "position and orientation");
-    BIND_METHOD(KinematicsModule::setLeftHandPosition);
+    BIND_METHOD(KinematicsModule::setLeftLegPosition);
 
     this->functionName("setRightLegPosition", this->getName(),
                        "set right leg position and orientation in space");
     this->addParam("pos", "position and orientation");
-    BIND_METHOD(KinematicsModule::setRightHandPosition);
+    BIND_METHOD(KinematicsModule::setRightLegPosition);
 
     this->functionName("getHeadPosition", this->getName(),
                        "get center of mass");
@@ -121,6 +118,7 @@ void KinematicsModule::init() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void KinematicsModule::update() {
+    vector<float> kjoints;
     {
         lock_guard<mutex> guard(this->positions_mut);
         fill(this->positions_mask.begin(), this->positions_mask.end(), false);
@@ -128,14 +126,26 @@ void KinematicsModule::update() {
     {
         lock_guard<mutex> guard(this->joints_mut);
         this->mem->GetValues(this->joint_values);
+        kjoints = this->joint_values;
+    }
+    kjoints.erase(kjoints.begin() + R_HAND);
+    kjoints.erase(kjoints.begin() + L_HAND);
+    {
+        lock_guard<mutex> guard(this->kinematics_mut);
+        this->kinematics->setJoints(kjoints);
+
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void KinematicsModule::apply() {
-    lock_guard<mutex> guard(this->joints_mut);
-    AL::ALValue data(this->joint_values);
+    this->calculateJoints();
+    AL::ALValue data;
+    {
+        lock_guard<mutex> guard(this->joints_mut);
+        data = AL::ALValue(this->joint_values);
+    }
     this->hw->callVoid("setJointValues", data);
 }
 
@@ -143,12 +153,13 @@ void KinematicsModule::apply() {
 
 AL::ALValue KinematicsModule::getJoints() {
     AL::ALValue ret_data;
-    ret_data.arraySetSize(this->joint_values.size());
     this->calculateJoints();
     {
         lock_guard<mutex> guard(this->joints_mut);
-        for (int i = 0; i < this->joint_values.size(); ++i) {
-            ret_data = this->joint_values.at(i);
+        int size = this->joint_values.size();
+        ret_data.arraySetSize(size);
+        for (int i = 0; i < size; ++i) {
+            ret_data[i] = this->joint_values[i];
         }
     }
     return ret_data;
@@ -209,6 +220,7 @@ void KinematicsModule::setRightLegPosition(AL::ALValue pos) {
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue KinematicsModule::getHeadPosition(bool top_camera) {
+    this->calculateJoints();
     return this->getPosition(
             (top_camera)
             ? NAOKinematics::EFF_CAMERA_TOP
@@ -218,6 +230,7 @@ AL::ALValue KinematicsModule::getHeadPosition(bool top_camera) {
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue KinematicsModule::getLeftHandPosition() {
+    this->calculateJoints();
     return this->getPosition(
             (NAOKinematics::Effectors) KDeviceLists::CHAIN_L_ARM);
 }
@@ -225,6 +238,7 @@ AL::ALValue KinematicsModule::getLeftHandPosition() {
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue KinematicsModule::getRightHandPosition() {
+    this->calculateJoints();
     return this->getPosition(
             (NAOKinematics::Effectors) KDeviceLists::CHAIN_R_ARM);
 }
@@ -232,6 +246,7 @@ AL::ALValue KinematicsModule::getRightHandPosition() {
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue KinematicsModule::getLeftLegPosition() {
+    this->calculateJoints();
     return this->getPosition(
             (NAOKinematics::Effectors) KDeviceLists::CHAIN_L_LEG);
 }
@@ -239,6 +254,7 @@ AL::ALValue KinematicsModule::getLeftLegPosition() {
 ////////////////////////////////////////////////////////////////////////////////
 
 AL::ALValue KinematicsModule::getRightLegPosition() {
+    this->calculateJoints();
     return this->getPosition(
             (NAOKinematics::Effectors) KDeviceLists::CHAIN_R_LEG);
 }
@@ -294,6 +310,8 @@ void KinematicsModule::initFastAccess() {
             "Device/SubDeviceList/RHipPitch/Position/Sensor/Value");
     this->sensor_keys[R_HIP_ROLL] = string(
             "Device/SubDeviceList/RHipRoll/Position/Sensor/Value");
+    this->sensor_keys[R_HIP_YAW_PITCH] = string(
+            "Device/SubDeviceList/RHipYawPitch/Position/Sensor/Value");
     this->sensor_keys[R_KNEE_PITCH] = string(
             "Device/SubDeviceList/RKneePitch/Position/Sensor/Value");
     this->sensor_keys[R_SHOULDER_PITCH] = string(
@@ -318,8 +336,7 @@ void KinematicsModule::initKinematics() {
 void KinematicsModule::initHW() {
     try {
         this->hw = make_shared<AL::ALProxy>(this->getParentBroker(),
-                                                   string(
-                                                           "RD/HardwareAccessModule"));
+                                            string("RD/HardwareAccessModule"));
     } catch (const AL::ALError &e) {
         throw ALERROR(this->getName(), "initHW()",
                       "Error when connecting to hardware access module");
@@ -330,17 +347,17 @@ void KinematicsModule::initHW() {
 
 inline AL::ALValue KinematicsModule::getPosition(NAOKinematics::Effectors ef) {
     NAOKinematics::kmatTable pos;
+    this->calculateJoints();
     {
         lock_guard<mutex> guard(this->joints_mut);
-        this->calculateJoints();
         pos = this->kinematics->getForwardEffector(ef);
     }
-    KMath::KMat::GenMatrix<double, 3, 1> angles;
+    KMath::KMat::GenMatrix<float, 3, 1> angles;
     angles = pos.getEulerAngles();
     return AL::ALValue::array(
             pos.get(0, 3),
             pos.get(1, 3),
-            pos(2, 3),
+            pos.get(2, 3),
             angles.get(0, 0),
             angles.get(1, 0),
             angles.get(2, 0));
@@ -350,34 +367,35 @@ inline AL::ALValue KinematicsModule::getPosition(NAOKinematics::Effectors ef) {
 
 inline NAOKinematics::FKvars KinematicsModule::prepareFKvars(
         const AL::ALValue &pos) {
-    NAOKinematics::FKvars p;
-    p.p.get(0, 0) = pos[0];
-    p.p.get(1, 0) = pos[1];
-    p.p.get(2, 0) = pos[2];
-    p.a.get(0, 0) = pos[3];
-    p.a.get(1, 0) = pos[4];
-    p.a.get(2, 0) = pos[5];
-    return p;
+    NAOKinematics::FKvars fk;
+    fk.p.get(0, 0) = pos[0];
+    fk.p.get(1, 0) = pos[1];
+    fk.p.get(2, 0) = pos[2];
+    fk.a.get(0, 0) = pos[3];
+    fk.a.get(1, 0) = pos[4];
+    fk.a.get(2, 0) = pos[5];
+    return fk;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void KinematicsModule::calculateJoints() {
     NAOKinematics::AngleContainer angles;
-    vector<NAOKinematics::FKvars> positions;
-    vector<bool> positions_mask;
+    vector<NAOKinematics::FKvars> positions(KDeviceLists::CHAINS_SIZE);
+    vector<bool> positions_mask(KDeviceLists::CHAINS_SIZE);
     vector<float>::iterator joint_values_it;
     bool top_camera;
 
     {
         lock_guard<mutex> guard(this->positions_mut);
-        positions = this->positions;
-        positions_mask = this->positions_mask;
+        copy(this->positions.begin(), this->positions.end(), positions.begin());
+        copy(this->positions_mask.begin(), this->positions_mask.end(),
+             positions_mask.begin());
         top_camera = this->top_camera;
         fill(this->positions_mask.begin(), this->positions_mask.end(),
                   false);
     }
-    
+
     if (positions_mask[KDeviceLists::CHAIN_HEAD]) {
         {
             lock_guard<mutex> guard(this->kinematics_mut);
@@ -399,8 +417,7 @@ void KinematicsModule::calculateJoints() {
                     positions[KDeviceLists::CHAIN_L_ARM]);
         }
         if (!angles.empty()) {
-            joint_values_it = this->joint_values.begin();
-            advance(joint_values_it, L_ARM_GROUP);
+            joint_values_it = this->joint_values.begin() + L_ARM_GROUP;
             lock_guard<mutex> guard(this->joints_mut);
             copy(angles[0].begin(), angles[0].end(), joint_values_it);
         }
@@ -413,8 +430,7 @@ void KinematicsModule::calculateJoints() {
                     positions[KDeviceLists::CHAIN_L_LEG]);
         }
         if (!angles.empty()) {
-            joint_values_it = this->joint_values.begin();
-            advance(joint_values_it, L_LEG_GROUP);
+            joint_values_it = this->joint_values.begin() + L_LEG_GROUP;
             lock_guard<mutex> guard(this->joints_mut);
             copy(angles[0].begin(), angles[0].end(), joint_values_it);
         }
@@ -427,8 +443,7 @@ void KinematicsModule::calculateJoints() {
                     positions[KDeviceLists::CHAIN_R_ARM]);
         }
         if (!angles.empty()) {
-            joint_values_it = this->joint_values.begin();
-            advance(joint_values_it, R_ARM_GROUP);
+            joint_values_it = this->joint_values.begin() + R_ARM_GROUP;
             lock_guard<mutex> guard(this->joints_mut);
             copy(angles[0].begin(), angles[0].end(), joint_values_it);
         }
@@ -441,8 +456,7 @@ void KinematicsModule::calculateJoints() {
                     positions[KDeviceLists::CHAIN_R_LEG]);
         }
         if (!angles.empty()) {
-            joint_values_it = this->joint_values.begin();
-            advance(joint_values_it, R_LEG_GROUP);
+            joint_values_it = this->joint_values.begin() + R_LEG_GROUP;
             lock_guard<mutex> guard(this->joints_mut);
             copy(angles[0].begin(), angles[0].end(), joint_values_it);
         }
