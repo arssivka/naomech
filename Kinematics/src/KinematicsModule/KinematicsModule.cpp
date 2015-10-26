@@ -146,7 +146,26 @@ void KinematicsModule::apply() {
         lock_guard<mutex> guard(this->joints_mut);
         data = AL::ALValue(this->joint_values);
     }
-    this->hw->callVoid("setJointValues", data);
+    this->hw->callVoid("setJoints", data);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void KinematicsModule::setJoints(const AL::ALValue &values) {
+    if (values.getSize() < NUM_OF_JOINTS) {
+        return;
+    }
+    {
+        lock_guard<mutex> guard(this->positions_mut);
+        fill(this->positions_mask.begin(), this->positions_mask.end(), false);
+
+    }
+    {
+        lock_guard<mutex> guard(this->kinematics_mut);
+        for (int i = 0; i < NUM_OF_JOINTS; ++i) {
+            this->joint_values[i] = values[i];
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,10 +282,10 @@ AL::ALValue KinematicsModule::getRightLegPosition() {
 
 void KinematicsModule::initFastAccess() {
     this->joint_values.clear();
-    this->joint_values.resize(SENSORS_COUNT);
+    this->joint_values.resize(NUM_OF_JOINTS);
 
     this->sensor_keys.clear();
-    this->sensor_keys.resize(SENSORS_COUNT);
+    this->sensor_keys.resize(NUM_OF_JOINTS);
     // Joints Sensor list
     this->sensor_keys[HEAD_PITCH] = string(
             "Device/SubDeviceList/HeadPitch/Position/Sensor/Value");

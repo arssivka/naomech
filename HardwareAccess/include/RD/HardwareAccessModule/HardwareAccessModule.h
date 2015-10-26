@@ -5,9 +5,10 @@
 #ifndef NAOMECH_HARDWAREACCESSMODULE_H
 #define NAOMECH_HARDWAREACCESSMODULE_H
 
-#include "V4LRobotCamera.h"
 #include <alcommon/almodule.h>
 #include <boost/shared_ptr.hpp>
+#include "RD/HardwareAccessModule/V4LRobotCamera.h"
+
 
 namespace AL {
     class ALBroker;
@@ -34,7 +35,7 @@ namespace RD {
         AL::ALValue getImageBufferBot();
 
     private:
-        void setJointValues(const AL::ALValue &values);
+        void setJoints(const AL::ALValue &values);
 
         void setStiffness(const float &stiffnessValue);
 
@@ -74,49 +75,6 @@ namespace RD {
 
         boost::shared_ptr<V4LRobotCamera> top_camera;
         boost::shared_ptr<V4LRobotCamera> bottom_camera;
-    };
-
-
-    enum SensorType {
-        HEAD_YAW, HEAD_PITCH,
-        L_SHOULDER_PITCH,
-        L_SHOULDER_ROLL,
-        L_ELBOW_YAW,
-        L_ELBOW_ROLL,
-        L_WRIST_YAW,
-        L_HAND,
-        L_HIP_YAW_PITCH,
-        L_HIP_ROLL,
-        L_HIP_PITCH,
-        L_KNEE_PITCH,
-        L_ANKLE_PITCH,
-        L_ANKLE_ROLL,
-        R_HIP_YAW_PITCH,
-        R_HIP_ROLL,
-        R_HIP_PITCH,
-        R_KNEE_PITCH,
-        R_ANKLE_PITCH,
-        R_ANKLE_ROLL,
-        R_SHOULDER_PITCH,
-        R_SHOULDER_ROLL,
-        R_ELBOW_YAW,
-        R_ELBOW_ROLL,
-        R_WRIST_YAW,
-        R_HAND,
-        ACC_X,
-        ACC_Y,
-        ACC_Z,
-        GYR_X,
-        GYR_Y,
-        ANGLE_X,
-        ANGLE_Y,
-        L_COP_X,
-        L_COP_Y,
-        L_TOTAL_WEIGHT,
-        R_COP_X,
-        R_COP_Y,
-        R_TOTAL_WEIGHT,
-        SENSORS_COUNT
     };
 }
 

@@ -9,12 +9,13 @@
 #include <alproxies/dcmproxy.h>
 #include <almemoryfastaccess/almemoryfastaccess.h>
 #include <alproxies/altexttospeechproxy.h>
+#include "RD/HardwareAccessModule/HardwareDefines.h"
+
 
 using namespace RD;
 using namespace std;
 using namespace boost;
 
-#define NUM_OF_JOINTS 26
 
 HardwareAccessModule::HardwareAccessModule(
         shared_ptr<AL::ALBroker> broker,
@@ -27,10 +28,10 @@ HardwareAccessModule::HardwareAccessModule(
 
     this->setModuleDescription("Fast access to hardware.");
 
-    this->functionName("setJointValues", this->getName(),
+    this->functionName("setJoints", this->getName(),
                        "change positions of all joint");
     this->addParam("values", "new positions of all (NUM_OF_JOINTS) joints");
-    BIND_METHOD(HardwareAccessModule::setJointValues);
+    BIND_METHOD(HardwareAccessModule::setJoints);
 
     this->functionName("setStiffness", this->getName(),
                        "change stiffness of all joint");
@@ -107,7 +108,7 @@ void HardwareAccessModule::stopLoop() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void HardwareAccessModule::setJointValues(const AL::ALValue &values) {
+void HardwareAccessModule::setJoints(const AL::ALValue &values) {
     if (values.getSize() < NUM_OF_JOINTS) {
         return;
     }
