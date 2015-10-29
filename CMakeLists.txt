@@ -28,10 +28,19 @@ foreach (MODULE ${RD_MODULES})
         # Include directory from module
         set(${MODULE}_MODULE_INCLUDE_DIR ${${MODULE}_MODULE_DIR}/include
                 CACHE FILEPATH "Path to includes for ${MODULE} module")
+        set(${MODULE}_INCLUDE_FILES "")
         if (EXISTS ${${MODULE}_MODULE_INCLUDE_DIR})
             include_directories(${${MODULE}_MODULE_INCLUDE_DIR})
+            file(GLOB_RECURSE _RD_INCLUDE_HS
+                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.h")
+            file(GLOB_RECURSE _RD_INCLUDE_HPPS
+                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.hpp")
+            file(GLOB_RECURSE _RD_INCLUDE_CPPS
+                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.cpp")
+            list(APPEND ${MODULE}_INCLUDE_FILES
+                    ${_RD_INCLUDE_HS} ${_RD_INCLUDE_HPPS} ${_RD_INCLUDE_CPPS})
         else()
-            message(WARNING "${${MODULE}_MODULE_INCLUDE_DIR}")
+            message(WARNING "${${MODULE}_MODULE_INCLUDE_DIR} not found")
         endif ()
 
         # Process targets from module
@@ -46,13 +55,13 @@ foreach (MODULE ${RD_MODULES})
                 # Prepare sources list
                 set(${MODULE}_${TARGET}_SRCS)
                 foreach (SRC ${RD_SRCS})
-                    if(EXISTS ${SRC})
+                    if (EXISTS ${SRC})
                         list(APPEND ${MODULE}_${TARGET}_SRCS ${SRC})
                     elseif(EXISTS ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC})
                         list(APPEND ${MODULE}_${TARGET}_SRCS ${${MODULE}_${TARGET}_TARGET_DIR}/${SRC})
                     else()
                         message(WARNING "File ${SRC} don't exits")
-                    endif()
+                    endif ()
                 endforeach ()
 
                 list(LENGTH ${MODULE}_${TARGET}_SRCS ${MODULE}_${TARGET}_SRCS_COUNT)
@@ -60,18 +69,22 @@ foreach (MODULE ${RD_MODULES})
                     if (USE_QIBUILD)
                         # Build with qibuild
                         if (${RD_SHARED})
-                            qi_create_lib(${TARGET} ${${MODULE}_${TARGET}_SRCS} NO_INSTALL)
+                            qi_create_lib(${TARGET}
+                                    ${${MODULE}_${TARGET}_SRCS}
+                                    ${${MODULE}_INCLUDE_FILES} NO_INSTALL)
                         else()
-                            qi_create_bin(${TARGET} ${${MODULE}_${TARGET}_SRCS} NO_INSTALL)
+                            qi_create_bin(${TARGET}
+                                    ${${MODULE}_${TARGET}_SRCS}
+                                    ${${MODULE}_INCLUDE_FILES} NO_INSTALL)
                         endif ()
-                        if(NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
+                        if (NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
                             qi_use_lib(${TARGET} ${RD_REQUIRED_PACKAGES})
-                        endif()
+                        endif ()
 
-                        if(NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
+                        if (NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
                             # TODO use qi_build
                             install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
-                        endif()
+                        endif ()
                     else()
                         # Build without qibuild
                         set(${MODULE}_${TARGET}_INCLUDE_DIRS)
@@ -84,19 +97,23 @@ foreach (MODULE ${RD_MODULES})
                         endforeach ()
 
                         if (${RD_SHARED})
-                            add_library(${TARGET} ${${MODULE}_${TARGET}_SRCS})
+                            add_library(${TARGET}
+                                    ${${MODULE}_${TARGET}_SRCS}
+                                    ${${MODULE}_INCLUDE_FILES})
                         else()
-                            add_executable(${TARGET} ${${MODULE}_${TARGET}_SRCS})
+                            add_executable(${TARGET}
+                                    ${${MODULE}_${TARGET}_SRCS}
+                                    ${${MODULE}_INCLUDE_FILES})
                         endif ()
 
-                        if(NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
+                    if (NOT "${RD_REQUIRED_PACKAGES}" STREQUAL "")
                             target_include_directories(${TARGET} PRIVATE ${${MODULE}_${TARGET}_INCLUDE_DIRS})
                             target_link_libraries(${TARGET} ${${MODULE}_${TARGET}_LIBS})
-                        endif()
+                    endif ()
 
-                        if(NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
+                    if (NOT "${RD_INSTALL_DESTINATION}" STREQUAL "")
                             install(TARGETS ${TARGET} DESTINATION ${RD_INSTALL_DESTINATION})
-                        endif()
+                    endif ()
 
                     endif ()
                 else()
