@@ -32,11 +32,11 @@ foreach (MODULE ${RD_MODULES})
         if (EXISTS ${${MODULE}_MODULE_INCLUDE_DIR})
             include_directories(${${MODULE}_MODULE_INCLUDE_DIR})
             file(GLOB_RECURSE _RD_INCLUDE_HS
-                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.h")
+                    "${${MODULE}_MODULE_INCLUDE_DIR}/*.h")
             file(GLOB_RECURSE _RD_INCLUDE_HPPS
-                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.hpp")
+                    "${${MODULE}_MODULE_INCLUDE_DIR}/*.hpp")
             file(GLOB_RECURSE _RD_INCLUDE_CPPS
-                    "${${MODULE}_MODULE_INCLUDE_DIR}" "*.cpp")
+                    "${${MODULE}_MODULE_INCLUDE_DIR}/*.cpp")
             list(APPEND ${MODULE}_INCLUDE_FILES
                     ${_RD_INCLUDE_HS} ${_RD_INCLUDE_HPPS} ${_RD_INCLUDE_CPPS})
         else()
