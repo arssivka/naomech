@@ -34,6 +34,10 @@ namespace RD {
 
         AL::ALValue getImageBufferBot();
 
+        void loadCalibrationParameters(bool if_top, float cx, float cy, float fx, float fy);
+
+        void calibrateCameras();
+
     private:
         void setJoints(const AL::ALValue &values);
 
@@ -75,6 +79,14 @@ namespace RD {
 
         boost::shared_ptr<V4LRobotCamera> top_camera;
         boost::shared_ptr<V4LRobotCamera> bottom_camera;
+        float top_cx;
+        float top_cy;
+        float top_fx;
+        float top_fy;
+        float bot_cx;
+        float bot_cy;
+        float bot_fx;
+        float bot_fy;
     };
 }
 

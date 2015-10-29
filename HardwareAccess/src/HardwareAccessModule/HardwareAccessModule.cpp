@@ -10,7 +10,7 @@
 #include <almemoryfastaccess/almemoryfastaccess.h>
 #include <alproxies/altexttospeechproxy.h>
 #include "RD/HardwareAccessModule/HardwareDefines.h"
-
+#include <fstream>
 
 using namespace RD;
 using namespace std;
@@ -60,6 +60,20 @@ HardwareAccessModule::HardwareAccessModule(
                        "check if cameras are ok");
     this->setReturn("boolean", "true if cameras started normally");
     BIND_METHOD(HardwareAccessModule::checkDevices);
+
+    this->functionName("loadCalibrationParameters", this->getName(),
+                       "loads intristic parameters of camera to the files");
+
+    this->addParam("if_top", "defines if parameters are for the top camera");
+    this->addParam("cx", "cx intristic parameter");
+    this->addParam("cy", "cx intristic parameter");
+    this->addParam("fx", "cx intristic parameter");
+    this->addParam("fy", "cx intristic parameter");
+    BIND_METHOD(HardwareAccessModule::loadCalibrationParameters);
+
+    this->functionName("calibrateCameras", this->getName(),
+                       "loads intristic parameters from files");
+    BIND_METHOD(HardwareAccessModule::calibrateCameras);
 
     long isDCMRunning;
     try {
@@ -173,6 +187,7 @@ void HardwareAccessModule::init() {
     this->bottom_camera->setFPS(25);
     this->top_camera->startCapturing();
     this->bottom_camera->startCapturing();
+    this->calibrateCameras();
 
     this->initFastAccess();
     this->createPositionActuatorAlias();
@@ -520,3 +535,48 @@ void HardwareAccessModule::stopStream() {
     this->bottom_camera->stopCapturing();
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::loadCalibrationParameters(bool if_top, float cx, float cy, float fx, float fy) {
+    ofstream f;
+    if(if_top) {
+        this->top_cx = cx;
+        this->top_cy = cy;
+        this->top_fx = fx;
+        this->top_fy = fy;
+        f.open("/home/nao/top_param.txt");
+    }
+    else {
+        this->bot_cx = cx;
+        this->bot_cy = cy;
+        this->bot_fx = fx;
+        this->bot_fy = fy;
+        f.open("/home/nao/bot_param.txt");
+    }
+    f << cx << endl;
+    f << cy << endl;
+    f << fx << endl;
+    f << fy;
+    f.close();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+void HardwareAccessModule::calibrateCameras() {
+    ifstream top_f("/home/nao/top_param.txt");
+    if(top_f.is_open()) {
+        top_f >> this->top_cx;
+        top_f >> this->top_cy;
+        top_f >> this->top_fx;
+        top_f >> this->top_fy;
+        top_f.close();
+    }
+    ifstream bot_f("/home/nao/bot_param.txt");
+    if(bot_f.is_open()) {
+        bot_f >> this->top_cx;
+        bot_f >> this->top_cy;
+        bot_f >> this->top_fx;
+        bot_f >> this->top_fy;
+        bot_f.close();
+    }
+}
