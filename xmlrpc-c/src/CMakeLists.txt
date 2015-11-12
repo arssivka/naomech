@@ -1,27 +1,19 @@
 # -*- cmake -*-
 
-set(libxml_INCLUDES ${LIBXML2_CFLAGS})
-set(libxml_LIBS ${LIBXML2_LDFLAGS})
-set(xmlrpc_pkgconfig_req ${libxml_pkgconfig})
+set(CURL_TRANSPORT_DIR ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
 
-
-set(client_curl_CFLAGS ${CURL_CFLAGS})
-set(client_curl_LIBS ${CURL_LDFLAGS} pthread)
-set(xmlrpc_client_pkgconfig_req libcurl)
 list(APPEND transport_SOURCES
-        ${curl_srcdir}/xmlrpc_curl_transport.c
-        ${curl_srcdir}/curltransaction.c
-        ${curl_srcdir}/curltransaction.h
-        ${curl_srcdir}/curlmulti.c
-        ${curl_srcdir}/curlmulti.h
-        ${curl_srcdir}/lock.h
-        ${curl_srcdir}/lock_pthread.c
-        ${curl_srcdir}/lock_pthread.h
-        ${curl_srcdir}/curlversion.h
-        )
+        ${CURL_TRANSPORT_DIR}/xmlrpc_curl_transport.c
+        ${CURL_TRANSPORT_DIR}/curltransaction.c
+        ${CURL_TRANSPORT_DIR}/curltransaction.h
+        ${CURL_TRANSPORT_DIR}/curlmulti.c
+        ${CURL_TRANSPORT_DIR}/curlmulti.h
+        ${CURL_TRANSPORT_DIR}/lock.h
+        ${CURL_TRANSPORT_DIR}/lock_pthread.c
+        ${CURL_TRANSPORT_DIR}/lock_pthread.h
+        ${CURL_TRANSPORT_DIR}/curlversion.h)
 
 add_subdirectory(cpp)
-
 
 ### libxmlrpc.so
 add_library(xmlrpc SHARED
@@ -30,8 +22,7 @@ add_library(xmlrpc SHARED
         xmlrpc_string.c xmlrpc_array.c xmlrpc_struct.c xmlrpc_build.c
         xmlrpc_decompose.c xmlrpc_parse.c xmlrpc_serialize.c
         xmlrpc_authcookie.c)
-target_include_directories(xmlrpc PUBLIC
-        ${XML2_INCLUDE_DIRS})
+target_include_directories(xmlrpc PUBLIC ${XML2_INCLUDE_DIRS})
 target_link_libraries(xmlrpc ${XML2_LIBRARIES} xmlrpc_util)
 list(APPEND lib_TARGETS xmlrpc)
 
@@ -39,10 +30,9 @@ list(APPEND lib_TARGETS xmlrpc)
 add_library(xmlrpc_client SHARED
         xmlrpc_client.c xmlrpc_client_global.c xmlrpc_server_info.c ${transport_SOURCES})
 
-target_link_libraries(xmlrpc_client xmlrpc ${client_LIBS})
-target_include_directories(xmlrpc_client PUBLIC
-        ${CURL_INCLUDE_DIRS}
-        ${curl_srcdir})
+target_link_libraries(xmlrpc_client xmlrpc pthread ${CURL_LIBRARIES})
+target_include_directories(xmlrpc_client PUBLIC ${CURL_INCLUDE_DIRS}
+        ${CURL_TRANSPORT_DIR})
 
 list(APPEND lib_TARGETS xmlrpc_client)
 
@@ -54,8 +44,7 @@ list(APPEND lib_TARGETS xmlrpc_server)
 
 ### libxmlrpc_server_abyss.so
 if (ENABLE_ABYSS_SERVER)
-    add_library(xmlrpc_server_abyss SHARED
-            xmlrpc_server_abyss.c abyss_handler.c)
+    add_library(xmlrpc_server_abyss SHARED xmlrpc_server_abyss.c abyss_handler.c)
     target_link_libraries(xmlrpc_server_abyss xmlrpc_abyss xmlrpc_server)
     list(APPEND lib_TARGETS xmlrpc_server_abyss)
 endif (ENABLE_ABYSS_SERVER)

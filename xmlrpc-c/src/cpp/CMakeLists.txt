@@ -46,7 +46,7 @@ add_library(xmlrpc_client++ SHARED
         client.cpp client_simple.cpp curl.cpp pstream.cpp)
 target_link_libraries(xmlrpc_client++ xmlrpc++ xmlrpc_client xmlrpc_packetsocket)
 target_include_directories(xmlrpc_client++ PUBLIC
-        ${curl_srcdir})
+        ${CURL_TRANSPORT_DIR})
 list(APPEND lib_TARGETS xmlrpc_client++)
 
 

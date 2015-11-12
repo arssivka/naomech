@@ -29,19 +29,18 @@ string(REGEX REPLACE "^0+" "" XMLRPC_C_VERSION_MAJOR_NUM "${XMLRPC_C_VERSION_MAJ
 string(REGEX REPLACE "^0+" "" XMLRPC_C_VERSION_MINOR_NUM "${XMLRPC_C_VERSION_MINOR}")
 string(REGEX REPLACE "^0+(.)" "\\1" XMLRPC_C_VERSION_POINT_NUM "${XMLRPC_C_VERSION_POINT}")
 
-###########
+############
+
 find_package(CURL REQUIRED)
-set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
+find_package(XML2 REQUIRED)
 
 ############
 
-set(ENABLE_CGI_SERVER 1 CACHE BOOL "Set iff CGI server shall be enabled")
-set(ENABLE_CPLUSPLUS 1 CACHE BOOL "Set iff C++ part shall be enabled")
+set(ENABLE_CGI_SERVER 0 CACHE BOOL "Set iff CGI server shall be enabled")
 set(ENABLE_ABYSS_SERVER 1 CACHE BOOL "Set iff Abyss server shall be enabled")
-set(ENABLE_ABYSS_SERVER 1 CACHE BOOL "Set iff abyss server shall be enabled")
 set(ENABLE_ABYSS_THREADS 1 CACHE BOOL "Use pthread")
 
-find_package(XML2 REQUIRED)
+set(LINKER_AS_NEEDED 1 CACHE BOOL "Use the --as-needed linker option")
 
 ####  <wchar.h> tests
 check_include_file(wchar.h _have_wchar_h)
@@ -55,7 +54,6 @@ set(HAVE_WCHAR_H_DEFINE ${HAVE_WCHAR_H})
 
 
 #######
-set(LINKER_AS_NEEDED 1 CACHE BOOL "Use the --as-needed linker option")
 if (LINKER_AS_NEEDED)
     set(XMLRPC_LINKER_FLAGS "-Wl,--as-needed")
 endif (LINKER_AS_NEEDED)
@@ -84,8 +82,6 @@ if (HAVE_ATTR_UNUSED)
 endif (HAVE_ATTR_UNUSED)
 
 set(DIRECTORY_SEPARATOR "/")
-set(THREAD_LIBS "pthread")
-set(THREAD_LIBS_PKGCONFIG "-lpthread")
 
 check_include_file(sys/filio.h HAVE_SYS_FILIO_H)
 check_include_file(sys/ioctl.h HAVE_SYS_IOCTL_H)
@@ -108,7 +104,6 @@ check_function_exists(wcsncmp HAVE_WCSNCMP)
 check_function_exists(localtime_r HAVE_LOCALTIME_R)
 check_function_exists(gmtime_r HAVE_GMTIME_R)
 
-
 configure_file(${xmlrpc-c_SOURCE_DIR}/xmlrpc_config.h.cmake
         ${xmlrpc-c_BINARY_DIR}/xmlrpc_config.h
         ESCAPE_QUOTES @ONLY)
@@ -127,12 +122,6 @@ include_directories(${xmlrpc-c_BINARY_DIR}/include)
 include_directories(${xmlrpc-c_SOURCE_DIR}/lib/util/include)
 include_directories(${xmlrpc-c_BINARY_DIR})
 
-add_custom_target(dist
-        rm -rf _dist && mkdir -p _dist/xmlrpc-c-${XMLRPC_C_VERSION}
-        COMMAND cp -a ${xmlrpc-c_SOURCE_DIR}/* _dist/xmlrpc-c-${XMLRPC_C_VERSION}/
-        COMMAND cd _dist && tar cjf ../xmlrpc-c-${XMLRPC_C_VERSION}.tar.bz2 xmlrpc-c-${XMLRPC_C_VERSION} --exclude=.git --exclude=CVS --exclude=.svn
-        )
-
 set(_lib lib CACHE STRING "Basename of the library-directory; usually 'lib' or 'lib64' (on multilib archs)")
 set(_bin bin CACHE STRING "Basename of the bin-directory; usually 'bin'")
 set(prefix ${CMAKE_INSTALL_PREFIX})
@@ -142,10 +131,14 @@ set(mandir "${prefix}/share/man")
 set(pkgconfdir "${libdir}/pkgconfig")
 set(includedir "${prefix}/include")
 
-set(xmlrpc-c_INCLUDE_DIRS ${xmlrpc-c_SOURCE_DIR}/include ${xmlrpc-c_BINARY_DIR}/include ${xmlrpc-c_SOURCE_DIR}/lib/util/include ${xmlrpc-c_BINARY_DIR} CACHE STRING "")
+set(xmlrpc-c_INCLUDE_DIRS
+        ${xmlrpc-c_SOURCE_DIR}/include
+        ${xmlrpc-c_BINARY_DIR}/include
+        ${xmlrpc-c_SOURCE_DIR}/lib/util/include
+        ${xmlrpc-c_BINARY_DIR}
+        CACHE STRING "")
 
 #############
 
 add_subdirectory(lib)
-add_subdirectory(include)
 add_subdirectory(src)
