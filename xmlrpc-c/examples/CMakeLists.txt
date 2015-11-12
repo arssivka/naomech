@@ -26,23 +26,22 @@ ensc_add_example(json c base)
 ensc_add_example(gen_sample_add_xml c base)
 ensc_add_example(parse_xml c base)
 
-if (MUST_BUILD_CLIENT)
-    set(client_LIBS xmlrpc_client)
 
-    ensc_add_example(auth_client c client)
-    ensc_add_example(compound_value_client c client)
-    ensc_add_example(synch_client c client)
-    ensc_add_example(xmlrpc_sample_add_client c client)
-    ensc_add_example(xmlrpc_asynch_client c client)
-endif (MUST_BUILD_CLIENT)
+set(client_LIBS xmlrpc_client)
 
-if (MUST_BUILD_CURL_CLIENT)
-    set(client_LIBS xmlrpc_client)
+ensc_add_example(auth_client c client)
+ensc_add_example(compound_value_client c client)
+ensc_add_example(synch_client c client)
+ensc_add_example(xmlrpc_sample_add_client c client)
+ensc_add_example(xmlrpc_asynch_client c client)
 
-    if (NOT DEFINED MSVCRT)
-        ensc_add_example(interrupted_client c client)
-    endif (NOT DEFINED MSVCRT)
-endif (MUST_BUILD_CURL_CLIENT)
+
+set(client_LIBS xmlrpc_client)
+
+if (NOT DEFINED MSVCRT)
+    ensc_add_example(interrupted_client c client)
+endif (NOT DEFINED MSVCRT)
+
 
 if (ENABLE_CGI_SERVER)
     set(cgi_server_LIBS xmlrpc_server_cgi)

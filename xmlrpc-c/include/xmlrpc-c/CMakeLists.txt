@@ -41,21 +41,21 @@ if (ENABLE_CPLUSPLUS)
     list(APPEND compat_links "oldcppwrapper.hpp XmlRpcCpp.h")
 endif (ENABLE_CPLUSPLUS)
 
-if (MUST_BUILD_CLIENT)
+
+list(APPEND headers
+        client.h
+        transport.h
+        client_global.h)
+
+list(APPEND compat_links "client.h xmlrpc_client.h")
+
+if (ENABLE_CPLUSPLUS)
     list(APPEND headers
-            client.h
-            transport.h
-            client_global.h)
+            client.hpp
+            client_transport.hpp
+            client_simple.hpp)
+endif (ENABLE_CPLUSPLUS)
 
-    list(APPEND compat_links "client.h xmlrpc_client.h")
-
-    if (ENABLE_CPLUSPLUS)
-        list(APPEND headers
-                client.hpp
-                client_transport.hpp
-                client_simple.hpp)
-    endif (ENABLE_CPLUSPLUS)
-endif (MUST_BUILD_CLIENT)
 
 if (ENABLE_CGI_SERVER)
     list(APPEND headers

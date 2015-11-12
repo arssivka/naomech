@@ -8,8 +8,6 @@
 #  include <windows.h>
 #else
 
-#  include <unistd.h>
-
 #endif
 
 #include <xmlrpc-c/base.hpp>
@@ -55,16 +53,14 @@ public:
 };
 
 
-int
-main(int const,
-     const char **const) {
+int main(int const, const char **const) {
 
     try {
         xmlrpc_c::registry myRegistry;
 
         xmlrpc_c::methodPtr const sampleAddMethodP(new sampleAddMethod);
 
-        myRegistry.addMethod("sample.add", sampleAddMethodP);
+        myRegistry.addMethod("sample_add", sampleAddMethodP);
 
         xmlrpc_c::serverAbyss myAbyssServer(
                 xmlrpc_c::serverAbyss::constrOpt()

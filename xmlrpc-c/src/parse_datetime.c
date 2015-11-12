@@ -6,12 +6,13 @@
 #include <string.h>
 
 #if HAVE_REGEX
-#include <sys/types.h>  /* Missing from regex.h in GNU libc */
+
 #include <regex.h>
 #endif
 
 #include "xmlrpc-c/base.h"
 #include "xmlrpc-c/base_int.h"
+#include "c_util.h"
 
 #include "parse_datetime.h"
 

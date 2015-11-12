@@ -29,25 +29,8 @@ string(REGEX REPLACE "^0+" "" XMLRPC_C_VERSION_MAJOR_NUM "${XMLRPC_C_VERSION_MAJ
 string(REGEX REPLACE "^0+" "" XMLRPC_C_VERSION_MINOR_NUM "${XMLRPC_C_VERSION_MINOR}")
 string(REGEX REPLACE "^0+(.)" "\\1" XMLRPC_C_VERSION_POINT_NUM "${XMLRPC_C_VERSION_POINT}")
 
-macro(ensc_pkgconfig COMP)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${COMP}.pc.cmake
-            ${CMAKE_CURRENT_BINARY_DIR}/${COMP}.pc
-            @ONLY)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${COMP}.pc
-            DESTINATION ${pkgconfdir})
-endmacro(ensc_pkgconfig)
-
-macro(ensc_pkgconfig_lib TARGET LIBS)
-    get_target_property(libtype ${TARGET} TYPE)
-    if ("${libtype}" STREQUAL "STATIC_LIBRARY")
-        list(APPEND ${TARGET}_pkgconfig_libs "${LIBS}")
-    endif ("${libtype}" STREQUAL "STATIC_LIBRARY")
-endmacro(ensc_pkgconfig_lib)
-
 ###########
 find_package(CURL REQUIRED)
-
-set(MUST_BUILD_CURL_CLIENT ${CURL_FOUND} CACHE BOOL "Set iff Curl client transport shall be built")
 set(curl_srcdir ${xmlrpc-c_SOURCE_DIR}/lib/curl_transport)
 
 ############
@@ -58,7 +41,7 @@ set(ENABLE_ABYSS_SERVER 1 CACHE BOOL "Set iff Abyss server shall be enabled")
 set(ENABLE_ABYSS_SERVER 1 CACHE BOOL "Set iff abyss server shall be enabled")
 set(ENABLE_ABYSS_THREADS 1 CACHE BOOL "Use pthread")
 
-find_package(LIBXML2 REQUIRED)
+find_package(XML2 REQUIRED)
 
 ####  <wchar.h> tests
 check_include_file(wchar.h _have_wchar_h)
@@ -159,9 +142,9 @@ set(mandir "${prefix}/share/man")
 set(pkgconfdir "${libdir}/pkgconfig")
 set(includedir "${prefix}/include")
 
-#############
+set(xmlrpc-c_INCLUDE_DIRS ${xmlrpc-c_SOURCE_DIR}/include ${xmlrpc-c_BINARY_DIR}/include ${xmlrpc-c_SOURCE_DIR}/lib/util/include ${xmlrpc-c_BINARY_DIR} CACHE STRING "")
 
-install(PROGRAMS xmlrpc-c-config DESTINATION ${_bin})
+#############
 
 add_subdirectory(lib)
 add_subdirectory(include)
