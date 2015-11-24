@@ -3,5 +3,6 @@ project(naomech)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+add_subdirectory(hardware)
 add_subdirectory(xmlrpc-c)
 add_subdirectory(networking)
