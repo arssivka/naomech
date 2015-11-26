@@ -14,6 +14,10 @@ namespace RD {
     public:
         RPCServer(int port);
 
+        int getPort() const;
+
+        void setPort(int port);
+
         void addModule(boost::shared_ptr<RPCModule> module);
 
         bool removeModule(std::string name);

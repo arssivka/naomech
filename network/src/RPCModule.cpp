@@ -24,7 +24,9 @@ const std::string &RD::RPCModule::getName() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RD::RPCModule::addMethod(shared_ptr<RPCMethod> func) {
+void RD::RPCModule::addMethod(boost::shared_ptr<RPCMethod> func,
+                              const bool change_name) {
+    if (change_name) func->setName(this->name + "." + func->getName());
     this->func_container.push_back(func);
 }
 

@@ -14,6 +14,17 @@ RD::RPCServer::RPCServer(int port) : port(port) { }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int RD::RPCServer::getPort() const {
+    return port;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+void RD::RPCServer::setPort(int port) {
+    this->port = port;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void RD::RPCServer::addModule(shared_ptr<RPCModule> module) {
     this->modules_container.push_back(module);
 }
@@ -91,4 +102,8 @@ void RD::RPCServer::run() {
             reg.addMethod(method->getName(), method);
         }
     }
+
+    xmlrpc_c::serverAbyss srv(xmlrpc_c::serverAbyss::constrOpt()
+                                      .registryP(&reg)
+                                      .portNumber(this->port));
 }

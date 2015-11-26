@@ -19,7 +19,8 @@ namespace RD {
 
         const std::string &getName() const;
 
-        void addMethod(boost::shared_ptr<RPCMethod> func);
+        void addMethod(boost::shared_ptr<RPCMethod> func,
+                       const bool change_name = true);
 
         bool deleteMethod(const std::string &name);
 
