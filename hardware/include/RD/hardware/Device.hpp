@@ -5,10 +5,9 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include <alproxies/almemoryproxy.h>
 #include <alproxies/dcmproxy.h>
-#include "Clock.h"
+#include <RD/hardware/Clock.h>
 
 
 namespace RD {
@@ -43,7 +42,7 @@ namespace RD {
 
         virtual SensorData<T> get() {
             unsigned int length = this->sensor_keys.getSize();
-            int timestamp = this->clock.getTime();
+            int timestamp = this->clock(0);
             AL::ALValue val = this->mem->getListData(this->sensor_keys);
             boost::shared_ptr<std::vector<T> > data =
                     boost::make_shared<std::vector<T> >(length);
@@ -56,6 +55,11 @@ namespace RD {
         virtual ~Sensor() { }
 
     protected:
+        bool updateKeys(const std::vector<std::string> &keys) {
+            this->keys = keys;
+            return true;
+        }
+
         bool updateSensorKeys(std::vector<std::string> mem_keys) {
             unsigned int length = mem_keys.size();
             if (length != this->keys.size()) {
@@ -70,8 +74,6 @@ namespace RD {
         const Clock clock;
         boost::shared_ptr<AL::DCMProxy> dcm;
         boost::shared_ptr<AL::ALMemoryProxy> mem;
-
-    private:
         const std::string name;
         std::vector<std::string> keys;
         AL::ALValue sensor_keys;
@@ -136,7 +138,7 @@ namespace RD {
             // Update alias
             AL::ALValue cmd;
             cmd.arraySetSize(2);
-            cmd[0] = this->getName();
+            cmd[0] = this->name;
             cmd[1].arraySetSize(length);
             for (int i = 0; i < length; ++i) {
                 cmd[1][i] = keys[i];
@@ -145,12 +147,12 @@ namespace RD {
             // Send command
             // TODO Prepare command early
             cmd.arraySetSize(1);
-            cmd[0] = this->getName();
+            cmd[0] = this->name;
             cmd[1] = std::string("ClearAll");
             cmd[2] = std::string("time-separate");
             cmd[3] = 0;
             cmd[4].arraySetSize(1);
-            cmd[4][0] = time;
+            cmd[4][0] = this->clock(time);
             cmd[5].arraySetSize(length);
             for (int i = 0; i < length; ++i) {
                 cmd[5][i].arraySetSize(1);
@@ -159,7 +161,6 @@ namespace RD {
             this->dcm->setAlias(cmd);
         }
 
-    private:
         std::vector<std::string> actuator_keys;
         std::map<std::string, std::string> dcm_key_map;
     };

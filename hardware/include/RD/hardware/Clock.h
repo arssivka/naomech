@@ -13,7 +13,7 @@ namespace RD {
     public:
         Clock(boost::shared_ptr<AL::DCMProxy> dcm);
 
-        int getTime(int offset = 0) const;
+        int operator()(int offset = 0) const;
 
     private:
         boost::shared_ptr<AL::DCMProxy> dcm;

@@ -14,6 +14,6 @@ Clock::Clock(shared_ptr<DCMProxy> dcm) : dcm(dcm) { }
 ////////////////////////////////////////////////////////////////////////////////
 
 
-int Clock::getTime(int offset) const {
+int Clock::operator()(int offset) const {
     return this->dcm->getTime(0);
 }
