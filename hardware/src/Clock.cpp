@@ -2,9 +2,9 @@
 // Created by arssivka on 11/23/15.
 //
 
-#include "RD/hardware/Clock.h"
+#include <rd/hardware/Clock.h>
 
-using namespace RD;
+using namespace rd;
 using namespace AL;
 using namespace boost;
 

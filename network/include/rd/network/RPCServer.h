@@ -7,9 +7,9 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <RD/network/RPCModule.h>
+#include <rd/network/RPCModule.h>
 
-namespace RD {
+namespace rd {
     class RPCServer {
     public:
         RPCServer(int port);

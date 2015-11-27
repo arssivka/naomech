@@ -7,10 +7,10 @@
 
 #include <string>
 #include <vector>
-#include <RD/network/RPCMethod.h>
+#include <rd/network/RPCMethod.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
-namespace RD {
+namespace rd {
     class RPCModule {
     public:
         RPCModule(const std::string &name);

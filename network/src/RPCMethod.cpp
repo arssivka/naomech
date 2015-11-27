@@ -2,9 +2,9 @@
 // Created by arssivka on 11/26/15.
 //
 
-#include <RD/network/RPCMethod.h>
+#include <rd/network/RPCMethod.h>
 
-RD::RPCMethod::RPCMethod(std::string name, std::string sig, std::string help)
+rd::RPCMethod::RPCMethod(std::string name, std::string sig, std::string help)
         : name(name) {
     this->_signature = sig;
     this->_help = help;
@@ -12,12 +12,12 @@ RD::RPCMethod::RPCMethod(std::string name, std::string sig, std::string help)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RD::RPCMethod::setName(const std::string &name) {
+void rd::RPCMethod::setName(const std::string &name) {
     this->name = name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const std::string &RD::RPCMethod::getName() const {
+const std::string &rd::RPCMethod::getName() const {
     return name;
 }

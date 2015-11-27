@@ -8,7 +8,7 @@
 
 #include <alproxies/dcmproxy.h>
 
-namespace RD {
+namespace rd {
     class Clock {
     public:
         Clock(boost::shared_ptr<AL::DCMProxy> dcm);

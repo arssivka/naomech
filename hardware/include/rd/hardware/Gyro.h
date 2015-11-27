@@ -5,11 +5,10 @@
 #ifndef NAOMECH_GYRO_H
 #define NAOMECH_GYRO_H
 
-#include "Device.hpp"
-#include <vector>
+#include <rd/hardware/Sensor.h>
 
-namespace RD {
-    typedef Sensor<std::vector<float> > Gyro;
+namespace rd {
+
 }
 
 #endif //NAOMECH_GYRO_H

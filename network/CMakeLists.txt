@@ -11,9 +11,9 @@ set(SRCS src/RPCServer.cpp
         src/RPCModule.cpp
         src/RPCMethod.cpp)
 
-set(HEADERS include/RD/network/RPCModule.h
-        include/RD/network/RPCServer.h
-        include/RD/network/RPCMethod.h)
+set(HEADERS include/rd/network/RPCModule.h
+        include/rd/network/RPCServer.h
+        include/rd/network/RPCMethod.h)
 
 set(RD_NETWORK_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
         CACHE STRING "Networking module includes dir")

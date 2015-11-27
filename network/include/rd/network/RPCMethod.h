@@ -7,7 +7,7 @@
 
 #include <xmlrpc-c/registry.hpp>
 
-namespace RD {
+namespace rd {
     class RPCMethod : public xmlrpc_c::method {
     public:
         RPCMethod(std::string name, std::string sig, std::string help);
