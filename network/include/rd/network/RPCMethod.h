@@ -14,7 +14,9 @@ namespace rd {
 
         void setName(const std::string &name);
 
-        const std::string &getName() const;
+        const std::string& getName() const;
+
+        virtual ~RPCMethod();
 
     private:
         std::string name;

@@ -26,6 +26,8 @@ namespace rd {
 
         const std::vector<boost::shared_ptr<RPCMethod> > &getMethods() const;
 
+        virtual ~RPCModule();
+
     private:
         std::string name;
         std::vector<boost::shared_ptr<RPCMethod> > func_container;

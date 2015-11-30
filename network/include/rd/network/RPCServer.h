@@ -32,6 +32,8 @@ namespace rd {
 
         void run();
 
+        virtual ~RPCServer();
+
     private:
         int port;
         std::vector<boost::shared_ptr<RPCModule> > modules_container;

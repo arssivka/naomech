@@ -21,3 +21,7 @@ void rd::RPCMethod::setName(const std::string &name) {
 const std::string &rd::RPCMethod::getName() const {
     return name;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+rd::RPCMethod::~RPCMethod() { }

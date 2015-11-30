@@ -107,3 +107,7 @@ void rd::RPCServer::run() {
                                       .registryP(&reg)
                                       .portNumber(this->port));
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+rd::RPCServer::~RPCServer() {}

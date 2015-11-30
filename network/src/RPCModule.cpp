@@ -52,3 +52,7 @@ bool rd::RPCModule::deleteMethod(const std::string &name) {
 const vector<shared_ptr<rd::RPCMethod> > &rd::RPCModule::getMethods() const {
     return this->func_container;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+rd::RPCModule::~RPCModule() { }
