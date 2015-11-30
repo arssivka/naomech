@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 option(HARDWARE_AS_SHARED_LIBRARY "Build hardware module as shared library" OFF)
 option(BUILD_WRAPPER "Build remote module for hardware access classes" ON)
 
-find_package(Boost REQUIRED COMPONENTS System)
+find_package(BOOST REQUIRED)
 find_package(ALCOMMON REQUIRED)
 find_package(ALPROXIES REQUIRED)
 find_package(QI REQUIRED)
@@ -60,3 +60,7 @@ add_library(hardware ${LIBRARY_TYPE} ${SRCS} ${HEADERS})
 target_include_directories(hardware PUBLIC ${INCLUDE_DIRS})
 
 target_link_libraries(hardware ${LIBS})
+
+install(TARGETS hardware
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib/static)
