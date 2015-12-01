@@ -67,10 +67,6 @@ fi
 
 # Build controller
 cd $BUILD_PATH
-cmake $SOURCES_PATH \
-         -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH/toolchain-atom.cmake \
-         -DCMAKE_PREFIX_PATH=$TOOLCHAIN_PATH \
-         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH \
-          & make install \
-          & ssh nao@$ROBOT_IP '[ -d naomech ] || mkdir ~/naomech' \
-          & scp -r $INSTALL_PATH/* nao@$ROBOT_IP:~/naomech/
+cmake $SOURCES_PATH -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH/toolchain-atom.cmake -DCMAKE_PREFIX_PATH=$TOOLCHAIN_PATH \
+         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH && make install -j4 && ssh nao@$ROBOT_IP '[ -d naomech ] || mkdir ~/naomech' \
+          && echo "Files is being sent to the nao@$ROBOT_IP" && scp -r $INSTALL_PATH/* nao@$ROBOT_IP:~/naomech/
