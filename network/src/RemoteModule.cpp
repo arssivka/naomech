@@ -1,0 +1,66 @@
+//
+// Created by arssivka on 11/9/15.
+//
+
+#include "rd/network/RemoteModule.h"
+
+using namespace rd;
+using namespace boost;
+using namespace std;
+
+
+RemoteModule::RemoteModule() {
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RemoteModule::RemoteModule(const string &name)
+        : name(name) { }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void RemoteModule::setName(const string &name) {
+    this->name = name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const string &RemoteModule::getName() const {
+    return this->name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void RemoteModule::addMethod(shared_ptr<RemoteMethod> func,
+                              const bool change_name) {
+    if (change_name) func->setName(this->name + "." + func->getName());
+    this->func_container.push_back(func);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool RemoteModule::deleteMethod(const string &name) {
+    vector<shared_ptr<RemoteMethod> >::iterator it;
+    for (it = this->func_container.begin();
+         it != this->func_container.end(); ++it) {
+        if (name == it->get()->getName()) break;
+    }
+
+    if (it != this->func_container.end()) {
+        this->func_container.erase(it);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const vector<shared_ptr<RemoteMethod> > &RemoteModule::getMethods() const {
+    return this->func_container;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RemoteModule::~RemoteModule() { }

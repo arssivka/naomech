@@ -5,7 +5,7 @@
 #include <alcommon/albroker.h>
 #include <alcommon/albrokermanager.h>
 #include <alcommon/altoolsmain.h>
-#include "RD/KinematicsModule/KinematicsModule.h"
+#include "rd/KinematicsModule/KinematicsModule.h"
 
 #ifdef _WIN32
 # define ALCALL __declspec(dllexport)
@@ -13,7 +13,7 @@
 # define ALCALL
 #endif
 
-using namespace RD;
+using namespace rd;
 
 extern "C"
 {
@@ -24,7 +24,7 @@ ALCALL int _createModule(boost::shared_ptr<AL::ALBroker> pBroker)
     AL::ALBrokerManager::setInstance(pBroker->fBrokerManager.lock());
     AL::ALBrokerManager::getInstance()->addBroker(pBroker);
     // create module instances
-    AL::ALModule::createModule<KinematicsModule>(pBroker, "RD/KinematicsModule");
+    AL::ALModule::createModule<KinematicsModule>(pBroker, "rd/KinematicsModule");
     return 0;
 }
 

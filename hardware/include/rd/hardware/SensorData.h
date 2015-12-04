@@ -12,6 +12,8 @@ namespace rd {
     template<typename T>
     class SensorData {
     public:
+        SensorData() { }
+
         SensorData(const boost::shared_ptr<std::vector<T> > &data,
                    const int timestamp)
                 : data(data), timestamp(timestamp) { }

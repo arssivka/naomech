@@ -8,12 +8,12 @@ find_package(ALCOMMON REQUIRED)
 find_package(ALPROXIES REQUIRED)
 find_package(QI REQUIRED)
 
-set(SRCS src/Accelerometer.cpp
-        src/Clock.cpp
-        src/Gyro.cpp
-        src/LEDs.cpp
-        src/Joints.cpp
-        src/Robot.cpp)
+set(SRCS src/hardware/Accelerometer.cpp
+        src/hardware/Clock.cpp
+        src/hardware/Gyro.cpp
+        src/hardware/LEDs.cpp
+        src/hardware/Joints.cpp
+        src/hardware/Robot.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
@@ -43,8 +43,10 @@ set(RD_HARDWARE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 set(RD_HARDWARE_LIBRARIES hardware CACHE STRING "Hardware access module include dir")
 
 if (${BUILD_WRAPPER})
-    list(APPEND SRCS src/RemoteJoints.cpp)
-    list(APPEND HEADERS include/rd/hardware/RemoteJoints.h)
+    list(APPEND SRCS
+            src/remote/hardware/RemoteJoints.cpp)
+    list(APPEND HEADERS
+            include/rd/remote/hardware/RemoteJoints.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()

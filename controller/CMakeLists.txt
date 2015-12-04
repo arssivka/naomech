@@ -15,7 +15,7 @@ find_package(QITYPE REQUIRED)
 find_package(BOOST_DATE_TIME REQUIRED)
 find_package(BOOST_SIGNALS REQUIRED)
 find_package(RTTOOLS REQUIRED)
-
+find_package(ZLIB REQUIRED)
 find_package(ALCOMMON REQUIRED)
 find_package(ALPROXIES REQUIRED)
 find_package(QI REQUIRED)
@@ -43,7 +43,8 @@ set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_DATE_TIME_INCLUDE_DIRS}
         ${BOOST_SIGNALS_INCLUDE_DIRS}
         ${RTTOOLS_INCLUDE_DIRS}
-        ${QI_INCLUDE_DIRS})
+        ${QI_INCLUDE_DIRS}
+        ${ZLIB_INCLUDE_DIRS})
 
 set(LIBS ${BOOST_LIBRARIES}
         ${BOOST_CHRONO_LIBRARIES}
@@ -65,7 +66,10 @@ set(LIBS ${BOOST_LIBRARIES}
         ${QI_LIBRARIES}
         ${ALPROXIES_LIBRARILES}
         ${RD_HARDWARE_LIBRARIES}
-        ${RD_NETWORK_LIBRARIES})
+        ${RD_NETWORK_LIBRARIES}
+        ${ZLIB_LIBRARIES}
+        xmlrpc++
+        xmlrpc_server_abyss++)
 
 add_executable(controller ${SRCS} ${HEADERS})
 

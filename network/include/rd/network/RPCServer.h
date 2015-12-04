@@ -7,7 +7,7 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <rd/network/RPCModule.h>
+#include "RemoteModule.h"
 
 namespace rd {
     class RPCServer {
@@ -18,17 +18,17 @@ namespace rd {
 
         void setPort(int port);
 
-        void addModule(boost::shared_ptr<RPCModule> module);
+        void addModule(boost::shared_ptr<RemoteModule> module);
 
         bool removeModule(std::string name);
 
-        const std::vector<boost::shared_ptr<RPCModule> > &getModules() const;
+        const std::vector<boost::shared_ptr<RemoteModule> > &getModules() const;
 
-        void addMethod(boost::shared_ptr<RPCMethod> func);
+        void addMethod(boost::shared_ptr<RemoteMethod> func);
 
         bool deleteMethod(const std::string &name);
 
-        const std::vector<boost::shared_ptr<RPCMethod> > &getMethods() const;
+        const std::vector<boost::shared_ptr<RemoteMethod> > &getMethods() const;
 
         void run();
 
@@ -36,8 +36,8 @@ namespace rd {
 
     private:
         int port;
-        std::vector<boost::shared_ptr<RPCModule> > modules_container;
-        std::vector<boost::shared_ptr<RPCMethod> > func_container;
+        std::vector<boost::shared_ptr<RemoteModule> > modules_container;
+        std::vector<boost::shared_ptr<RemoteMethod> > func_container;
     };
 }
 

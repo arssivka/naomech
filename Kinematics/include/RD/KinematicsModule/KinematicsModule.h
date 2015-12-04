@@ -7,8 +7,8 @@
 
 #include <alcommon/almodule.h>
 #include <boost/shared_ptr.hpp>
-#include "RD/KinematicsModule/NAOKinematics.h"
-#include "RD/HardwareAccessModule/HardwareDefines.h"
+#include "rd/KinematicsModule/NAOKinematics.h"
+#include "rd/HardwareAccessModule/HardwareDefines.h"
 
 namespace AL {
     class ALBroker;
@@ -16,7 +16,7 @@ namespace AL {
     class ALProxy;
 }
 
-namespace RD {
+namespace rd {
     class KinematicsModule : public AL::ALModule {
     public:
         KinematicsModule(boost::shared_ptr<AL::ALBroker> pBroker,

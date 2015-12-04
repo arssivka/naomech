@@ -6,33 +6,34 @@
 #include <xmlrpc-c/server_abyss.hpp>
 #include <boost/make_shared.hpp>
 
+using namespace rd;
 using namespace std;
 using namespace boost;
 
 
-rd::RPCServer::RPCServer(int port) : port(port) { }
+RPCServer::RPCServer(int port) : port(port) { }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int rd::RPCServer::getPort() const {
+int RPCServer::getPort() const {
     return port;
 }
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::RPCServer::setPort(int port) {
+void RPCServer::setPort(int port) {
     this->port = port;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::RPCServer::addModule(shared_ptr<RPCModule> module) {
+void RPCServer::addModule(shared_ptr<RemoteModule> module) {
     this->modules_container.push_back(module);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool rd::RPCServer::removeModule(std::string name) {
-    vector<boost::shared_ptr<rd::RPCModule> >::iterator it;
+bool RPCServer::removeModule(std::string name) {
+    vector<boost::shared_ptr<RemoteModule> >::iterator it;
     for (it = this->modules_container.begin();
          it != this->modules_container.end(); ++it) {
         if (name == it->get()->getName()) break;
@@ -46,24 +47,23 @@ bool rd::RPCServer::removeModule(std::string name) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const vector<shared_ptr<rd::RPCModule> > &rd::RPCServer::getModules() const {
+const vector<shared_ptr<RemoteModule> > &RPCServer::getModules() const {
     return this->modules_container;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::RPCServer::addMethod(shared_ptr<RPCMethod> func) {
+void RPCServer::addMethod(shared_ptr<RemoteMethod> func) {
     this->func_container.push_back(func);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool rd::RPCServer::deleteMethod(const string &name) {
-    vector<shared_ptr<rd::RPCMethod> >::iterator it;
-    for (it = this->func_container.begin();
-         it != this->func_container.end(); ++it) {
+bool RPCServer::deleteMethod(const string &name) {
+    vector<shared_ptr<RemoteMethod> >::iterator it;
+    for (it = this->func_container.begin(); it != this->func_container.end(); ++it) {
         if (name == it->get()->getName()) break;
     }
 
@@ -75,30 +75,29 @@ bool rd::RPCServer::deleteMethod(const string &name) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const vector<shared_ptr<rd::RPCMethod> > &rd::RPCServer::getMethods() const {
+const vector<shared_ptr<RemoteMethod> > &RPCServer::getMethods() const {
     return this->func_container;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::RPCServer::run() {
-    vector<shared_ptr<RPCMethod> > methods(this->func_container);
+void RPCServer::run() {
+    vector<shared_ptr<RemoteMethod> > methods(this->func_container);
     {
-        vector<shared_ptr<rd::RPCModule> >::iterator it;
-        for (it = this->modules_container.begin();
-             it != this->modules_container.end(); ++it) {
-            const vector<shared_ptr<rd::RPCMethod> > &m = it->get()->getMethods();
-            methods.insert(methods.begin(), m.begin(), m.end());
+        vector<shared_ptr<RemoteModule> >::iterator it;
+        for (it = this->modules_container.begin(); it != this->modules_container.end(); ++it) {
+            const vector<shared_ptr<RemoteMethod> > &m = (*it)->getMethods();
+            methods.insert(methods.end(), m.begin(), m.end());
         }
     }
 
     xmlrpc_c::registry reg;
     {
-        vector<shared_ptr<RPCMethod> >::iterator it;
+        vector<shared_ptr<RemoteMethod> >::iterator it;
         for (it = methods.begin(); it != methods.end(); ++it) {
-            RPCMethod *method = it->get();
+            RemoteMethod *method = it->get();
             reg.addMethod(method->getName(), method);
         }
     }
@@ -106,8 +105,9 @@ void rd::RPCServer::run() {
     xmlrpc_c::serverAbyss srv(xmlrpc_c::serverAbyss::constrOpt()
                                       .registryP(&reg)
                                       .portNumber(this->port));
+    srv.run();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::RPCServer::~RPCServer() {}
+RPCServer::~RPCServer() { }

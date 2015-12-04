@@ -9,12 +9,12 @@ find_package(ZLIB REQUIRED)
 find_package(ALPROXIES REQUIRED)
 
 set(SRCS src/RPCServer.cpp
-        src/RPCModule.cpp
-        src/RPCMethod.cpp)
+        src/RemoteModule.cpp
+        src/RemoteMethod.cpp)
 
-set(HEADERS include/rd/network/RPCModule.h
+set(HEADERS include/rd/network/RemoteModule.h
         include/rd/network/RPCServer.h
-        include/rd/network/RPCMethod.h)
+        include/rd/network/RemoteMethod.h)
 
 set(RD_NETWORK_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
         CACHE STRING "Networking module includes dir")

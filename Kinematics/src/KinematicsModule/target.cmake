@@ -7,7 +7,7 @@ set(RD_TARGET
 )
 
 set(RD_SRCS
-#        ${Kinematics_MODULE_INCLUDE_DIR}/RD/KinematicsModule/KMat.h
+        #        ${Kinematics_MODULE_INCLUDE_DIR}/rd/KinematicsModule/KMat.h
         NAOKinematics.cpp
         NAOKinematicsJacobian.cpp
         KinematicsModule.cpp

@@ -9,8 +9,8 @@
 #include <limits>
 #include <math.h>
 
-#include "RD/KinematicsModule/KMat.h"
-#include "RD/KinematicsModule/robotConsts.h"
+#include "rd/KinematicsModule/KMat.h"
+#include "rd/KinematicsModule/robotConsts.h"
 
 /**
  * This is the code for the Forward and Inverse Kinematics for nao v3.3 robot.

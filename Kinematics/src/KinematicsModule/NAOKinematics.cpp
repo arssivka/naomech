@@ -1,5 +1,5 @@
-#include "RD/KinematicsModule/NAOKinematics.h"
-#include "RD/KinematicsModule/KinematicsDefines.h"
+#include "rd/KinematicsModule/NAOKinematics.h"
+#include "rd/KinematicsModule/KinematicsDefines.h"
 
 
 using namespace KMath;
