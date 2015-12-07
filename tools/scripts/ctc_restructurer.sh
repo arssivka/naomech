@@ -7,7 +7,9 @@ do
     rm -r $i
 done
 
-mv ./include/boost-1_55 ./include
+mv ./include/boost-1_55/* ./include
+rmdir ./include/boost-1_55
 
 find ./lib/pkgconfig/ -type f -exec sed -i 's:/usr:/opt/ctc:g' {} +
 find ./share/cmake/ -name "*.cmake" -type f -exec sed -i 's:${_boost_root}/include/boost-1_55:${_boost_root}/include/:g' {} +
+sed -i 's:set(ALDE_CTC_CROSS   "${CMAKE_CURRENT_LIST_DIR}/cross"):set(ALDE_CTC_CROSS   "${CMAKE_CURRENT_LIST_DIR}"):g' ./cross-config.cmake
