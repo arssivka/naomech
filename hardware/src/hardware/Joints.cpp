@@ -204,14 +204,14 @@ const std::vector<std::string> &Joints::getOutputKeys() const {
 
 SensorData<float> Joints::get(const std::vector<int> &keys) {
     return SensorData<float>(this->getValues(this->position_out_list, keys),
-                             this->clock(0));
+                             this->clock.getDCMTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SensorData<float> Joints::get(const std::vector<std::string> &keys) {
     return SensorData<float>(this->getValues(this->position_out_map, keys),
-                             this->clock(0));
+                             this->clock.getDCMTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,14 +219,14 @@ SensorData<float> Joints::get(const std::vector<std::string> &keys) {
 SensorData<float> Joints::get() {
     return SensorData<float>(
             this->getValues(this->position_out_map, this->keys),
-            this->clock(0));
+            this->clock.getDCMTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Joints::setHardness(float value, int time_offset) {
     static vector<float> values(JOINTS_COUNT, value);
-    return this->setValues(this->hardness_map, keys, values, time_offset);
+    return this->setValues(this->hardness_map, this->keys, values, time_offset);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,18 +246,18 @@ bool Joints::setHardness(const std::vector<int> &keys, const std::vector<float> 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SensorData<float> Joints::getHardness(const std::vector<int> &keys) {
-    return SensorData<float>(this->getValues(this->hardness_list, keys), this->clock(0));
+    return SensorData<float>(this->getValues(this->hardness_list, keys), this->clock.getDCMTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SensorData<float> Joints::getHardness(
         const std::vector<std::string> &keys) {
-    return SensorData<float>(this->getValues(this->hardness_map, keys), this->clock(0));
+    return SensorData<float>(this->getValues(this->hardness_map, keys), this->clock.getDCMTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SensorData<float> Joints::getHardness() {
-    return SensorData<float>(this->getValues(this->hardness_map, this->keys), this->clock(0));
+    return SensorData<float>(this->getValues(this->hardness_map, this->keys), this->clock.getDCMTime());
 }

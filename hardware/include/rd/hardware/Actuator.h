@@ -51,17 +51,17 @@ namespace rd {
             cmd[0] = this->name;
             cmd[1].arraySetSize(length);
             for (int i = 0; i < length; ++i) {
-                cmd[1][i] = keys[i];
+                cmd[1][i] = dcm_keys[i];
             }
             this->dcm->createAlias(cmd);
             // Send command
-            cmd.arraySetSize(1);
+            cmd.arraySetSize(6);
             cmd[0] = this->name;
             cmd[1] = std::string("ClearAll");
             cmd[2] = std::string("time-separate");
             cmd[3] = 0;
             cmd[4].arraySetSize(1);
-            cmd[4][0] = this->clock(time_offset);
+            cmd[4][0] = this->clock.getDCMTime(time_offset);
             cmd[5].arraySetSize(length);
             for (int i = 0; i < length; ++i) {
                 cmd[5][i].arraySetSize(1);

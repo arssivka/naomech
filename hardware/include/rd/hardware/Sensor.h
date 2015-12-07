@@ -44,7 +44,7 @@ namespace rd {
         boost::shared_ptr<std::vector<T> > getValues(const T1 &keys_container,
                                                      const std::vector<T2> &keys) {
             unsigned int length = keys.size();
-            int timestamp = this->clock(0);
+            int timestamp = this->clock.getDCMTime();
             AL::ALValue data;
             data.arraySetSize(length);
             for (int i = 0; i < length; ++i) {
