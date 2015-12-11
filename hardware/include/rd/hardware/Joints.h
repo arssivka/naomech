@@ -6,11 +6,17 @@
 #define NAOMECH_MOTOR_H
 
 
-#include <rd/hardware/Actuator.h>
+#include <vector>
+#include <map>
+#include <alproxies/dcmproxy.h>
+#include <alproxies/almemoryproxy.h>
+
+#include <rd/hardware/SensorData.h>
+#include <rd/hardware/Clock.h>
 
 
 namespace rd {
-    class Joints : public Actuator<float> {
+    class Joints {
     public:
         enum Key {
             HEAD_YAW, HEAD_PITCH,
@@ -42,53 +48,60 @@ namespace rd {
         };
 
 
-        Joints(boost::shared_ptr<AL::ALMemoryProxy> memory,
-               const boost::shared_ptr<AL::DCMProxy> dcm);
+        Joints(boost::shared_ptr<AL::DCMProxy> dcm, boost::shared_ptr<AL::ALMemoryProxy> memory);
 
-        virtual const std::vector<std::string> &getInputKeys() const;
+        const std::vector<std::string> &getKeys() const;
 
-        virtual bool set(const std::vector<std::string> &keys,
-                         const std::vector<float> &values, int time_offset);
+        bool setPosition(const std::vector<std::string> &keys,
+                         const std::vector<double> &values);
 
-        virtual bool set(const std::vector<int> &keys,
-                         const std::vector<float> &values, int time_offset);
+        bool setPosition(const std::vector<int> &keys,
+                         const std::vector<double> &values);
 
-        virtual const std::vector<std::string> &getOutputKeys() const;
+        SensorData<double> getPosition(const std::vector<int> &keys);
 
-        virtual SensorData<float> get(const std::vector<int> &keys);
+        SensorData<double> getPosition(const std::vector<std::string> &keys);
 
-        virtual SensorData<float> get(const std::vector<std::string> &keys);
+        SensorData<double> getPosition();
 
-        virtual SensorData<float> get();
-
-        bool setHardness(float value, int time_offset);
+        bool setHardness(double value);
 
         bool setHardness(const std::vector<std::string> &keys,
-                         const std::vector<float> &values, int time_offset);
+                         const std::vector<double> &values);
 
         bool setHardness(const std::vector<int> &keys,
-                         const std::vector<float> &values, int time_offset);
+                         const std::vector<double> &values);
 
-        SensorData<float> getHardness(const std::vector<int> &keys);
+        SensorData<double> getHardness(const std::vector<int> &keys);
 
-        SensorData<float> getHardness(const std::vector<std::string> &keys);
+        SensorData<double> getHardness(const std::vector<std::string> &keys);
 
-        SensorData<float> getHardness();
+        SensorData<double> getHardness();
 
     private:
-        static void initKeysMap(std::map<std::string, std::string> &map,
-                                const std::vector<std::string> &keys,
-                                const std::vector<std::string> &values);
+        const static std::string DCM_POSITION_ALIAS;
+        const static std::string DCM_HARDNESS_ALIAS;
+
+        boost::shared_ptr<AL::ALMemoryProxy> mem;
+        boost::shared_ptr<AL::DCMProxy> dcm;
+
+        boost::mutex synch;
+        AL::ALValue dcm_cmd;
 
         std::vector<std::string> keys;
 
-        std::vector<std::string> position_in_list;
-        std::vector<std::string> position_out_list;
-        std::map<std::string, std::string> position_in_map;
-        std::map<std::string, std::string> position_out_map;
-
-        std::vector<std::string> hardness_list;
+        AL::ALValue position_in_list;
+        AL::ALValue position_out_list;
+        AL::ALValue hardness_list;
+        std::map<std::string, int> out_map;
+        std::map<std::string, std::string> position_map;
         std::map<std::string, std::string> hardness_map;
+
+        void makeAlias(const std::string &name, const AL::ALValue &keys);
+
+        void initKeysMap(std::map<std::string, std::string> &container,
+                         const std::vector<std::string> &keys,
+                         const std::vector<std::string> &values);
     };
 }
 

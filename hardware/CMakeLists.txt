@@ -18,8 +18,6 @@ set(SRCS src/hardware/Accelerometer.cpp
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
         include/rd/hardware/Clock.h
-        include/rd/hardware/Sensor.h
-        include/rd/hardware/Actuator.h
         include/rd/hardware/SensorData.h
         include/rd/hardware/Gyro.h
         include/rd/hardware/Joints.h

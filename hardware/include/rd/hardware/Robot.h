@@ -18,6 +18,7 @@ namespace rd {
         virtual ~Robot();
 
     private:
+        boost::shared_ptr<AL::ALBroker> broker;
         boost::shared_ptr<AL::DCMProxy> dcm;
         boost::shared_ptr<AL::ALMemoryProxy> mem;
 

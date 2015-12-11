@@ -9,15 +9,42 @@ using namespace AL;
 using namespace boost;
 using namespace std;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Joints::Joints(shared_ptr<AL::ALMemoryProxy> memory,
-               const shared_ptr<DCMProxy> dcm)
-        : Actuator(string("Joints"), memory, dcm) {
-    this->keys.resize(JOINTS_COUNT);
-    this->position_in_list.resize(JOINTS_COUNT);
-    this->position_out_list.resize(JOINTS_COUNT);
-    this->hardness_list.resize(JOINTS_COUNT);
+const std::string Joints::DCM_POSITION_ALIAS("rd/actuators/joints/positions");
+const std::string Joints::DCM_HARDNESS_ALIAS("rd/actuators/joints/hardness");
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Joints::initKeysMap(map<string, string> &container,
+                         const vector<string> &keys,
+                         const vector<string> &values) {
+    vector<string>::const_iterator first_it = keys.begin();
+    vector<string>::const_iterator second_it = values.begin();
+    while (first_it != keys.end() && second_it != values.end()) {
+        container.insert(make_pair<std::string, std::string>(*first_it, *second_it));
+        ++first_it;
+        ++second_it;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Joints::makeAlias(const string &name, const ALValue &keys) {
+    ALValue cmd;
+    cmd.arraySetSize(2);
+    cmd[0] = name;
+    cmd[1] = keys;
+    this->dcm->createAlias(cmd);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Joints::Joints(boost::shared_ptr<AL::DCMProxy> dcm,
+               boost::shared_ptr<AL::ALMemoryProxy> memory)
+        : dcm(dcm), mem(memory),
+          keys(JOINTS_COUNT) {
+    // Joint keys list
     this->keys[HEAD_YAW] = string("HEAD_YAW");
     this->keys[HEAD_PITCH] = string("HEAD_PITCH");
     this->keys[L_SHOULDER_PITCH] = string("L_SHOULDER_PITCH");
@@ -44,70 +71,41 @@ Joints::Joints(shared_ptr<AL::ALMemoryProxy> memory,
     this->keys[R_ELBOW_ROLL] = string("R_ELBOW_ROLL");
     this->keys[R_WRIST_YAW] = string("R_WRIST_YAW");
     this->keys[R_HAND] = string("R_HAND");
-
-    this->position_in_list[HEAD_YAW] = string(
-            "Device/SubDeviceList/HeadYaw/Position/Sensor/Value");
-    this->position_in_list[HEAD_PITCH] = string(
-            "Device/SubDeviceList/HeadPitch/Position/Sensor/Value");
-    this->position_in_list[L_SHOULDER_PITCH] = string(
-            "Device/SubDeviceList/LShoulderPitch/Position/Sensor/Value");
-    this->position_in_list[L_SHOULDER_ROLL] = string(
-            "Device/SubDeviceList/LShoulderRoll/Position/Sensor/Value");
-    this->position_in_list[L_ELBOW_YAW] = string(
-            "Device/SubDeviceList/LElbowYaw/Position/Sensor/Value");
-    this->position_in_list[L_ELBOW_ROLL] = string(
-            "Device/SubDeviceList/LElbowRoll/Position/Sensor/Value");
-    this->position_in_list[L_WRIST_YAW] = string(
-            "Device/SubDeviceList/LWristYaw/Position/Sensor/Value");
-    this->position_in_list[L_HAND] = string(
-            "Device/SubDeviceList/LHand/Position/Sensor/Value");
-    this->position_in_list[L_HIP_YAW_PITCH] = string(
-            "Device/SubDeviceList/LHipYawPitch/Position/Sensor/Value");
-    this->position_in_list[L_HIP_ROLL] = string(
-            "Device/SubDeviceList/LHipRoll/Position/Sensor/Value");
-    this->position_in_list[L_HIP_PITCH] = string(
-            "Device/SubDeviceList/LHipPitch/Position/Sensor/Value");
-    this->position_in_list[L_KNEE_PITCH] = string(
-            "Device/SubDeviceList/LKneePitch/Position/Sensor/Value");
-    this->position_in_list[L_ANKLE_PITCH] = string(
-            "Device/SubDeviceList/LAnklePitch/Position/Sensor/Value");
-    this->position_in_list[L_ANKLE_ROLL] = string(
-            "Device/SubDeviceList/LAnkleRoll/Position/Sensor/Value");
-    this->position_in_list[R_ANKLE_PITCH] = string(
-            "Device/SubDeviceList/RAnklePitch/Position/Sensor/Value");
-    this->position_in_list[R_ANKLE_ROLL] = string(
-            "Device/SubDeviceList/RAnkleRoll/Position/Sensor/Value");
-    this->position_in_list[R_ELBOW_ROLL] = string(
-            "Device/SubDeviceList/RElbowRoll/Position/Sensor/Value");
-    this->position_in_list[R_ELBOW_YAW] = string(
-            "Device/SubDeviceList/RElbowYaw/Position/Sensor/Value");
-    this->position_in_list[R_HAND] = string(
-            "Device/SubDeviceList/RHand/Position/Sensor/Value");
-    this->position_in_list[R_HIP_PITCH] = string(
-            "Device/SubDeviceList/RHipPitch/Position/Sensor/Value");
-    this->position_in_list[R_HIP_ROLL] = string(
-            "Device/SubDeviceList/RHipRoll/Position/Sensor/Value");
-    this->position_in_list[R_HIP_YAW_PITCH] = string(
-            "Device/SubDeviceList/RHipYawPitch/Position/Sensor/Value");
-    this->position_in_list[R_KNEE_PITCH] = string(
-            "Device/SubDeviceList/RKneePitch/Position/Sensor/Value");
-    this->position_in_list[R_SHOULDER_PITCH] = string(
-            "Device/SubDeviceList/RShoulderPitch/Position/Sensor/Value");
-    this->position_in_list[R_SHOULDER_ROLL] = string(
-            "Device/SubDeviceList/RShoulderRoll/Position/Sensor/Value");
-    this->position_in_list[R_WRIST_YAW] = string(
-            "Device/SubDeviceList/RWristYaw/Position/Sensor/Value");
-
-    this->position_out_list[HEAD_PITCH] = string(
-            "Device/SubDeviceList/HeadPitch/Position/Actuator/Value");
-    this->position_out_list[HEAD_YAW] = string(
-            "Device/SubDeviceList/HeadYaw/Position/Actuator/Value");
-    this->position_out_list[L_ANKLE_PITCH] = string(
-            "Device/SubDeviceList/LAnklePitch/Position/Actuator/Value");
-    this->position_out_list[L_ANKLE_ROLL] = string(
-            "Device/SubDeviceList/LAnkleRoll/Position/Actuator/Value");
-    this->position_out_list[L_ELBOW_ROLL] = string(
-            "Device/SubDeviceList/LElbowRoll/Position/Actuator/Value");
+    // Input DCM position keys list
+    this->position_in_list.arraySetSize(JOINTS_COUNT);
+    this->position_in_list[HEAD_YAW] = string("Device/SubDeviceList/HeadYaw/Position/Sensor/Value");
+    this->position_in_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Position/Sensor/Value");
+    this->position_in_list[L_SHOULDER_PITCH] = string("Device/SubDeviceList/LShoulderPitch/Position/Sensor/Value");
+    this->position_in_list[L_SHOULDER_ROLL] = string("Device/SubDeviceList/LShoulderRoll/Position/Sensor/Value");
+    this->position_in_list[L_ELBOW_YAW] = string("Device/SubDeviceList/LElbowYaw/Position/Sensor/Value");
+    this->position_in_list[L_ELBOW_ROLL] = string("Device/SubDeviceList/LElbowRoll/Position/Sensor/Value");
+    this->position_in_list[L_WRIST_YAW] = string("Device/SubDeviceList/LWristYaw/Position/Sensor/Value");
+    this->position_in_list[L_HAND] = string("Device/SubDeviceList/LHand/Position/Sensor/Value");
+    this->position_in_list[L_HIP_YAW_PITCH] = string("Device/SubDeviceList/LHipYawPitch/Position/Sensor/Value");
+    this->position_in_list[L_HIP_ROLL] = string("Device/SubDeviceList/LHipRoll/Position/Sensor/Value");
+    this->position_in_list[L_HIP_PITCH] = string("Device/SubDeviceList/LHipPitch/Position/Sensor/Value");
+    this->position_in_list[L_KNEE_PITCH] = string("Device/SubDeviceList/LKneePitch/Position/Sensor/Value");
+    this->position_in_list[L_ANKLE_PITCH] = string("Device/SubDeviceList/LAnklePitch/Position/Sensor/Value");
+    this->position_in_list[L_ANKLE_ROLL] = string("Device/SubDeviceList/LAnkleRoll/Position/Sensor/Value");
+    this->position_in_list[R_ANKLE_PITCH] = string("Device/SubDeviceList/RAnklePitch/Position/Sensor/Value");
+    this->position_in_list[R_ANKLE_ROLL] = string("Device/SubDeviceList/RAnkleRoll/Position/Sensor/Value");
+    this->position_in_list[R_ELBOW_ROLL] = string("Device/SubDeviceList/RElbowRoll/Position/Sensor/Value");
+    this->position_in_list[R_ELBOW_YAW] = string("Device/SubDeviceList/RElbowYaw/Position/Sensor/Value");
+    this->position_in_list[R_HAND] = string("Device/SubDeviceList/RHand/Position/Sensor/Value");
+    this->position_in_list[R_HIP_PITCH] = string("Device/SubDeviceList/RHipPitch/Position/Sensor/Value");
+    this->position_in_list[R_HIP_ROLL] = string("Device/SubDeviceList/RHipRoll/Position/Sensor/Value");
+    this->position_in_list[R_HIP_YAW_PITCH] = string("Device/SubDeviceList/RHipYawPitch/Position/Sensor/Value");
+    this->position_in_list[R_KNEE_PITCH] = string("Device/SubDeviceList/RKneePitch/Position/Sensor/Value");
+    this->position_in_list[R_SHOULDER_PITCH] = string("Device/SubDeviceList/RShoulderPitch/Position/Sensor/Value");
+    this->position_in_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Position/Sensor/Value");
+    this->position_in_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Position/Sensor/Value");
+    // Output DCM position keys list
+    this->position_out_list.arraySetSize(JOINTS_COUNT);
+    this->position_out_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Position/Actuator/Value");
+    this->position_out_list[HEAD_YAW] = string("Device/SubDeviceList/HeadYaw/Position/Actuator/Value");
+    this->position_out_list[L_ANKLE_PITCH] = string("Device/SubDeviceList/LAnklePitch/Position/Actuator/Value");
+    this->position_out_list[L_ANKLE_ROLL] = string("Device/SubDeviceList/LAnkleRoll/Position/Actuator/Value");
+    this->position_out_list[L_ELBOW_ROLL] = string("Device/SubDeviceList/LElbowRoll/Position/Actuator/Value");
     this->position_out_list[L_ELBOW_YAW] = string("Device/SubDeviceList/LElbowYaw/Position/Actuator/Value");
     this->position_out_list[L_HAND] = string("Device/SubDeviceList/LHand/Position/Actuator/Value");
     this->position_out_list[L_HIP_PITCH] = string("Device/SubDeviceList/LHipPitch/Position/Actuator/Value");
@@ -129,7 +127,8 @@ Joints::Joints(shared_ptr<AL::ALMemoryProxy> memory,
     this->position_out_list[R_SHOULDER_PITCH] = string("Device/SubDeviceList/RShoulderPitch/Position/Actuator/Value");
     this->position_out_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Position/Actuator/Value");
     this->position_out_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Position/Actuator/Value");
-
+    // DCM hardness keys list
+    this->hardness_list.arraySetSize(JOINTS_COUNT);
     this->hardness_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Hardness/Actuator/Value");
     this->hardness_list[HEAD_YAW] = string("Device/SubDeviceList/HeadYaw/Hardness/Actuator/Value");
     this->hardness_list[L_ANKLE_PITCH] = string("Device/SubDeviceList/LAnklePitch/Hardness/Actuator/Value");
@@ -156,108 +155,253 @@ Joints::Joints(shared_ptr<AL::ALMemoryProxy> memory,
     this->hardness_list[R_SHOULDER_PITCH] = string("Device/SubDeviceList/RShoulderPitch/Hardness/Actuator/Value");
     this->hardness_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Hardness/Actuator/Value");
     this->hardness_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Hardness/Actuator/Value");
-
-    Joints::initKeysMap(this->position_in_map, this->keys, this->position_in_list);
-    Joints::initKeysMap(this->position_out_map, this->keys, this->position_out_list);
-    Joints::initKeysMap(this->hardness_map, this->keys, this->hardness_list);
+    // Create output keys map
+    for (int i = 0; i < keys.size(); ++i) this->out_map.insert(make_pair<string, int>(keys[i], i));
+    // Create input keys map
+    this->initKeysMap(this->position_map, this->keys, this->position_in_list);
+    this->initKeysMap(this->hardness_map, this->keys, this->hardness_list);
+    // Prepare DCM aliaces
+    this->makeAlias(Joints::DCM_POSITION_ALIAS, this->position_out_list);
+    this->makeAlias(Joints::DCM_HARDNESS_ALIAS, this->hardness_list);
+    // Prepare DCM command
+    this->dcm_cmd.arraySetSize(6);
+    this->dcm_cmd[1] = string("ClearAll");
+    this->dcm_cmd[2] = string("time-separate");
+    this->dcm_cmd[3] = 0;
+    this->dcm_cmd[4].arraySetSize(1);
+    this->dcm_cmd[5].arraySetSize(keys.size());
+    for (int i = 0; i < keys.size(); ++i) this->dcm_cmd[5][i].arraySetSize(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Joints::initKeysMap(std::map<std::string, std::string> &map,
-                         const std::vector<std::string> &keys,
-                         const std::vector<std::string> &values) {
-    vector<std::string>::const_iterator first_it = keys.begin();
-    vector<std::string>::const_iterator second_it = values.begin();
-    while (first_it != keys.end() && second_it != values.end()) {
-        map.insert(make_pair<std::string, std::string>(*first_it, *second_it));
-        ++first_it;
-        ++second_it;
+const vector<string> &Joints::getKeys() const {
+    return this->keys;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Joints::setPosition(const vector<string> &keys,
+                         const vector<double> &values) {
+    bool success = true;
+    int time = this->dcm->getTime(0);
+    lock_guard<mutex> lock(this->synch);
+    this->dcm_cmd[0] = Joints::DCM_POSITION_ALIAS;
+    // Update time
+    this->dcm_cmd[4][0] = time;
+    // Read data from sensors
+    ALValue data = this->mem->getListData(this->position_out_list);
+    for (int i = 0; i < JOINTS_COUNT; ++i) this->dcm_cmd[5][i][0] = data[i];
+    // Update positions
+    for (int i = 0; i < keys.size(); ++i) {
+        try {
+            int index = this->out_map[keys[i]];
+            this->dcm_cmd[5][index][0] = values[i];
+        } catch (out_of_range &e) {
+            success = false;
+            continue;
+        }
     }
+    // Send cmd
+    this->dcm->setAlias(dcm_cmd);
+    return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::string> &Joints::getInputKeys() const {
-    return this->keys;
+bool Joints::setPosition(const std::vector<int> &keys,
+                         const std::vector<double> &values) {
+    bool success = true;
+    int index;
+    int time = this->dcm->getTime(0);
+    lock_guard<mutex> lock(this->synch);
+    this->dcm_cmd[0] = Joints::DCM_POSITION_ALIAS;
+    // Update time
+    this->dcm_cmd[4][0] = time;
+    // Read data from sensors
+    ALValue data = this->mem->getListData(this->position_out_list);
+    for (int i = 0; i < JOINTS_COUNT; ++i) this->dcm_cmd[5][i][0] = data[i];
+    // Update positions
+    for (int i = 0; i < keys.size(); ++i) {
+        try {
+            index = keys[i];
+            this->dcm_cmd[5][index][0] = values[i];
+        } catch (out_of_range &e) {
+            success = false;
+            continue;
+        }
+    }
+    // Send cmd
+    this->dcm->setAlias(dcm_cmd);
+    return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::set(const std::vector<std::string> &keys, const std::vector<float> &values, int time_offset) {
-    return this->setValues(this->position_in_map, keys, values, time_offset);
+SensorData<double> Joints::getPosition(const vector<int> &keys) {
+    unsigned int length = keys.size();
+    AL::ALValue data;
+    data.arraySetSize(length);
+    for (int i = 0; i < length; ++i) {
+        try {
+            data[i] = this->position_in_list[keys.at(i)];
+        } catch (...) {
+            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+        }
+    }
+
+    data = this->mem->getListData(data);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
+    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::set(const std::vector<int> &keys, const std::vector<float> &values, int time_offset) {
-    return this->setValues(this->position_in_list, keys, values, time_offset);
+SensorData<double> Joints::getPosition(const vector<string> &keys) {
+    unsigned int length = keys.size();
+    AL::ALValue data;
+    data.arraySetSize(length);
+    for (int i = 0; i < length; ++i) {
+        try {
+            data[i] = this->position_map[keys.at(i)];
+        } catch (...) {
+            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+        }
+    }
+
+    data = this->mem->getListData(data);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
+    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::string> &Joints::getOutputKeys() const {
-    return this->keys;
+SensorData<double> Joints::getPosition() {
+    AL::ALValue data = this->mem->getListData(this->position_in_list);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(this->keys.size());
+    for (unsigned int i = 0; i < this->keys.size(); ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<float> Joints::get(const std::vector<int> &keys) {
-    return SensorData<float>(this->getValues(this->position_out_list, keys),
-                             this->clock.getDCMTime());
+bool Joints::setHardness(double value) {
+    int time = this->dcm->getTime(0);
+    lock_guard<mutex> lock(this->synch);
+    this->dcm_cmd[0] = Joints::DCM_HARDNESS_ALIAS;
+    // Update time
+    this->dcm_cmd[4][0] = time;
+    // Update positions
+    for (int i = 0; i < keys.size(); ++i) this->dcm_cmd[5][i][0] = value;
+    // Send cmd
+    this->dcm->setAlias(dcm_cmd);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<float> Joints::get(const std::vector<std::string> &keys) {
-    return SensorData<float>(this->getValues(this->position_out_map, keys),
-                             this->clock.getDCMTime());
+bool Joints::setHardness(const std::vector<std::string> &keys, const std::vector<double> &values) {
+    bool success = true;
+    int index;
+    int time = this->dcm->getTime(0);
+    lock_guard<mutex> lock(this->synch);
+    this->dcm_cmd[0] = Joints::DCM_HARDNESS_ALIAS;
+    // Update time
+    this->dcm_cmd[4][0] = time;
+    // Read data from sensors
+    ALValue data = this->mem->getListData(this->hardness_list);
+    for (int i = 0; i < JOINTS_COUNT; ++i) this->dcm_cmd[5][i][0] = data[i];
+    // Update positions
+    for (int i = 0; i < JOINTS_COUNT; ++i) {
+        try {
+            index = this->out_map[keys[i]];
+            this->dcm_cmd[5][index][0] = values[i];
+        } catch (out_of_range &e) {
+            success = false;
+            continue;
+        }
+    }
+    // Send cmd
+
+    this->dcm->setAlias(dcm_cmd);
+    return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<float> Joints::get() {
-    return SensorData<float>(
-            this->getValues(this->position_out_map, this->keys),
-            this->clock.getDCMTime());
+bool Joints::setHardness(const std::vector<int> &keys,
+                         const std::vector<double> &values) {
+    bool success = true;
+    int index;
+    int time = this->dcm->getTime(0);
+    lock_guard<mutex> lock(this->synch);
+    this->dcm_cmd[0] = Joints::DCM_HARDNESS_ALIAS;
+    // Update time
+    this->dcm_cmd[4][0] = time;
+    // Read data from sensors
+    this->dcm_cmd[5] = this->mem->getListData(this->hardness_list);
+    // Update positions
+    for (int i = 0; i < JOINTS_COUNT; ++i) {
+        try {
+            index = keys[i];
+            this->dcm_cmd[5][index][0] = values[i];
+        } catch (out_of_range &e) {
+            success = false;
+            continue;
+        }
+    }
+    // Send cmd
+    this->dcm->setAlias(dcm_cmd);
+    return success;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(float value, int time_offset) {
-    static vector<float> values(JOINTS_COUNT, value);
-    return this->setValues(this->hardness_map, this->keys, values, time_offset);
+SensorData<double> Joints::getHardness(const vector<int> &keys) {
+    unsigned int length = JOINTS_COUNT;
+    AL::ALValue data;
+    data.arraySetSize(length);
+    for (int i = 0; i < length; ++i) {
+        try {
+            data[i] = this->hardness_list[keys.at(i)];
+        } catch (...) {
+            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+        }
+    }
+
+    data = this->mem->getListData(data);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
+    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(const std::vector<std::string> &keys,
-                         const std::vector<float> &values,
-                         int time_offset) {
-    return this->setValues(this->hardness_map, keys, values, time_offset);
+SensorData<double> Joints::getHardness(const vector<string> &keys) {
+    unsigned int length = JOINTS_COUNT;
+    AL::ALValue data;
+    data.arraySetSize(length);
+    for (int i = 0; i < length; ++i) {
+        try {
+            data[i] = this->hardness_map[keys.at(i)];
+        } catch (...) {
+            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+        }
+    }
+
+    data = this->mem->getListData(data);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
+    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(const std::vector<int> &keys, const std::vector<float> &values, int time_offset) {
-    return this->setValues(this->hardness_list, keys, values, time_offset);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-SensorData<float> Joints::getHardness(const std::vector<int> &keys) {
-    return SensorData<float>(this->getValues(this->hardness_list, keys), this->clock.getDCMTime());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-SensorData<float> Joints::getHardness(
-        const std::vector<std::string> &keys) {
-    return SensorData<float>(this->getValues(this->hardness_map, keys), this->clock.getDCMTime());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-SensorData<float> Joints::getHardness() {
-    return SensorData<float>(this->getValues(this->hardness_map, this->keys), this->clock.getDCMTime());
+SensorData<double> Joints::getHardness() {
+    AL::ALValue data = this->mem->getListData(this->hardness_list);
+    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(JOINTS_COUNT);
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->at(i) = data[i];
+    return SensorData<double>(res, this->dcm->getTime(0));
 }

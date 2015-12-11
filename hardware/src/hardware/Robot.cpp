@@ -14,29 +14,21 @@ using namespace std;
 rd::Robot::Robot(string name, const string &ip, unsigned int port) {
     const string broker_ip = string("0.0.0.0");
     const int broker_port = 54000;
-    shared_ptr<ALBroker> broker;
     try {
-        broker = ALBroker::createBroker(
-                name,
-                broker_ip,
-                broker_port,
-                ip,
-                port
-        );
+        this->broker = ALBroker::createBroker(name, broker_ip, broker_port, ip, port, 0);
     } catch (...) {
-        // TODO Log this shit!
+        cerr << "Fail to connect broker to: " << ip << ":" << port << std::endl;
         ALBrokerManager::getInstance()->killAllBroker();
         ALBrokerManager::kill();
         // TODO Raise exception
     }
 
-    ALBrokerManager::setInstance(broker->fBrokerManager.lock());
-    ALBrokerManager::getInstance()->addBroker(broker);
+    ALBrokerManager::setInstance(this->broker->fBrokerManager.lock());
+    ALBrokerManager::getInstance()->addBroker(this->broker);
+    this->dcm = make_shared<DCMProxy>(this->broker);
+    this->mem = make_shared<ALMemoryProxy>(this->broker);
 
-    this->dcm = make_shared<DCMProxy>(broker);
-    this->mem = make_shared<ALMemoryProxy>(broker);
-
-    this->joints = make_shared<Joints>(mem, dcm);
+    this->joints = make_shared<Joints>(dcm, mem);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

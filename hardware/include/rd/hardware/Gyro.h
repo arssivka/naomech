@@ -5,8 +5,6 @@
 #ifndef NAOMECH_GYRO_H
 #define NAOMECH_GYRO_H
 
-#include <rd/hardware/Sensor.h>
-
 namespace rd {
 
 }
