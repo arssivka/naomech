@@ -7,8 +7,15 @@
 
 #include <alcommon/almodule.h>
 #include <boost/shared_ptr.hpp>
-#include "rd/KinematicsModule/NAOKinematics.h"
-#include "rd/HardwareAccessModule/HardwareDefines.h"
+#include "Tools/Math/Pose3D.h"
+
+#include "RD/HardwareAccessModule/HardwareDefines.h"
+
+#include "Representations/Configuration/JointCalibration.h"
+#include "Representations/Configuration/RobotDimensions.h"
+#include "Representations/Configuration/CameraCalibration.h"
+#include "Representations/Configuration/MassCalibration.h"
+
 
 namespace AL {
     class ALBroker;
@@ -16,7 +23,7 @@ namespace AL {
     class ALProxy;
 }
 
-namespace rd {
+namespace RD {
     class KinematicsModule : public AL::ALModule {
     public:
         KinematicsModule(boost::shared_ptr<AL::ALBroker> pBroker,
@@ -34,41 +41,55 @@ namespace rd {
 
         AL::ALValue getJoints();
 
-        AL::ALValue getCenterOfMass();
+        void lookAt(const AL::ALValue &pos,
+                    const bool bot_camera = true);
 
-        void setHeadPosition(AL::ALValue pos, bool top_camera = true);
-        void setLeftHandPosition(AL::ALValue pos);
-        void setLeftLegPosition(AL::ALValue pos);
-        void setRightHandPosition(AL::ALValue pos);
-        void setRightLegPosition(AL::ALValue pos);
+        void setLeftArmPosition(const AL::ALValue &pos);
+
+        void setLeftLegPosition(const AL::ALValue &pos);
+
+        void setLeftLegPositionWithZ(const AL::ALValue &pos, float joint0);
+
+        void setRightLegPositionWithZ(const AL::ALValue &pos, float joint0);
+
+        void setRightArmPosition(const AL::ALValue &pos);
+
+        void setRightLegPosition(const AL::ALValue &pos);
 
         AL::ALValue getHeadPosition(bool top_camera=true);
-        AL::ALValue getLeftHandPosition();
+
+        AL::ALValue getLeftArmPosition();
         AL::ALValue getLeftLegPosition();
-        AL::ALValue getRightHandPosition();
+
+        AL::ALValue getRightArmPosition();
         AL::ALValue getRightLegPosition();
 
         void initFastAccess();
-        void initKinematics();
         void initHW();
 
         void calculateJoints();
 
-        inline AL::ALValue getPosition(NAOKinematics::Effectors ef);
-        inline NAOKinematics::FKvars prepareFKvars(const AL::ALValue& pos);
+        Pose3D preparePose3D(const AL::ALValue &pos);
 
         boost::mutex joints_mut;
         boost::mutex positions_mut;
-        boost::mutex kinematics_mut;
 
         boost::shared_ptr<AL::ALProxy> hw;
         boost::shared_ptr<AL::ALMemoryFastAccess> mem;
-        boost::shared_ptr<NAOKinematics> kinematics;
         std::vector<std::string> sensor_keys;
-        std::vector<float> joint_values;
-        std::vector<NAOKinematics::FKvars> positions;
-        std::vector<bool> positions_mask;
+        JointContainer joints;
+        std::vector<Pose3D> effectors;
+        std::vector<bool> effectors_mask;
         bool top_camera;
+        float leftjoint0;
+        Vector3<> obj;
+
+        //TODO Delete this shit!
+
+        JointCalibration jc;
+        RobotDimensions rd;
+        MassCalibration mc;
+        CameraCalibration cc;
     };
 }
 
