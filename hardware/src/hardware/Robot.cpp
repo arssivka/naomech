@@ -28,12 +28,33 @@ rd::Robot::Robot(string name, const string &ip, unsigned int port) {
     this->mem = make_shared<ALMemoryProxy>(this->broker);
 
     this->joints = make_shared<Joints>(broker);
+    this->dcm = make_shared<DCMProxy>(broker);
+    this->mem = make_shared<ALMemoryProxy>(broker);
+
+    this->top_camera = make_shared<rd::Camera>("/dev/video0", 320, 240, true);
+    this->bot_camera = make_shared<rd::Camera>("/dev/video1", 320, 240, true);
+    this->top_camera->setFPS(25);
+    this->bot_camera->setFPS(25);
+    this->top_camera->startCapturing();
+    this->bot_camera->startCapturing();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<rd::Joints> rd::Robot::getJoints() {
     return this->joints;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<rd::Camera> rd::Robot::getTopCamera() {
+    return this->top_camera;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<rd::Camera> rd::Robot::getBotCamera() {
+    return this->bot_camera;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

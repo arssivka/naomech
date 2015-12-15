@@ -19,6 +19,9 @@ find_package(ZLIB REQUIRED)
 find_package(ALCOMMON REQUIRED)
 find_package(ALPROXIES REQUIRED)
 find_package(QI REQUIRED)
+find_package(OPENCV2_CORE REQUIRED)
+find_package(OPENCV2_HIGHGUI REQUIRED)
+find_package(TBB REQUIRED)
 
 set(SRCS src/main.cpp)
 
@@ -44,7 +47,10 @@ set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_SIGNALS_INCLUDE_DIRS}
         ${RTTOOLS_INCLUDE_DIRS}
         ${QI_INCLUDE_DIRS}
-        ${ZLIB_INCLUDE_DIRS})
+        ${ZLIB_INCLUDE_DIRS}
+        ${OPENCV2_CORE_INCLUDE_DIRS}
+        ${OPENCV2_HIGHGUI_INCLUDE_DIRS}
+        ${TBB_INCLUDE_DIRS})
 
 set(LIBS ${BOOST_LIBRARIES}
         ${BOOST_CHRONO_LIBRARIES}
@@ -68,6 +74,9 @@ set(LIBS ${BOOST_LIBRARIES}
         ${RD_HARDWARE_LIBRARIES}
         ${RD_NETWORK_LIBRARIES}
         ${ZLIB_LIBRARIES}
+        ${OPENCV2_CORE_LIBRARIES}
+        ${OPENCV2_HIGHGUI_LIBRARIES}
+        ${TBB_LIBRARIES}
         xmlrpc++
         xmlrpc_server_abyss++)
 
