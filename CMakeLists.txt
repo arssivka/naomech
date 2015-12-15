@@ -7,6 +7,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/lib/static
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+add_subdirectory(naoqi)
 add_subdirectory(xmlrpc-c)
 add_subdirectory(hardware)
 add_subdirectory(network)
