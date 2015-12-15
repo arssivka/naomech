@@ -17,7 +17,7 @@ RemoteCamera::RemoteCamera(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Cam
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteCamera::ImageMethod::ImageMethod(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Camera> bot_camera)
-        : RemoteMethod("image", "A:b", "Stifness control method"), top_camera(top_camera), bot_camera(bot_camera) {
+        : RemoteMethod("image", "A:b", "Get the image binary data"), top_camera(top_camera), bot_camera(bot_camera) {
      xmlrpc_env_init(&envP);
      xmlrpc_createXmlrpcValue(&envP, &valP);
      xmlrpc_INCREF(valP);
@@ -52,4 +52,5 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
 RemoteCamera::ImageMethod::~ImageMethod() {
     valP->_type = XMLRPC_TYPE_NIL;
     xmlrpc_DECREF(valP);
+    xmlrpc_env_clean(&envP);
 }
