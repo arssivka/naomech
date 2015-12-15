@@ -40,10 +40,9 @@ void Joints::makeAlias(const string &name, const ALValue &keys) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Joints::Joints(boost::shared_ptr<AL::DCMProxy> dcm,
-               boost::shared_ptr<AL::ALMemoryProxy> memory)
-        : dcm(dcm), mem(memory),
-          keys(JOINTS_COUNT) {
+Joints::Joints(shared_ptr<ALBroker> broker)
+        : dcm(make_shared<DCMProxy>(broker)), mem(make_shared<ALMemoryProxy>(broker)),
+          hw(make_shared<ALProxy>(broker, "rd/hwcontroller")), keys(JOINTS_COUNT) {
     // Joint keys list
     this->keys[HEAD_YAW] = string("HEAD_YAW");
     this->keys[HEAD_PITCH] = string("HEAD_PITCH");
@@ -71,62 +70,6 @@ Joints::Joints(boost::shared_ptr<AL::DCMProxy> dcm,
     this->keys[R_ELBOW_ROLL] = string("R_ELBOW_ROLL");
     this->keys[R_WRIST_YAW] = string("R_WRIST_YAW");
     this->keys[R_HAND] = string("R_HAND");
-    // Input DCM position keys list
-    this->position_in_list.arraySetSize(JOINTS_COUNT);
-    this->position_in_list[HEAD_YAW] = string("Device/SubDeviceList/HeadYaw/Position/Sensor/Value");
-    this->position_in_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Position/Sensor/Value");
-    this->position_in_list[L_SHOULDER_PITCH] = string("Device/SubDeviceList/LShoulderPitch/Position/Sensor/Value");
-    this->position_in_list[L_SHOULDER_ROLL] = string("Device/SubDeviceList/LShoulderRoll/Position/Sensor/Value");
-    this->position_in_list[L_ELBOW_YAW] = string("Device/SubDeviceList/LElbowYaw/Position/Sensor/Value");
-    this->position_in_list[L_ELBOW_ROLL] = string("Device/SubDeviceList/LElbowRoll/Position/Sensor/Value");
-    this->position_in_list[L_WRIST_YAW] = string("Device/SubDeviceList/LWristYaw/Position/Sensor/Value");
-    this->position_in_list[L_HAND] = string("Device/SubDeviceList/LHand/Position/Sensor/Value");
-    this->position_in_list[L_HIP_YAW_PITCH] = string("Device/SubDeviceList/LHipYawPitch/Position/Sensor/Value");
-    this->position_in_list[L_HIP_ROLL] = string("Device/SubDeviceList/LHipRoll/Position/Sensor/Value");
-    this->position_in_list[L_HIP_PITCH] = string("Device/SubDeviceList/LHipPitch/Position/Sensor/Value");
-    this->position_in_list[L_KNEE_PITCH] = string("Device/SubDeviceList/LKneePitch/Position/Sensor/Value");
-    this->position_in_list[L_ANKLE_PITCH] = string("Device/SubDeviceList/LAnklePitch/Position/Sensor/Value");
-    this->position_in_list[L_ANKLE_ROLL] = string("Device/SubDeviceList/LAnkleRoll/Position/Sensor/Value");
-    this->position_in_list[R_ANKLE_PITCH] = string("Device/SubDeviceList/RAnklePitch/Position/Sensor/Value");
-    this->position_in_list[R_ANKLE_ROLL] = string("Device/SubDeviceList/RAnkleRoll/Position/Sensor/Value");
-    this->position_in_list[R_ELBOW_ROLL] = string("Device/SubDeviceList/RElbowRoll/Position/Sensor/Value");
-    this->position_in_list[R_ELBOW_YAW] = string("Device/SubDeviceList/RElbowYaw/Position/Sensor/Value");
-    this->position_in_list[R_HAND] = string("Device/SubDeviceList/RHand/Position/Sensor/Value");
-    this->position_in_list[R_HIP_PITCH] = string("Device/SubDeviceList/RHipPitch/Position/Sensor/Value");
-    this->position_in_list[R_HIP_ROLL] = string("Device/SubDeviceList/RHipRoll/Position/Sensor/Value");
-    this->position_in_list[R_HIP_YAW_PITCH] = string("Device/SubDeviceList/RHipYawPitch/Position/Sensor/Value");
-    this->position_in_list[R_KNEE_PITCH] = string("Device/SubDeviceList/RKneePitch/Position/Sensor/Value");
-    this->position_in_list[R_SHOULDER_PITCH] = string("Device/SubDeviceList/RShoulderPitch/Position/Sensor/Value");
-    this->position_in_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Position/Sensor/Value");
-    this->position_in_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Position/Sensor/Value");
-    // Output DCM position keys list
-    this->position_out_list.arraySetSize(JOINTS_COUNT);
-    this->position_out_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Position/Actuator/Value");
-    this->position_out_list[HEAD_YAW] = string("Device/SubDeviceList/HeadYaw/Position/Actuator/Value");
-    this->position_out_list[L_ANKLE_PITCH] = string("Device/SubDeviceList/LAnklePitch/Position/Actuator/Value");
-    this->position_out_list[L_ANKLE_ROLL] = string("Device/SubDeviceList/LAnkleRoll/Position/Actuator/Value");
-    this->position_out_list[L_ELBOW_ROLL] = string("Device/SubDeviceList/LElbowRoll/Position/Actuator/Value");
-    this->position_out_list[L_ELBOW_YAW] = string("Device/SubDeviceList/LElbowYaw/Position/Actuator/Value");
-    this->position_out_list[L_HAND] = string("Device/SubDeviceList/LHand/Position/Actuator/Value");
-    this->position_out_list[L_HIP_PITCH] = string("Device/SubDeviceList/LHipPitch/Position/Actuator/Value");
-    this->position_out_list[L_HIP_ROLL] = string("Device/SubDeviceList/LHipRoll/Position/Actuator/Value");
-    this->position_out_list[L_HIP_YAW_PITCH] = string("Device/SubDeviceList/LHipYawPitch/Position/Actuator/Value");
-    this->position_out_list[L_KNEE_PITCH] = string("Device/SubDeviceList/LKneePitch/Position/Actuator/Value");
-    this->position_out_list[L_SHOULDER_PITCH] = string("Device/SubDeviceList/LShoulderPitch/Position/Actuator/Value");
-    this->position_out_list[L_SHOULDER_ROLL] = string("Device/SubDeviceList/LShoulderRoll/Position/Actuator/Value");
-    this->position_out_list[L_WRIST_YAW] = string("Device/SubDeviceList/LWristYaw/Position/Actuator/Value");
-    this->position_out_list[R_ANKLE_PITCH] = string("Device/SubDeviceList/RAnklePitch/Position/Actuator/Value");
-    this->position_out_list[R_ANKLE_ROLL] = string("Device/SubDeviceList/RAnkleRoll/Position/Actuator/Value");
-    this->position_out_list[R_ELBOW_ROLL] = string("Device/SubDeviceList/RElbowRoll/Position/Actuator/Value");
-    this->position_out_list[R_ELBOW_YAW] = string("Device/SubDeviceList/RElbowYaw/Position/Actuator/Value");
-    this->position_out_list[R_HAND] = string("Device/SubDeviceList/RHand/Position/Actuator/Value");
-    this->position_out_list[R_HIP_PITCH] = string("Device/SubDeviceList/RHipPitch/Position/Actuator/Value");
-    this->position_out_list[R_HIP_ROLL] = string("Device/SubDeviceList/RHipRoll/Position/Actuator/Value");
-    this->position_out_list[R_HIP_YAW_PITCH] = string("Device/SubDeviceList/RHipYawPitch/Position/Actuator/Value");
-    this->position_out_list[R_KNEE_PITCH] = string("Device/SubDeviceList/RKneePitch/Position/Actuator/Value");
-    this->position_out_list[R_SHOULDER_PITCH] = string("Device/SubDeviceList/RShoulderPitch/Position/Actuator/Value");
-    this->position_out_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Position/Actuator/Value");
-    this->position_out_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Position/Actuator/Value");
     // DCM hardness keys list
     this->hardness_list.arraySetSize(JOINTS_COUNT);
     this->hardness_list[HEAD_PITCH] = string("Device/SubDeviceList/HeadPitch/Hardness/Actuator/Value");
@@ -184,26 +127,20 @@ const vector<string> &Joints::getKeys() const {
 bool Joints::setPosition(const vector<string> &keys,
                          const vector<double> &values) {
     bool success = true;
-    int time = this->dcm->getTime(0);
-    lock_guard<mutex> lock(this->synch);
-    this->dcm_cmd[0] = Joints::DCM_POSITION_ALIAS;
-    // Update time
-    this->dcm_cmd[4][0] = time;
     // Read data from sensors
-    ALValue data = this->mem->getListData(this->position_out_list);
-    for (int i = 0; i < JOINTS_COUNT; ++i) this->dcm_cmd[5][i][0] = data[i];
+    ALValue data = this->hw->call<ALValue>("getJointData");
     // Update positions
     for (int i = 0; i < keys.size(); ++i) {
         try {
             int index = this->out_map[keys[i]];
-            this->dcm_cmd[5][index][0] = values[i];
+            data[index] = values[i];
         } catch (out_of_range &e) {
             success = false;
             continue;
         }
     }
     // Send cmd
-    this->dcm->setAlias(dcm_cmd);
+    this->hw->callVoid("setJointData", data);
     return success;
 }
 
@@ -212,27 +149,20 @@ bool Joints::setPosition(const vector<string> &keys,
 bool Joints::setPosition(const std::vector<int> &keys,
                          const std::vector<double> &values) {
     bool success = true;
-    int index;
-    int time = this->dcm->getTime(0);
-    lock_guard<mutex> lock(this->synch);
-    this->dcm_cmd[0] = Joints::DCM_POSITION_ALIAS;
-    // Update time
-    this->dcm_cmd[4][0] = time;
     // Read data from sensors
-    ALValue data = this->mem->getListData(this->position_out_list);
-    for (int i = 0; i < JOINTS_COUNT; ++i) this->dcm_cmd[5][i][0] = data[i];
+    ALValue data = this->hw->call<ALValue>("getJointData");
     // Update positions
     for (int i = 0; i < keys.size(); ++i) {
         try {
-            index = keys[i];
-            this->dcm_cmd[5][index][0] = values[i];
+            int index = keys[i];
+            data[index] = values[i];
         } catch (out_of_range &e) {
             success = false;
             continue;
         }
     }
     // Send cmd
-    this->dcm->setAlias(dcm_cmd);
+    this->hw->callVoid("setJointData", data);
     return success;
 }
 

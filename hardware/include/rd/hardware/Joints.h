@@ -10,6 +10,7 @@
 #include <map>
 #include <alproxies/dcmproxy.h>
 #include <alproxies/almemoryproxy.h>
+#include <alcommon/alproxy.h>
 
 #include <rd/hardware/SensorData.h>
 #include <rd/hardware/Clock.h>
@@ -48,7 +49,7 @@ namespace rd {
         };
 
 
-        Joints(boost::shared_ptr<AL::DCMProxy> dcm, boost::shared_ptr<AL::ALMemoryProxy> memory);
+        Joints(boost::shared_ptr<AL::ALBroker> brocker);
 
         const std::vector<std::string> &getKeys() const;
 
@@ -84,6 +85,7 @@ namespace rd {
 
         boost::shared_ptr<AL::ALMemoryProxy> mem;
         boost::shared_ptr<AL::DCMProxy> dcm;
+        boost::shared_ptr<AL::ALProxy> hw;
 
         boost::mutex synch;
         AL::ALValue dcm_cmd;

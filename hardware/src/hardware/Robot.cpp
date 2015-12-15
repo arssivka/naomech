@@ -3,7 +3,6 @@
 //
 
 #include <rd/hardware/Robot.h>
-#include <alcommon/almodule.h>
 #include <alcommon/albroker.h>
 #include <alcommon/albrokermanager.h>
 
@@ -28,7 +27,7 @@ rd::Robot::Robot(string name, const string &ip, unsigned int port) {
     this->dcm = make_shared<DCMProxy>(this->broker);
     this->mem = make_shared<ALMemoryProxy>(this->broker);
 
-    this->joints = make_shared<Joints>(dcm, mem);
+    this->joints = make_shared<Joints>(broker);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
