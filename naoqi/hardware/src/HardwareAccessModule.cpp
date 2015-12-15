@@ -519,4 +519,3 @@ void HardwareAccessModule::stopStream() {
     this->top_camera->stopCapturing();
     this->bottom_camera->stopCapturing();
 }
-
