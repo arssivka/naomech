@@ -7,6 +7,9 @@
 
 #include "opencv2/core/core.hpp"
 #include <rd/hardware/Image.h>
+#include <rd/hardware/CvImage.h>
+#include <boost/shared_ptr.hpp>
+
 
 namespace rd {
 
@@ -21,9 +24,9 @@ namespace rd {
 
             void stopCapturing();
 
-            rd::Image getBinary();
+            boost::shared_ptr<rd::Image> getBinary();
 
-            rd::Image getCV();
+            boost::shared_ptr<rd::CvImage> getCV();
 
             cv::Mat getCVImage();
 

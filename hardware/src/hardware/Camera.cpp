@@ -5,11 +5,12 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
+#include <boost/make_shared.hpp>
 
 using namespace std;
 using namespace rd;
+using namespace boost;
 
 Camera::Camera(const char *device, int width, int height,
                                bool blocking_mode) {
@@ -173,15 +174,15 @@ unsigned char *Camera::captureImage() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-rd::Image Camera::getBinary() {
+shared_ptr<Image> Camera::getBinary() {
     unsigned char *dbuf = this->captureImage();
     //TODO: Get the time from dcm module
-    return rd::Image(dbuf, 0);
+    return make_shared<Image>(dbuf, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-rd::Image Camera::getCV() {
+shared_ptr<CvImage> Camera::getCV() {
     this->captureImage();
     cv::Mat decoded = cv::Mat(h, w, CV_8UC3);
     unsigned char *dbuf = (unsigned char *) tbuf->start;
@@ -201,14 +202,14 @@ rd::Image Camera::getCV() {
         }
     }
     //TODO: Get the time from dcm module
-    return rd::Image(decoded, 0);
+    return make_shared<CvImage>(decoded, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<unsigned char> Camera::getBinaryVector() {
+vector<unsigned char> Camera::getBinaryVector() {
     unsigned char *dbuf = this->captureImage();
-    std::vector<unsigned char> bin(dbuf, dbuf + size);
+    vector<unsigned char> bin(dbuf, dbuf + size);
     return bin;
 }
 
