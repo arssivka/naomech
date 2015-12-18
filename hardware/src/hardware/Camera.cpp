@@ -173,6 +173,38 @@ unsigned char *Camera::captureImage() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+rd::Image Camera::getBinary() {
+    unsigned char *dbuf = this->captureImage();
+    //TODO: Get the time from dcm module
+    return rd::Image(dbuf, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+rd::Image Camera::getCV() {
+    this->captureImage();
+    cv::Mat decoded = cv::Mat(h, w, CV_8UC3);
+    unsigned char *dbuf = (unsigned char *) tbuf->start;
+    for (int i = 0; i < w; ++i) {
+        for (int j = 0; j < h; ++j) {
+            int temp = j * w + i;
+            double y = (double) dbuf[PIXEL_SIZE_YUV422 * (temp)];
+            double u = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 1 -
+                                     ((i & 1) << 1)];
+            double v = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 3 -
+                                     ((i & 1) << 1)];
+
+            decoded.at<cv::Vec3b>(j, i)[0] = (unsigned char) y;
+            decoded.at<cv::Vec3b>(j, i)[1] = (unsigned char) u;
+            decoded.at<cv::Vec3b>(j, i)[2] = (unsigned char) v;
+
+        }
+    }
+    //TODO: Get the time from dcm module
+    return rd::Image(decoded, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::vector<unsigned char> Camera::getBinaryVector() {
     unsigned char *dbuf = this->captureImage();
@@ -214,7 +246,7 @@ cv::Mat Camera::getCVImage() {
 
 cv::Mat Camera::getCRI() {
     this->captureImage();
-    cv::Mat decoded = cv::Mat(h, w, CV_8UC3);
+    cv::Mat decoded = cv::Mat(this->h, this->w, CV_8UC3);
     unsigned char *dbuf = (unsigned char *) tbuf->start;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {

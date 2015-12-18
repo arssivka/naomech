@@ -6,7 +6,7 @@
 #define NAOMECH_CAMERA_H
 
 #include "opencv2/core/core.hpp"
-#include <xmlrpc-c/base.hpp>
+#include <rd/hardware/Image.h>
 
 namespace rd {
 
@@ -20,6 +20,10 @@ namespace rd {
             void startCapturing();
 
             void stopCapturing();
+
+            rd::Image getBinary();
+
+            rd::Image getCV();
 
             cv::Mat getCVImage();
 
