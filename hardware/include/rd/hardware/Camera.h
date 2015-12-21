@@ -6,7 +6,10 @@
 #define NAOMECH_CAMERA_H
 
 #include "opencv2/core/core.hpp"
-#include <xmlrpc-c/base.hpp>
+#include <rd/hardware/Image.h>
+#include <rd/hardware/CvImage.h>
+#include <boost/shared_ptr.hpp>
+
 
 namespace rd {
 
@@ -20,6 +23,10 @@ namespace rd {
             void startCapturing();
 
             void stopCapturing();
+
+            boost::shared_ptr<rd::Image> getBinary();
+
+            boost::shared_ptr<rd::CvImage> getCV();
 
             cv::Mat getCVImage();
 

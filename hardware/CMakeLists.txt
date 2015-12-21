@@ -28,7 +28,10 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Joints.h
         include/rd/hardware/LEDs.h
         include/rd/hardware/Robot.h
-        include/rd/representation/Color.h)
+        include/rd/representation/Color.h
+        include/rd/hardware/Robot.h
+        include/rd/representation/Image.h
+        include/rd/representation/CvImage.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}

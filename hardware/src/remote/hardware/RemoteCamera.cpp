@@ -3,6 +3,7 @@
 #include <xmlrpc-c/base64.hpp>
 #include <xmlrpc-c/base.h>
 #include <xmlrpc-c/base_int.h>
+#include <time.h>
 
 using namespace xmlrpc_c;
 using namespace boost;
@@ -34,15 +35,16 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
         int size = this->top_camera->getSize();
         valP->_block._size = size;
         valP->_block._allocated = size;
-        valP->_block._block;
+        valP->_block._block = dbuf;
         resultP->instantiate(valP);
+
     }
     else {
         unsigned char *dbuf = bot_camera->captureImage();
         int size = this->bot_camera->getSize();
         valP->_block._size = size;
         valP->_block._allocated = size;
-        valP->_block._block;
+        valP->_block._block = dbuf;
         resultP->instantiate(valP);
     }
 }

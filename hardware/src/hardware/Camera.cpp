@@ -5,11 +5,12 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
+#include <boost/make_shared.hpp>
 
 using namespace std;
 using namespace rd;
+using namespace boost;
 
 Camera::Camera(const char *device, int width, int height,
                                bool blocking_mode) {
@@ -173,10 +174,42 @@ unsigned char *Camera::captureImage() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-std::vector<unsigned char> Camera::getBinaryVector() {
+shared_ptr<Image> Camera::getBinary() {
     unsigned char *dbuf = this->captureImage();
-    std::vector<unsigned char> bin(dbuf, dbuf + size);
+    //TODO: Get the time from dcm module
+    return make_shared<Image>(dbuf, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<CvImage> Camera::getCV() {
+    this->captureImage();
+    cv::Mat decoded = cv::Mat(h, w, CV_8UC3);
+    unsigned char *dbuf = (unsigned char *) tbuf->start;
+    for (int i = 0; i < w; ++i) {
+        for (int j = 0; j < h; ++j) {
+            int temp = j * w + i;
+            double y = (double) dbuf[PIXEL_SIZE_YUV422 * (temp)];
+            double u = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 1 -
+                                     ((i & 1) << 1)];
+            double v = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 3 -
+                                     ((i & 1) << 1)];
+
+            decoded.at<cv::Vec3b>(j, i)[0] = (unsigned char) y;
+            decoded.at<cv::Vec3b>(j, i)[1] = (unsigned char) u;
+            decoded.at<cv::Vec3b>(j, i)[2] = (unsigned char) v;
+
+        }
+    }
+    //TODO: Get the time from dcm module
+    return make_shared<CvImage>(decoded, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+vector<unsigned char> Camera::getBinaryVector() {
+    unsigned char *dbuf = this->captureImage();
+    vector<unsigned char> bin(dbuf, dbuf + size);
     return bin;
 }
 
@@ -214,7 +247,7 @@ cv::Mat Camera::getCVImage() {
 
 cv::Mat Camera::getCRI() {
     this->captureImage();
-    cv::Mat decoded = cv::Mat(h, w, CV_8UC3);
+    cv::Mat decoded = cv::Mat(this->h, this->w, CV_8UC3);
     unsigned char *dbuf = (unsigned char *) tbuf->start;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
