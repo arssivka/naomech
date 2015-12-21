@@ -14,14 +14,14 @@ For example, you can write python script like this to set the hardness of motors
 
 The creation of this system was motivated by our wish to minimize the usage of Aldebaran's system and bad compatibility of
 Nao's system with ROS. For example when you are trying to move mototrs by zero angle using aldebaran's system, mototrs will
-move. Also the cameras were really slow.
+move. Also the cameras were really slow. As you will see int he installation section, we have a scripts that changes ctc structure. It is made to use only CMake without qibuild for building the project.
 
 ### Installation
 
 1. You need ctc installed on your system. If you haven't already go to the aldebaran's site and download 32-bit or 64-bit version according
 to your system: [Aldebaran's site][aldbr]
 2. Extract it wherever you like.
-3. Now you need to install new drivers provided by BHuman. Follow their unstructions [here][bh].
+3. Now you need to install new drivers provided by BHuman. Follow their unstructions [here][BHumanKernel].
 4. Clone [this][rep] repository:
 
   ```sh
@@ -71,9 +71,28 @@ to your system: [Aldebaran's site][aldbr]
   ```sh
   $ ./home/nao/naomech/bin/controller
   ```
-
-
+  
+  If everything is ok, you will see something like this:
+  
+  ```sh
+  [I] 8529 qimessaging.session: Session listener created on tcp://0.0.0.0:0
+  [I] 8529 qimessaging.transportserver: TransportServer will listen on: tcp://127.0.0.1:47123
+  [I] 8529 qimessaging.transportserver: TransportServer will listen on: tcp://192.168.0.8:47123
+  ```
+  
+### We are using:
+ 
+  * [XML-RPC] For providing the remote control
+  * [BHumanKernel] - new drivers
+ 
+### License
+  This project is under BSD license. See [license][lic] file for details.
+  
+### Note
+  Project is still under development. A lot of fixes and changes can be done at any time.
 
 [aldbr]: <https://community.aldebaran.com/en/resources/software/>
 [rep]: <https://github.com/arssivka/naomech>
-[bh]: <https://github.com/bhuman/BKernel>
+[BHumanKernel]: <https://github.com/bhuman/BKernel>
+[XML-RPC]: <https://github.com/ensc/xmlrpc-c>
+[lic]: <https://github.com/arssivka/naomech/blob/master/LICENSE>
