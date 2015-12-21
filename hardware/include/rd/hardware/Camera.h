@@ -6,13 +6,12 @@
 #define NAOMECH_CAMERA_H
 
 #include "opencv2/core/core.hpp"
-#include <rd/hardware/Image.h>
-#include <rd/hardware/CvImage.h>
+#include <rd/representation/Image.h>
+#include <rd/representation/CvImage.h>
 #include <boost/shared_ptr.hpp>
 
 
 namespace rd {
-
     class Camera {
         public:
             Camera(const char *device, int width, int height,
