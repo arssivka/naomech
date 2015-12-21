@@ -26,10 +26,13 @@ we wanted to manage our data manually.
 
 ### Project Structure
 
-  *Network. There are basic classes for creating remote modules and methods. Also there is rpc-server class.
-  *Naoqi. This is the only naoqi-thing that we are using. It is the noaqi-module that allows you to exchange data with nao's hardware. We were not able to refuse usage of this naoqi-module because we failed to find other way to control nao actuators smoothly and without errors.
-  *Hardware. There are classes that represents hardware parts of Nao. Cameras for examples. There are represnted classes for controlling Nao locally and remotly.
-  *Controller. This is where the server and all remote modules starts.
+  * Network. There are basic classes for creating remote modules and methods. Also there is rpc-server class.
+  
+  * Naoqi. This is the only naoqi-thing that we are using. It is the noaqi-module that allows you to exchange data with nao's hardware. We were not able to refuse usage of this naoqi-module because we failed to find other way to control nao actuators smoothly and without errors.
+  
+  * Hardware. There are classes that represents hardware parts of Nao. Cameras for examples. There are represnted classes for controlling Nao locally and remotly.
+  
+  * Controller. This is where the server and all remote modules starts.
 
 ### Installation (This is for linux systems only!)
 
