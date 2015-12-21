@@ -12,7 +12,7 @@
 #include <alproxies/almemoryproxy.h>
 #include <alcommon/alproxy.h>
 
-#include <rd/hardware/SensorData.h>
+#include <rd/representation/SensorData.h>
 #include <rd/hardware/Clock.h>
 
 
@@ -59,11 +59,11 @@ namespace rd {
         bool setPosition(const std::vector<int> &keys,
                          const std::vector<double> &values);
 
-        SensorData<double> getPosition(const std::vector<int> &keys);
+        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<int> &keys);
 
-        SensorData<double> getPosition(const std::vector<std::string> &keys);
+        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<std::string> &keys);
 
-        SensorData<double> getPosition();
+        boost::shared_ptr<SensorData<double> > getPosition();
 
         bool setHardness(double value);
 
@@ -73,11 +73,11 @@ namespace rd {
         bool setHardness(const std::vector<int> &keys,
                          const std::vector<double> &values);
 
-        SensorData<double> getHardness(const std::vector<int> &keys);
+        boost::shared_ptr<SensorData<double> > getHardness(const std::vector<int> &keys);
 
-        SensorData<double> getHardness(const std::vector<std::string> &keys);
+        boost::shared_ptr<SensorData<double> > getHardness(const std::vector<std::string> &keys);
 
-        SensorData<double> getHardness();
+        boost::shared_ptr<SensorData<double> > getHardness();
 
     private:
         const static std::string DCM_POSITION_ALIAS;

@@ -168,7 +168,7 @@ bool Joints::setPosition(const std::vector<int> &keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getPosition(const vector<int> &keys) {
+shared_ptr<SensorData<double> > Joints::getPosition(const vector<int> &keys) {
     unsigned int length = keys.size();
     AL::ALValue data;
     data.arraySetSize(length);
@@ -176,43 +176,44 @@ SensorData<double> Joints::getPosition(const vector<int> &keys) {
         try {
             data[i] = this->position_in_list[keys.at(i)];
         } catch (...) {
-            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+            return make_shared<SensorData<double> >();
         }
     }
 
     data = this->mem->getListData(data);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
-    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
+    for (unsigned int i = 0; i < length; ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getPosition(const vector<string> &keys) {
-    unsigned int length = keys.size();
+boost::shared_ptr<SensorData<double> > Joints::getPosition(const vector<string> &keys) {
     AL::ALValue data;
-    data.arraySetSize(length);
-    for (int i = 0; i < length; ++i) {
+    data.arraySetSize(JOINTS_COUNT);
+    for (int i = 0; i < JOINTS_COUNT; ++i) {
         try {
             data[i] = this->position_map[keys.at(i)];
         } catch (...) {
-            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+            return make_shared<SensorData<double> >();
         }
     }
 
     data = this->mem->getListData(data);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
-    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    boost::shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT,
+                                                                                         this->dcm->getTime(0));
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getPosition() {
+boost::shared_ptr<SensorData<double> > Joints::getPosition() {
     AL::ALValue data = this->mem->getListData(this->position_in_list);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(this->keys.size());
-    for (unsigned int i = 0; i < this->keys.size(); ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    boost::shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT,
+                                                                                         this->dcm->getTime(0));
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,49 +290,50 @@ bool Joints::setHardness(const std::vector<int> &keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getHardness(const vector<int> &keys) {
-    unsigned int length = JOINTS_COUNT;
+boost::shared_ptr<SensorData<double> > Joints::getHardness(const vector<int> &keys) {
     AL::ALValue data;
-    data.arraySetSize(length);
-    for (int i = 0; i < length; ++i) {
+    data.arraySetSize(JOINTS_COUNT);
+    for (int i = 0; i < JOINTS_COUNT; ++i) {
         try {
             data[i] = this->hardness_list[keys.at(i)];
         } catch (...) {
-            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+            return make_shared<SensorData<double> >();
         }
     }
 
     data = this->mem->getListData(data);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
-    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    boost::shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT,
+                                                                                         this->dcm->getTime(0));
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getHardness(const vector<string> &keys) {
-    unsigned int length = JOINTS_COUNT;
+boost::shared_ptr<SensorData<double> > Joints::getHardness(const vector<string> &keys) {
     AL::ALValue data;
-    data.arraySetSize(length);
-    for (int i = 0; i < length; ++i) {
+    data.arraySetSize(JOINTS_COUNT);
+    for (int i = 0; i < JOINTS_COUNT; ++i) {
         try {
             data[i] = this->hardness_map[keys.at(i)];
         } catch (...) {
-            return SensorData<double>(make_shared<std::vector<double> >(), 0);
+            return make_shared<SensorData<double> >();
         }
     }
 
     data = this->mem->getListData(data);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(length);
-    for (unsigned int i = 0; i < length; ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    boost::shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT,
+                                                                                         this->dcm->getTime(0));
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SensorData<double> Joints::getHardness() {
+boost::shared_ptr<SensorData<double> > Joints::getHardness() {
     AL::ALValue data = this->mem->getListData(this->hardness_list);
-    boost::shared_ptr<std::vector<double> > res = boost::make_shared<std::vector<double> >(JOINTS_COUNT);
-    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->at(i) = data[i];
-    return SensorData<double>(res, this->dcm->getTime(0));
+    boost::shared_ptr<SensorData<double> > res = boost::make_shared<SensorData<double> >(JOINTS_COUNT,
+                                                                                         this->dcm->getTime(0));
+    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    return res;
 }

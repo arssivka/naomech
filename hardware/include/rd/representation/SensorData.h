@@ -14,11 +14,15 @@ namespace rd {
     public:
         SensorData() { }
 
-        SensorData(const boost::shared_ptr<std::vector<T> > &data,
+        SensorData(const int length,
+                   const int timestamp)
+                : data(length), timestamp(timestamp) { }
+
+        SensorData(const std::vector<T> &data,
                    const int timestamp)
                 : data(data), timestamp(timestamp) { }
 
-        boost::shared_ptr<std::vector<T> > data;
+        std::vector<T> data;
         int timestamp;
     };
 }
