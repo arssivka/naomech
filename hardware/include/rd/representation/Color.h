@@ -30,15 +30,6 @@ namespace rd {
 
         inline void setBlue(const char brightness);
 
-        inline const char *getData() const;
-
-        inline char getRed() const;
-
-        inline char getGreen() const;
-
-        inline char getBlue() const;
-
-    private:
         char data[3];
     };
 }
