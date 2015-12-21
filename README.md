@@ -105,7 +105,7 @@ to your system: [Aldebaran's site][aldbr]
   This project is under BSD license. See [license][lic] file for details.
   
 ### Note
-  Project is still under development. A lot of fixes and changes can be done at any time.
+  Project is still under development. A lot of fixes and changes can be done at any time. Maybe the new project can appear here O_o (doubtful, but still...)
 
 [aldbr]: <https://community.aldebaran.com/en/resources/software/>
 [rep]: <https://github.com/arssivka/naomech>
