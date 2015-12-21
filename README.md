@@ -21,7 +21,7 @@ For example, you can write python script like this to set the hardness of motors
 
 The creation of this system was motivated by our wish to minimize the usage of Aldebaran's system and bad compatibility of
 Nao's system with ROS. For example when you are trying to move mototrs by zero angle using aldebaran's system, mototrs will
-move. Also the cameras were really slow. As you will see in the installation section, we have script that changes ctc structure. It is made to use only CMake without qibuild for building the project. Also we wanted to refuse the usage of ALValue, because it's slow and 
+move. Also the cameras were really slow. As you will see in the installation section, we have script that changes ctc structure. It is made to use CMake directly without calling qibuild util for building the project. Also we wanted to refuse the usage of ALValue, because it's slow and 
 we wanted to manage our data manually.
 
 ### Project Structure
