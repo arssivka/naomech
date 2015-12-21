@@ -4,7 +4,7 @@ This is the system that allows you to control Nao locally or remote.
 ### Introduction
 
 We are the developers which trying to prepare the team of Nao robots for playing football. After expierencing some problems 
-(Nao can't walk stright. wtf, aldebaran -_-) we've diceded to develop this system. We are not professionals, so if you think that 
+(Nao can't walk strigh! wtf, aldebaran?! -_-) we've diceded to develop this 'bicycle'. We are not professionals, so if you think that 
 what you see here is strange, it's normal. You are free to use this code, but try to use minimum of it and don't forget to add link
 to the authors.
 
@@ -35,7 +35,7 @@ to your system: [Aldebaran's site][aldbr]
   ```sh
   $ git clone https://github.com/arssivka/naomech
   ```
-5. Copy the script ctc_restructurer.sh to your ctc folder and run it.
+5. Copy the script ctc_restructurer.sh to your ctc folder and run it. This is made to provide the work of CMake without qibuild.
 
   ```sh
   $ bash path/to/ctc/ctc_restructurer.sh
