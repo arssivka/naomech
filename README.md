@@ -1,6 +1,13 @@
 # RDot Naomech
 This is the system that allows you to control Nao locally or remote.
 
+### Introduction
+
+We are the developers which trying to prepare the team of Nao robots for playing football. After expierencing of some problems 
+(Nao can't walk stright. wtf, aldebaran -_-) we've diceded to develop this system. We are not professionals, so if you think that 
+what you see here is strange, it's normal. You are free to use this code, but try to use minimum of it and don't forget to add link
+to the authors.
+
 ### Example
 
 For example, you can write python script like this to set the hardness of motors:
@@ -14,13 +21,14 @@ For example, you can write python script like this to set the hardness of motors
 
 The creation of this system was motivated by our wish to minimize the usage of Aldebaran's system and bad compatibility of
 Nao's system with ROS. For example when you are trying to move mototrs by zero angle using aldebaran's system, mototrs will
-move. Also the cameras were really slow. As you will see int he installation section, we have a scripts that changes ctc structure. It is made to use only CMake without qibuild for building the project.
+move. Also the cameras were really slow. As you will see in the installation section, we have script that changes ctc structure. It is made to use only CMake without qibuild for building the project. Also we wanted to refuse the usage of ALValue, because it's slow and 
+we wanted to manage our data manually.
 
-### Installation
+### Installation (This is for linux systems only!)
 
 1. You need ctc installed on your system. If you haven't already go to the aldebaran's site and download 32-bit or 64-bit version according
 to your system: [Aldebaran's site][aldbr]
-2. Extract it wherever you like.
+2. Extract it wherever you like. Let it be the folder ~/ctc for example.
 3. Now you need to install new drivers provided by BHuman. Follow their unstructions [here][BHumanKernel].
 4. Clone [this][rep] repository:
 
@@ -31,6 +39,13 @@ to your system: [Aldebaran's site][aldbr]
 
   ```sh
   $ bash path/to/ctc/ctc_restructurer.sh
+  ```
+  
+5. Connect to your Nao via ssh and create folder naomech:
+
+  ```sh
+  $ ssh nao@your.nao.ip
+  $ mkdir naomech
   ```
 6. Now you can build the project. For that you need to run script naomech/tools/scripts/install.sh with parameters:
   - --ip IP of your Nao
@@ -44,6 +59,7 @@ to your system: [Aldebaran's site][aldbr]
   ```
   
   This script will also copy all the needed files to the robot.
+  Note: if you have any idea how to improve this, feel free to share that idea with us! ;)
   
 7. Connect to your Nao via ssh:
 
