@@ -3,7 +3,7 @@ This is the system that allows you to control Nao locally or remote.
 
 ### Introduction
 
-We are the developers which trying to prepare the team of Nao robots for playing football. After expierencing of some problems 
+We are the developers which trying to prepare the team of Nao robots for playing football. After expierencing some problems 
 (Nao can't walk stright. wtf, aldebaran -_-) we've diceded to develop this system. We are not professionals, so if you think that 
 what you see here is strange, it's normal. You are free to use this code, but try to use minimum of it and don't forget to add link
 to the authors.
