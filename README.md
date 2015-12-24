@@ -57,7 +57,7 @@ to your system: [Aldebaran's site][aldbr]
   $ ssh nao@your.nao.ip
   $ mkdir naomech
   ```
-6. Now you can build the project. For that you need to run script naomech/tools/scripts/install.sh with parameters:
+6. Now you can build the project. For that you can run the script naomech/tools/scripts/install.sh with parameters:
   - --ip IP of your Nao
   - --sources-path Path to source files
   - -b Path where project will be built
