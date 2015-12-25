@@ -9,8 +9,9 @@
 using namespace AL;
 using namespace boost;
 using namespace std;
+using namespace rd;
 
-rd::Robot::Robot(string name, const string &ip, unsigned int port) {
+Robot::Robot(string name, const string &ip, unsigned int port) {
     const string broker_ip = string("0.0.0.0");
     const int broker_port = 54000;
     try {
@@ -28,11 +29,12 @@ rd::Robot::Robot(string name, const string &ip, unsigned int port) {
     this->mem = make_shared<ALMemoryProxy>(this->broker);
 
     this->joints = make_shared<Joints>(broker);
+    this->leds = make_shared<LEDs>(broker);
     this->dcm = make_shared<DCMProxy>(broker);
     this->mem = make_shared<ALMemoryProxy>(broker);
 
-    this->top_camera = make_shared<rd::Camera>("/dev/video0", 320, 240, true);
-    this->bot_camera = make_shared<rd::Camera>("/dev/video1", 320, 240, true);
+    this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true);
+    this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true);
     this->top_camera->setFPS(25);
     this->bot_camera->setFPS(25);
     this->top_camera->startCapturing();
@@ -41,25 +43,31 @@ rd::Robot::Robot(string name, const string &ip, unsigned int port) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<rd::Joints> rd::Robot::getJoints() {
+shared_ptr<Joints> Robot::getJoints() {
     return this->joints;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<rd::Camera> rd::Robot::getTopCamera() {
+shared_ptr<Camera> Robot::getTopCamera() {
     return this->top_camera;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<rd::Camera> rd::Robot::getBotCamera() {
+shared_ptr<Camera> Robot::getBotCamera() {
     return this->bot_camera;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::Robot::~Robot() {
+shared_ptr<LEDs> Robot::getLEDs() {
+    return this->leds;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Robot::~Robot() {
     AL::ALBrokerManager::getInstance()->killAllBroker();
     AL::ALBrokerManager::kill();
 }

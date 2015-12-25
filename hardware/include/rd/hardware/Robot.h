@@ -15,8 +15,12 @@ namespace rd {
         Robot(std::string name, const std::string &ip, unsigned int port);
 
         boost::shared_ptr<Joints> getJoints();
-        boost::shared_ptr<rd::Camera> getBotCamera();
-        boost::shared_ptr<rd::Camera> getTopCamera();
+
+        boost::shared_ptr<LEDs> getLEDs();
+
+        boost::shared_ptr<Camera> getBotCamera();
+
+        boost::shared_ptr<Camera> getTopCamera();
 
         virtual ~Robot();
 
@@ -26,8 +30,9 @@ namespace rd {
         boost::shared_ptr<AL::ALMemoryProxy> mem;
 
         boost::shared_ptr<Joints> joints;
-        boost::shared_ptr<rd::Camera> bot_camera;
-        boost::shared_ptr<rd::Camera> top_camera;
+        boost::shared_ptr<LEDs> leds;
+        boost::shared_ptr<Camera> bot_camera;
+        boost::shared_ptr<Camera> top_camera;
     };
 }
 

@@ -17,8 +17,7 @@ set(SRCS src/hardware/Accelerometer.cpp
         src/hardware/LEDs.cpp
         src/hardware/Joints.cpp
         src/hardware/Robot.cpp
-        src/hardware/Camera.cpp
-        src/representation/Color.cpp)
+        src/hardware/Camera.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
@@ -27,8 +26,6 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Gyro.h
         include/rd/hardware/Joints.h
         include/rd/hardware/LEDs.h
-        include/rd/hardware/Robot.h
-        include/rd/representation/Color.h
         include/rd/hardware/Robot.h
         include/rd/representation/Image.h
         include/rd/representation/CvImage.h)
@@ -58,10 +55,12 @@ set(RD_HARDWARE_LIBRARIES hardware CACHE STRING "Hardware access module include 
 if (${BUILD_WRAPPER})
     list(APPEND SRCS
             src/remote/hardware/RemoteJoints.cpp
-            src/remote/hardware/RemoteCamera.cpp)
+            src/remote/hardware/RemoteCamera.cpp
+            src/remote/hardware/RemoteLEDs.cpp)
     list(APPEND HEADERS
             include/rd/remote/hardware/RemoteJoints.h
-            include/rd/remote/hardware/RemoteCamera.h)
+            include/rd/remote/hardware/RemoteCamera.h
+            include/rd/remote/hardware/RemoteLEDs.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()
