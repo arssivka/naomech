@@ -121,7 +121,7 @@ namespace rd {
 
         boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<int> &keys);
 
-        boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<keys> &keys);
+        boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<std::string> &keys);
 
         boost::shared_ptr<SensorData<double> > getBrightness();
 
@@ -135,6 +135,10 @@ namespace rd {
         std::vector<std::string> keys;
         std::vector<std::string> leds_list;
         std::map<std::string, std::string> leds_map;
+
+        void initKeysMap(std::map<std::string, std::string> &container,
+                         const std::vector<std::string> &keys,
+                         const std::vector<std::string> &values);
     };
 }
 

@@ -10,6 +10,22 @@ using namespace std;
 using namespace boost;
 using namespace AL;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void LEDs::initKeysMap(map<string, string> &container,
+                       const vector<string> &keys,
+                       const vector<string> &values) {
+    vector<string>::const_iterator first_it = keys.begin();
+    vector<string>::const_iterator second_it = values.begin();
+    while (first_it != keys.end() && second_it != values.end()) {
+        container.insert(make_pair<std::string, std::string>(*first_it, *second_it));
+        ++first_it;
+        ++second_it;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 LEDs::LEDs(shared_ptr<ALBroker> broker)
         : keys(LEDS_COUNT), leds_list(LEDS_COUNT) {
     this->keys[CHEST_BOARD_RED] = string("CHEST_BOARD_RED");
@@ -191,6 +207,13 @@ LEDs::LEDs(shared_ptr<ALBroker> broker)
     this->leds_list[L_FOOT_BLUE] = string("Device/SubDeviceList/RFoot/Led/Blue/Actuator/Value");
     this->leds_list[L_FOOT_GREEN] = string("Device/SubDeviceList/RFoot/Led/Green/Actuator/Value");
     this->leds_list[L_FOOT_RED] = string("Device/SubDeviceList/RFoot/Led/Red/Actuator/Value");
+    // Init map of the keys
+    this->initKeysMap(this->leds_map, this->keys, this->leds_list);
+    // Prepare command for DCM rpoxy
+    this->cmd.arraySetSize(3);
+    this->cmd[1] = "ClearAll";
+    this->cmd[2].arraySetSize(1);
+    this->cmd[2][1].arraySetSize(2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,29 +225,87 @@ const vector<string> &LEDs::getKeys() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool LEDs::setBrightness(const vector<string> &keys, const vector<double> &values) {
-    return false;
+    // Compare vector lengths
+    if (keys.size() != values.size()) return false;
+    // Prepare iterators
+    vector<string>::const_iterator keys_it = keys.begin();
+    vector<double>::const_iterator values_it = values.begin();
+    while (keys_it != keys.end()) {
+        // Update cmd and sent values to DCM
+        {
+            lock_guard<mutex> guard(this->synch);
+            this->cmd[0] = this->leds_map[*keys_it];
+            this->cmd[2][0][0] = this->dcm->getTime(0);
+            this->cmd[2][0][1] = *values_it;
+            this->dcm->set(this->cmd);
+        }
+        // Update iterators
+        ++keys_it;
+        ++values_it;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool LEDs::setBrightness(const vector<int> &keys, const vector<double> &values) {
-    return false;
+    // Compare vector lengths
+    if (keys.size() != values.size()) return false;
+    // Prepare iterators
+    vector<int>::const_iterator keys_it = keys.begin();
+    vector<double>::const_iterator values_it = values.begin();
+    while (keys_it != keys.end()) {
+        // Update cmd and sent values to DCM
+        {
+            lock_guard<mutex> guard(this->synch);
+            this->cmd[0] = this->leds_list[*keys_it];
+            this->cmd[2][0][0] = this->dcm->getTime(0);
+            this->cmd[2][0][1] = *values_it;
+            this->dcm->set(this->cmd);
+        }
+        // Update iterators
+        ++keys_it;
+        ++values_it;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<int> &keys) {
-    return shared_ptr<SensorData<double> >();
+    ALValue k;
+    k.arraySetSize(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        try {
+            k[i] = this->leds_list[keys[i]];
+        } catch (out_of_range &e) {
+            return make_shared<SensorData<double> >();
+        }
+    }
+    ALValue data = this->mem->getListData(k);
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), this->dcm->getTime(0));
+    for (int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<keys> &keys) {
-    return shared_ptr<SensorData<double> >();
+shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<string> &keys) {
+    ALValue k;
+    k.arraySetSize(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        try {
+            k[i] = this->leds_map[keys[i]];
+        } catch (out_of_range &e) {
+            return make_shared<SensorData<double> >();
+        }
+    }
+    ALValue data = this->mem->getListData(k);
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), this->dcm->getTime(0));
+    for (int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<SensorData<double> > LEDs::getBrightness() {
-    return shared_ptr<SensorData<double> >();
+    return make_shared<SensorData<double> >(this->mem->getListData(this->keys), this->dcm->getTime(0));
 }
