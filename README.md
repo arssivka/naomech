@@ -39,7 +39,7 @@ we wanted to manage our data manually.
 1. You need ctc installed on your system. If you haven't already go to the aldebaran's site and download 32-bit or 64-bit version according
 to your system: [Aldebaran's site][aldbr]
 2. Extract it wherever you like. Let it be the folder ~/ctc for example.
-3. Now you need to install new drivers provided by BHuman. Follow their unstructions [here][BHumanKernel].
+3. Now you need to install new drivers provided by BHuman. Follow their instructions [here][BHumanKernel].
 4. Clone [this][rep] repository:
 
   ```sh
@@ -65,7 +65,7 @@ to your system: [Aldebaran's site][aldbr]
   - --ctc Path to your ctc
   
   ```sh
-  $ bash tools/scripts/install.sh --ip ip.of.your.nao --sources-path /path/to/naomech/ -b /path/to/build/ -i /path/to/intsall/ --ctc /path/to/ctc/
+  $ bash tools/scripts/install.sh --ip ip.of.your.nao --sources-path /path/to/naomech/ -b /path/to/build/ -i /path/to/install/ --ctc /path/to/ctc/
   ```
   
   This script will also copy all the needed files to the robot.
