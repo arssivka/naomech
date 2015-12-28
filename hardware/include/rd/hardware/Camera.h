@@ -18,11 +18,11 @@ namespace rd {
             Camera(const char *device, int width, int height,
                            bool blocking_mode);
 
-            bool isCapturing();
+            bool isEnabled();
 
-            void startCapturing();
+            void enableCamera();
 
-            void stopCapturing();
+            void disableCamera();
 
             boost::shared_ptr<rd::Image> getBinary();
 
