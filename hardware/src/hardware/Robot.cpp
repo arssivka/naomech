@@ -30,8 +30,6 @@ Robot::Robot(string name, const string &ip, unsigned int port) {
 
     this->joints = make_shared<Joints>(broker);
     this->leds = make_shared<LEDs>(broker);
-    this->dcm = make_shared<DCMProxy>(broker);
-    this->mem = make_shared<ALMemoryProxy>(broker);
 
     this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true);
     this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true);
