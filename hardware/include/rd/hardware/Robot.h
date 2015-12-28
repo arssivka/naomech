@@ -18,6 +18,8 @@ namespace rd {
 
         boost::shared_ptr<LEDs> getLEDs();
 
+        boost::shared_ptr<Gyro> getGyro();
+
         boost::shared_ptr<Camera> getBotCamera();
 
         boost::shared_ptr<Camera> getTopCamera();
@@ -31,6 +33,7 @@ namespace rd {
 
         boost::shared_ptr<Joints> joints;
         boost::shared_ptr<LEDs> leds;
+        boost::shared_ptr<Gyro> gyro;
         boost::shared_ptr<Camera> bot_camera;
         boost::shared_ptr<Camera> top_camera;
     };

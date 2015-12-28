@@ -3,7 +3,6 @@
 //
 
 #include <rd/hardware/Robot.h>
-#include <alcommon/albroker.h>
 #include <alcommon/albrokermanager.h>
 
 using namespace AL;
@@ -30,6 +29,7 @@ Robot::Robot(string name, const string &ip, unsigned int port) {
 
     this->joints = make_shared<Joints>(broker);
     this->leds = make_shared<LEDs>(broker);
+    this->gyro = make_shared<Gyro>(broker);
 
     this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true);
     this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true);
@@ -64,6 +64,14 @@ shared_ptr<LEDs> Robot::getLEDs() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<Gyro> Robot::getGyro() {
+    return this->gyro;
+}
 
 Robot::~Robot() {
     AL::ALBrokerManager::getInstance()->killAllBroker();
