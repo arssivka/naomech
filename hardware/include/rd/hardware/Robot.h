@@ -1,6 +1,10 @@
 #ifndef NAOMECH_ROBOT_H
 #define NAOMECH_ROBOT_H
 
+/*!        \defgroup robot Robot
+           \ingroup hardware
+ */
+
 #include <vector>
 #include <rd/hardware/Accelerometer.h>
 #include <rd/hardware/Gyro.h>
@@ -10,6 +14,9 @@
 
 
 namespace rd {
+    /*!
+     * \brief The Robot class
+     */
     class Robot {
     public:
         Robot(std::string name, const std::string &ip, unsigned int port);
