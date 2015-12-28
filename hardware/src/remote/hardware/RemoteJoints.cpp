@@ -99,12 +99,39 @@ void RemoteJoints::HardnessMethod::execute(paramList const &paramList, value *co
             data = this->joints->getHardness(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
-    vector<value> values;
-    map<string, value> result;
-    for (int i = 0; i < data->data.size(); ++i) values.push_back(value_double(data->data[i]));
-    result.insert(make_pair<string, value>("data", value_array(values)));
-    result.insert(make_pair<string, value>("timestamp", value_int(data->timestamp)));
-    *resultP = value_struct(result);
+
+    // TODO Check for memory leaks
+    // Some optimisation by using C library of xmlrpc-c
+    xmlrpc_env env;
+    xmlrpc_env_init(&env);
+
+    xmlrpc_value *elem;
+    xmlrpc_value *values;
+    xmlrpc_value *result;
+
+    // Init result array
+    for (int i = 0; i < data->data.size(); ++i) {
+        elem = xmlrpc_double_new(&env, data->data[i]);
+        xmlrpc_array_append_item(&env, values, elem);
+        xmlrpc_DECREF(elem);
+    }
+
+    // XMLRPC-C timestamp
+    elem = xmlrpc_double_new(&env, data->timestamp);
+
+    // Create result struct
+    result = xmlrpc_struct_new(&env);
+    xmlrpc_struct_set_value(&env, result, "data", values);
+    xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+
+    // Apply result
+    resultP->instantiate(result);
+
+    // Clean this shit!
+    xmlrpc_DECREF(elem);
+    xmlrpc_DECREF(values);
+    xmlrpc_DECREF(result);
+    xmlrpc_env_clean(&env);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
