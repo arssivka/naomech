@@ -11,14 +11,16 @@ using namespace std;
 using namespace xmlrpc_c;
 
 
-RemoteLEDs::RemoteLEDs(shared_ptr<LEDs> leds) {
+RemoteLEDs::RemoteLEDs(shared_ptr<LEDs> leds)
+        : RemoteModule("leds") {
     this->addMethod(shared_ptr<RemoteMethod>(new KeysMethod(leds)));
     this->addMethod(shared_ptr<RemoteMethod>(new BrightnessMethod(leds)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RemoteLEDs::KeysMethod::KeysMethod(boost::shared_ptr<LEDs> leds) {
+RemoteLEDs::KeysMethod::KeysMethod(boost::shared_ptr<LEDs> leds)
+        : RemoteMethod("keys", "A:", "Return array of LEDs names") {
     const vector<string> &keys = leds->getKeys();
     vector<value> values;
     for (vector<string>::const_iterator it = keys.begin();
@@ -39,7 +41,7 @@ void RemoteLEDs::KeysMethod::execute(xmlrpc_c::paramList const &paramList,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteLEDs::BrightnessMethod::BrightnessMethod(boost::shared_ptr<LEDs> leds)
-        : leds(leds) { }
+        : RemoteMethod("brightness", "S:,S:A,n:AA,n:d", "Brightness control method"), leds(leds) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,12 +80,12 @@ void RemoteLEDs::BrightnessMethod::execute(xmlrpc_c::paramList const &paramList,
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
         if (integer_keys) {
-            vector<string> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((string) value_string(keys[i]));
-            data = this->leds->getBrightness(joint_names);
-        } else {
             vector<int> joint_names;
             for (int i = 0; i < keys.size(); ++i) joint_names.push_back((int) value_int(keys[i]));
+            data = this->leds->getBrightness(joint_names);
+        } else {
+            vector<string> joint_names;
+            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((string) value_string(keys[i]));
             data = this->leds->getBrightness(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
@@ -98,6 +100,7 @@ void RemoteLEDs::BrightnessMethod::execute(xmlrpc_c::paramList const &paramList,
     xmlrpc_value *result;
 
     // Init result array
+    values = xmlrpc_array_new(&env);
     for (int i = 0; i < data->data.size(); ++i) {
         elem = xmlrpc_double_new(&env, data->data[i]);
         xmlrpc_array_append_item(&env, values, elem);
