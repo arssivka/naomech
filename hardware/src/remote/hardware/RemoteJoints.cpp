@@ -124,15 +124,15 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         // Empty check
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
-        vector<double> data;
-        for (int i = 0; i < values.size(); ++i) data.push_back((double) value_double(values[i]));
+        vector<double> data(values.size());
+        for (int i = 0; i < values.size(); ++i) data[i] = value_double(values[i]);
         if (integer_keys) {
-            vector<int> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((int) value_int(keys[i]));
+            vector<int> joint_names(keys.size());
+            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
             this->joints->setPosition(joint_names, data);
         } else {
-            vector<string> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((string) value_string(keys[i]));
+            vector<string> joint_names(keys.size());
+            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
             this->joints->setPosition(joint_names, data);
         }
         *resultP = value_nil();
@@ -148,12 +148,12 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
         if (integer_keys) {
-            vector<string> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((string) value_string(keys[i]));
+            vector<string> joint_names(keys.size());
+            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
             data = this->joints->getPosition(joint_names);
         } else {
-            vector<int> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((int) value_int(keys[i]));
+            vector<int> joint_names(keys.size());
+            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
             data = this->joints->getPosition(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
