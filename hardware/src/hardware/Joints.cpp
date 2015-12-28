@@ -200,8 +200,7 @@ shared_ptr<SensorData<double> > Joints::getPosition(const vector<string> &keys) 
     }
 
     data = this->mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT,
-                                                                           this->dcm->getTime(0));
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
     for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
     return res;
 }
@@ -210,8 +209,7 @@ shared_ptr<SensorData<double> > Joints::getPosition(const vector<string> &keys) 
 
 shared_ptr<SensorData<double> > Joints::getPosition() {
     ALValue data = this->mem->getListData(this->position_in_list);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT,
-                                                                                         this->dcm->getTime(0));
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
     for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
     return res;
 }
