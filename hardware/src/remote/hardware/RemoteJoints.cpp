@@ -148,12 +148,12 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
         if (integer_keys) {
-            vector<string> joint_names(keys.size());
-            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
-            data = this->joints->getPosition(joint_names);
-        } else {
             vector<int> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
+            data = this->joints->getPosition(joint_names);
+        } else {
+            vector<string> joint_names(keys.size());
+            for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
             data = this->joints->getPosition(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
