@@ -40,7 +40,7 @@ void RemoteModule::addMethod(shared_ptr<RemoteMethod> func,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RemoteModule::deleteMethod(const string &name) {
+bool RemoteModule::removeMethod(const string &name) {
     vector<shared_ptr<RemoteMethod> >::iterator it;
     for (it = this->func_container.begin();
          it != this->func_container.end(); ++it) {
