@@ -110,6 +110,7 @@ namespace rd {
                4. Empty
              */
             virtual void execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const resultP);
+            ///@}
 
         private:
             boost::shared_ptr<Joints> joints;

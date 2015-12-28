@@ -14,24 +14,57 @@
 
 
 namespace rd {
+///@{
     /*!
-     * \brief The Robot class
+       \brief Class that represents hardware parts of the robot
+
+       This class stores objects of all classes, that represents each hardware part of the robot:
+       Camera, Joints, LEDs, Gyro, Accelerometer.
      */
     class Robot {
     public:
+        /*!
+           \brief Constructor for creating the Robot object
+           \param name Who's that pokemon?
+           \param ip Nao robot ip adress
+           \param port Port number
+         */
         Robot(std::string name, const std::string &ip, unsigned int port);
 
+        /*!
+           \brief Returns the Joints object
+           \return Shared pointer to Joints object
+         */
         boost::shared_ptr<Joints> getJoints();
 
+        /*!
+           \brief Returns the LEDs object
+           \return Shared pointer to LEDs object
+         */
         boost::shared_ptr<LEDs> getLEDs();
 
+        /*!
+           \brief Returns the Gyro object
+           \return Shared pointer to Gyro object
+         */
         boost::shared_ptr<Gyro> getGyro();
 
+        /*!
+           \brief Returns Camera object representing bottom camera
+           \return Shared pointer to Camera object
+         */
         boost::shared_ptr<Camera> getBotCamera();
 
+        /*!
+           \brief Returns Camera object representing top camera
+           \return Shared pointer to Camera object
+         */
         boost::shared_ptr<Camera> getTopCamera();
-
+        /*!
+           \brief Destructor
+         */
         virtual ~Robot();
+        ///@}
 
     private:
         boost::shared_ptr<AL::ALBroker> broker;
