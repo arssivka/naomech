@@ -29,7 +29,7 @@ namespace rd {
     class Joints {
     public:
         /*!
-           \brief The Key enumeration.Represents the keys for managing the joints
+           \brief The Key enumeration. Represents the keys for managing the joints
          */
         enum Key {
             HEAD_YAW, HEAD_PITCH,

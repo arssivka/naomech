@@ -6,6 +6,11 @@
 #define NAOMECH_LED_H
 
 
+/*!        \defgroup leds LEDs
+           \ingroup hardware
+ */
+
+
 #include <rd/representation/SensorData.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -14,8 +19,19 @@
 
 
 namespace rd {
+///@{
+/*!
+       \brief Class for controlling nao LEDs.
+
+           This class allows to set and get
+           brightnesses of nao LEDs.
+     */
     class LEDs {
     public:
+
+        /*!
+           \brief The Key enumeration. Represetns the keys for managing nao LEDs.
+         */
         enum Key {
             CHEST_BOARD_RED,
             CHEST_BOARD_GREEN,
@@ -109,21 +125,56 @@ namespace rd {
             LEDS_COUNT
         };
 
+        /*!
+           \brief Constructor for creating the nao LEDs class.
+           \param broker Broker that allows to connect to the Nao's modules.
+         */
         LEDs(boost::shared_ptr<AL::ALBroker> broker);
 
+        /*!
+           \brief Returns the vector containing keys of the LEDs
+           \return vector of strings representing LEDs keys
+         */
         const std::vector<std::string> &getKeys() const;
 
+        /*!
+           \brief Method for setting the brightnesses of the LEDs
+           \param keys Keys of the LEDs needed to be set represented via vector of strings
+           \param values Values to set to the LEDs
+           \return Boolean true if succed otherwise false
+         */
         bool setBrightness(const std::vector<std::string> &keys,
                            const std::vector<double> &values);
 
+        /*!
+           \brief Method for setting the brightnesses of the LEDs
+           \param keys Keys of the LEDs needed to be set represented via vector of integers from enumeration
+           \param values Values to set to the LEDs
+           \return Boolean true if succed otherwise false
+         */
         bool setBrightness(const std::vector<int> &keys,
                            const std::vector<double> &values);
 
+        /*!
+           \brief Method that returns values of the specified LEDs
+           \param keys Keys of the LEDs represented via vector of strings
+           \return shared pointer to the SensorData
+         */
         boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<int> &keys);
 
+        /*!
+           \brief Method that returns values of the specified LEDs
+           \param keys Keys of the LEDs represented via vector of strings
+           \return shared pointer to the SensorData
+         */
         boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<std::string> &keys);
 
+        /*!
+           \brief Method that returns values of all the LEDs
+           \return shared pointer to the SensorData
+         */
         boost::shared_ptr<SensorData<double> > getBrightness();
+         ///@}
 
     private:
         boost::shared_ptr<AL::ALMemoryProxy> mem;
