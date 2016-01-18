@@ -56,11 +56,13 @@ if (${BUILD_WRAPPER})
     list(APPEND SRCS
             src/remote/hardware/RemoteJoints.cpp
             src/remote/hardware/RemoteCamera.cpp
-            src/remote/hardware/RemoteLEDs.cpp)
+            src/remote/hardware/RemoteLEDs.cpp
+            src/remote/hardware/RemoteGyro.cpp)
     list(APPEND HEADERS
             include/rd/remote/hardware/RemoteJoints.h
             include/rd/remote/hardware/RemoteCamera.h
-            include/rd/remote/hardware/RemoteLEDs.h)
+            include/rd/remote/hardware/RemoteLEDs.h
+            include/rd/remote/hardware/RemoteGyro.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()
