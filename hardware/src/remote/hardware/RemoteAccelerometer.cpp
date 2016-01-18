@@ -11,17 +11,17 @@ using namespace xmlrpc_c;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RemoteAccelerometer::RemoteAccelerometer(shared_ptr<Accelerometer> gyro)
-        : RemoteModule("gyro") {
-    this->addMethod(shared_ptr<RemoteMethod>(new KeysMethod(gyro)));
-    this->addMethod(shared_ptr<RemoteMethod>(new AngularVelocityMethod(gyro)));
+RemoteAccelerometer::RemoteAccelerometer(shared_ptr<Accelerometer> accelerometer)
+        : RemoteModule("accelerometer") {
+    this->addMethod(shared_ptr<RemoteMethod>(new KeysMethod(accelerometer)));
+    this->addMethod(shared_ptr<RemoteMethod>(new AngularVelocityMethod(accelerometer)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RemoteAccelerometer::KeysMethod::KeysMethod(shared_ptr<Accelerometer> gyro)
-        : RemoteMethod("keys", "A:", "Return array of gyro sensor names") {
-    const vector<string> &keys = gyro->getKeys();
+RemoteAccelerometer::KeysMethod::KeysMethod(shared_ptr<Accelerometer> accelerometer)
+        : RemoteMethod("keys", "A:", "Return array of accelerometer sensor names") {
+    const vector<string> &keys = accelerometer->getKeys();
     vector<value> values;
     for (vector<string>::const_iterator it = keys.begin();
          it != keys.end(); ++it) {
@@ -39,15 +39,15 @@ void RemoteAccelerometer::KeysMethod::execute(const xmlrpc_c::paramList &paramLi
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RemoteAccelerometer::AngularVelocityMethod::AngularVelocityMethod(shared_ptr<Accelerometer> gyro)
-        : RemoteMethod("sensors", "S:", "Getting data from gyro"), gyro(gyro) { }
+RemoteAccelerometer::AccelerationMethod::AngularVelocityMethod(shared_ptr<Accelerometer> accelerometer)
+        : RemoteMethod("acceleration", "S:", "Getting data from accelerometer"), accelerometer(accelerometer) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RemoteAccelerometer::AngularVelocityMethod::execute(xmlrpc_c::paramList const &paramList,
+void RemoteAccelerometer::AccelerationMethod::execute(xmlrpc_c::paramList const &paramList,
                                                          xmlrpc_c::value *const resultP) {
     paramList.verifyEnd(0);
-    shared_ptr<SensorData<double> > data = this->gyro->getAcceleration();
+    shared_ptr<SensorData<double> > data = this->accelerometer->getAcceleration();
 
     // TODO Check for memory leaks
     // Some optimisation by using C library of xmlrpc-c
