@@ -2,6 +2,11 @@
 // Created by arssivka on 12/25/15.
 //
 
+/*!
+   \defgroup remote_jojnts RemoteJoints
+   \ingroup hardware
+ */
+
 #ifndef NAOMECH_REMOTELEDS_H
 #define NAOMECH_REMOTELEDS_H
 
@@ -10,8 +15,19 @@
 #include <rd/hardware/LEDs.h>
 
 namespace rd {
+///@{
+/*!
+   \brief Class for remote controlling of nao's LEDs
+   This class allows to remote control nao's LEDs via
+   usage of RPC. This class is a child class of RemoteModule.
+   The name of the module is leds.
+ */
     class RemoteLEDs : public RemoteModule {
     public:
+        /*!
+           \brief Constructor for creating the remote leds module
+           \param leds shared pointer to the LEDs object
+         */
         RemoteLEDs(boost::shared_ptr<LEDs> leds);
 
     private:
