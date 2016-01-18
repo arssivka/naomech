@@ -10,6 +10,8 @@
 #include <rd/representation/CvImage.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
+#include <alcommon/albroker.h>
+#include <alproxies/dcmproxy.h>
 
 
 namespace rd {
@@ -17,7 +19,7 @@ namespace rd {
     class Camera : boost::noncopyable {
         public:
             Camera(const char *device, int width, int height,
-                           bool blocking_mode);
+                           bool blocking_mode, boost::shared_ptr<AL::ALBroker> broker);
 
             bool isEnabled();
 
@@ -66,6 +68,8 @@ namespace rd {
             int size;
             bool is_capturing;
             bool startedNormally;
+
+            boost::shared_ptr<AL::DCMProxy> dcm;
         };
 }
 

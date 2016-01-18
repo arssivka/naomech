@@ -14,7 +14,7 @@ using namespace xmlrpc_c;
 RemoteAccelerometer::RemoteAccelerometer(shared_ptr<Accelerometer> accelerometer)
         : RemoteModule("accelerometer") {
     this->addMethod(shared_ptr<RemoteMethod>(new KeysMethod(accelerometer)));
-    this->addMethod(shared_ptr<RemoteMethod>(new AngularVelocityMethod(accelerometer)));
+    this->addMethod(shared_ptr<RemoteMethod>(new AccelerationMethod(accelerometer)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ void RemoteAccelerometer::KeysMethod::execute(const xmlrpc_c::paramList &paramLi
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-RemoteAccelerometer::AccelerationMethod::AngularVelocityMethod(shared_ptr<Accelerometer> accelerometer)
+RemoteAccelerometer::AccelerationMethod::AccelerationMethod(shared_ptr<Accelerometer> accelerometer)
         : RemoteMethod("acceleration", "S:", "Getting data from accelerometer"), accelerometer(accelerometer) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

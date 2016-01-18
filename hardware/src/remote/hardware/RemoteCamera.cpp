@@ -15,6 +15,7 @@ RemoteCamera::RemoteCamera(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Cam
     this->addMethod(shared_ptr<RemoteMethod>(new ImageMethod(top_camera, bot_camera)));
 }
 //TODO: Check if there are memeory leaks
+//TODO: Change the creating of xmlrpc and timestamp, imagemethod must return the struct!!!
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteCamera::ImageMethod::ImageMethod(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Camera> bot_camera)

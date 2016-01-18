@@ -32,8 +32,8 @@ Robot::Robot(string name, const string &ip, unsigned int port) {
     this->gyro = make_shared<Gyro>(broker);
     this->accelerometer = make_shared<Accelerometer>(broker);
 
-    this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true);
-    this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true);
+    this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true, broker);
+    this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true, broker);
     this->top_camera->setFPS(25);
     this->bot_camera->setFPS(25);
     this->top_camera->enableCamera();

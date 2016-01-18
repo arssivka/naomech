@@ -11,9 +11,11 @@
 using namespace std;
 using namespace rd;
 using namespace boost;
+using namespace AL;
 
 Camera::Camera(const char *device, int width, int height,
-                               bool blocking_mode) {
+                               bool blocking_mode,
+               shared_ptr<ALBroker> broker): dcm(make_shared<DCMProxy>(broker)) {
     w = width;
     h = height;
     if (blocking_mode) {
@@ -182,8 +184,7 @@ unsigned char *Camera::captureImage() {
 ////////////////////////////////////////////////////////////////////////////////
 shared_ptr<Image> Camera::getBinary() {
     unsigned char *dbuf = this->captureImage();
-    //TODO: Get the time from dcm module
-    return make_shared<Image>(dbuf, 0);
+    return make_shared<Image>(dbuf, dcm->getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
