@@ -1,14 +1,12 @@
 //
 // Created by arssivka on 11/23/15.
 //
-
+#ifndef NAOMECH_GYRO_H
+#define NAOMECH_GYRO_H
 
 /*!        \defgroup leds LEDs
            \ingroup hardware
  */
-
-#ifndef NAOMECH_GYRO_H
-#define NAOMECH_GYRO_H
 
 #include <alcommon/albroker.h>
 #include <rd/representation/SensorData.h>
@@ -26,7 +24,7 @@ namespace rd {
     class Gyro : boost::noncopyable {
     public:
         /*!
-           \brief The Key enumeration representing the keys, needed for recieving the data from gyro
+           \brief The Key enumeration representing the keys, needed for recieving data from the gyro
          */
         enum Key {
             REF, // What this is kind of pokemon?! // What this is kind of the comment?!

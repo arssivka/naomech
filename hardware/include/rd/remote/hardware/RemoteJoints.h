@@ -12,7 +12,7 @@
 namespace rd {
 ///@{
     /*!
-       \brief Class for remote controlling of nao's joints
+       \brief Class for remote controlling the nao's joints
        This class allows to remote control nao's joints via
        usage of RPC. This class is a child class of RemoteModule.
        The name of the module is joints.

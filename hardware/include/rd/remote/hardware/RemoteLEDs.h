@@ -3,7 +3,7 @@
 //
 
 /*!
-   \defgroup remote_jojnts RemoteJoints
+   \defgroup remote_leds RemoteLEDs
    \ingroup hardware
  */
 
@@ -17,7 +17,7 @@
 namespace rd {
 ///@{
 /*!
-   \brief Class for remote controlling of nao's LEDs
+   \brief Class for remote controlling the nao's LEDs
    This class allows to remote control nao's LEDs via
    usage of RPC. This class is a child class of RemoteModule.
    The name of the module is leds.
@@ -35,7 +35,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote KeysMethod
-               \param leds Shared pointer to the Joints LEDs.
+               \param leds Shared pointer to the LEDs object.
 
                 KeysMethod is the class, object of which is stored in the RemoteLEDs module and represents the remote
                 method named keys, that you can call under the name proxy.leds.keys(). KeysMethod is the child class of
@@ -59,7 +59,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote BrightnessMethod
-               \param joints Shared pointer to the Joints object.
+               \param leds Shared pointer to the LEDs object.
 
                 BrightnessMethod is the class object of which is stored in the RemoteLEDs module and represents the remote
                 method named brightness, that you can call under the name proxyname.leds.brightness(params). BrightnessMethod is the child class of
