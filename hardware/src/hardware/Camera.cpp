@@ -104,7 +104,7 @@ void Camera::initMMAP() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Camera::startCapturing() {
+void Camera::enableCamera() {
     int err = 0;
     struct v4l2_buffer buf;
     memset(&(buf), 0, sizeof(struct v4l2_buffer));
@@ -125,7 +125,7 @@ void Camera::startCapturing() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Camera::stopCapturing() {
+void Camera::disableCamera() {
     enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     int err = ioctl(fd, VIDIOC_STREAMOFF, &type);
     if (err == -1) {
@@ -135,6 +135,12 @@ void Camera::stopCapturing() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+bool Camera::isEnabled() {
+    return is_capturing;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
 
 void Camera::setFPS(int rate) {
     int err = 0;
@@ -303,7 +309,7 @@ int Camera::xioctl(int fd, int request, void *arg) {
 ////////////////////////////////////////////////////////////////////////////////
 
 Camera::~Camera() {
-    this->stopCapturing();
+    this->disableCamera();
     delete tbuf;
 
 }
