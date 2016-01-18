@@ -50,6 +50,12 @@ namespace rd {
         boost::shared_ptr<Gyro> getGyro();
 
         /*!
+           \brief Returns the Accelerometer object
+           \return Shared pointer to Accelerometer object
+         */
+        boost::shared_ptr<Accelerometer> getAccelerometer();
+
+        /*!
            \brief Returns Camera object representing bottom camera
            \return Shared pointer to Camera object
          */
@@ -74,6 +80,7 @@ namespace rd {
         boost::shared_ptr<Joints> joints;
         boost::shared_ptr<LEDs> leds;
         boost::shared_ptr<Gyro> gyro;
+        boost::shared_ptr<Accelerometer> accelerometer;
         boost::shared_ptr<Camera> bot_camera;
         boost::shared_ptr<Camera> top_camera;
     };
