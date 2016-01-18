@@ -11,7 +11,7 @@
 #include <alproxies/dcmproxy.h>
 
 namespace rd {
-    class Accelerometer {
+    class Accelerometer : boost::noncopyable {
     public:
         enum Key {
             X, // What this is kind of pokemon?!

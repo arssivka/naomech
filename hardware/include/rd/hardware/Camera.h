@@ -9,11 +9,12 @@
 #include <rd/representation/Image.h>
 #include <rd/representation/CvImage.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 
 namespace rd {
 
-    class Camera {
+    class Camera : boost::noncopyable {
         public:
             Camera(const char *device, int width, int height,
                            bool blocking_mode);

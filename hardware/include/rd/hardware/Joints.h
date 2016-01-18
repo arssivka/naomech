@@ -26,7 +26,7 @@ namespace rd {
            values of nao joints. Also it allows
            to control hardness.
      */
-    class Joints {
+    class Joints : boost::noncopyable {
     public:
         /*!
            \brief The Key enumeration. Represents the keys for managing the joints

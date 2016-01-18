@@ -9,7 +9,7 @@
 #include <alproxies/dcmproxy.h>
 
 namespace rd {
-    class Clock {
+    class Clock : boost::noncopyable {
     public:
         Clock(boost::shared_ptr<AL::DCMProxy> dcm);
 

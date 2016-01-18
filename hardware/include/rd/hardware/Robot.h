@@ -21,7 +21,7 @@ namespace rd {
        This class stores objects of all classes, that represents each hardware part of the robot:
        Camera, Joints, LEDs, Gyro, Accelerometer.
      */
-    class Robot {
+    class Robot : boost::noncopyable {
     public:
         /*!
            \brief Constructor for creating the Robot object
