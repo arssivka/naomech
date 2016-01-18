@@ -6,7 +6,7 @@
 #define NAOMECH_REMOTEGYRO_H
 
 /*!
-   \defgroup remote_jojnts RemoteJoints
+   \defgroup remote_gyro RemoteGyro
    \ingroup hardware
  */
 
@@ -63,9 +63,9 @@ namespace rd {
                \brief Constructor for creating the remote AngularVelocityMethod
                \param joints Shared pointer to the Gyro object.
 
-                AngularVelocity is the class, object of which is stored in the RemoteLEDs module and represents the remote
-                method named brightness, that you can call under the name proxyname.leds.brightness(params). BrightnessMethod is the child class of
-                the RemoteMethod and needed for controlling the brightnesses of LEDs
+                AngularVelocity is the class, object of which is stored in the RemoteGyro module and represents the remote
+                method named angularvelocity, that you can call under the name proxyname.gyro.angularvelocity(params). AngularVelocityMethod is the child class of
+                the RemoteMethod and needed for recieving the gyro data
              */
             AngularVelocityMethod(boost::shared_ptr<Gyro> gyro);
 
