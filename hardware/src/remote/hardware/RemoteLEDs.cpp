@@ -41,7 +41,7 @@ void RemoteLEDs::KeysMethod::execute(xmlrpc_c::paramList const &paramList,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteLEDs::BrightnessMethod::BrightnessMethod(boost::shared_ptr<LEDs> leds)
-        : RemoteMethod("brightness", "S:,S:A,n:AA,n:d", "Brightness control method"), leds(leds) { }
+        : RemoteMethod("brightness", "S:,S:A,n:AA", "Brightness control method"), leds(leds) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +74,7 @@ void RemoteLEDs::BrightnessMethod::execute(xmlrpc_c::paramList const &paramList,
     shared_ptr<SensorData<double> > data;
     if (paramList.size() == 0) {
         data = this->leds->getBrightness();
+    // S:A
     } else if (paramList.size() == 1) {
         // Empty check
         vector<value> keys = paramList.getArray(0);
