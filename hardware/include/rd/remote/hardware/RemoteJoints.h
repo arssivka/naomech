@@ -36,7 +36,7 @@ namespace rd {
                \brief Constructor for creating the remote KeysMethod
                \param joints Shared pointer to the Joints object.
 
-                KeysMethod is the class object of which is stored in the RemoteJoints module and represents the remote
+                KeysMethod is the class, object of which is stored in the RemoteJoints module and represents the remote
                 method named keys, that you can call under the name proxy.joints.keys(). KeysMethod is the child class of
                 the RemoteMethod and needed for recieving the keys of the mototrs.
              */
