@@ -23,7 +23,7 @@ namespace rd {
            This class allows to recieve
            the data from the nao gyro.
      */
-    class Gyro {
+    class Gyro : boost::noncopyable {
     public:
         /*!
            \brief The Key enumeration representing the keys, needed for recieving the data from gyro
