@@ -3,7 +3,7 @@
 
 /*!
    \defgroup remote_jojnts RemoteJoints
-   \ingroup hardware
+   \ingroup remote_hardware
  */
 
 #include <rd/network/RemoteModule.h>

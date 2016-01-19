@@ -5,9 +5,13 @@
 #ifndef NAOMECH_REMOTEACCELEROMETER_H
 #define NAOMECH_REMOTEACCELEROMETER_H
 
+/*! \defgroup remote_hardware RemoteHardware
+    \ingroup hardware
+*/
+
 /*!
    \defgroup remote_accelerometer RemoteAccelerometer
-   \ingroup hardware
+   \ingroup remote_hardware
  */
 
 

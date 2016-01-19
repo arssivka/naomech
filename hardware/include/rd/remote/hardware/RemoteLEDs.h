@@ -2,13 +2,15 @@
 // Created by arssivka on 12/25/15.
 //
 
-/*!
-   \defgroup remote_leds RemoteLEDs
-   \ingroup hardware
- */
 
 #ifndef NAOMECH_REMOTELEDS_H
 #define NAOMECH_REMOTELEDS_H
+
+
+/*!
+   \defgroup remote_leds RemoteLEDs
+   \ingroup remote_hardware
+ */
 
 
 #include <rd/network/RemoteModule.h>

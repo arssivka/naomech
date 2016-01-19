@@ -7,7 +7,7 @@
 
 /*!
    \defgroup remote_gyro RemoteGyro
-   \ingroup hardware
+   \ingroup remote_hardware
  */
 
 
