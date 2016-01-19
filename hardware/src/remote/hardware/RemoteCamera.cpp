@@ -15,11 +15,10 @@ RemoteCamera::RemoteCamera(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Cam
     this->addMethod(shared_ptr<RemoteMethod>(new ImageMethod(top_camera, bot_camera)));
 }
 //TODO: Check if there are memeory leaks
-//TODO: Change the creating of xmlrpc and timestamp, imagemethod must return the struct!!!
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteCamera::ImageMethod::ImageMethod(shared_ptr<rd::Camera> top_camera, shared_ptr<rd::Camera> bot_camera)
-        : RemoteMethod("image", "A:b", "Get the image binary data"), top_camera(top_camera), bot_camera(bot_camera) {
+        : RemoteMethod("image", "A:S", "Get the struct of image binary data and timestamp"), top_camera(top_camera), bot_camera(bot_camera) {
      xmlrpc_env_init(&envP);
      xmlrpc_createXmlrpcValue(&envP, &valP);
      xmlrpc_INCREF(valP);
@@ -33,20 +32,54 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
     bool which = paramList.getBoolean(0);
     if(which) {
         unsigned char *dbuf = top_camera->captureImage();
+        int time = top_camera -> getTime();
         int size = this->top_camera->getSize();
+        xmlrpc_value *elem;
+        xmlrpc_value *result;
+
+        // XMLRPC-C timestamp
+        elem = xmlrpc_double_new(&env, time);
+
         valP->_block._size = size;
         valP->_block._allocated = size;
         valP->_block._block = dbuf;
-        resultP->instantiate(valP);
+
+        // Create result struct
+        result = xmlrpc_struct_new(&env);
+        xmlrpc_struct_set_value(&env, result, "data", valP);
+        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+
+        resultP->instantiate(result);
+
+        xmlrpc_DECREF(elem);
+        xmlrpc_DECREF(result);
+        xmlrpc_env_clean(&env);
 
     }
     else {
         unsigned char *dbuf = bot_camera->captureImage();
+        int time = bot_camera -> getTime();
         int size = this->bot_camera->getSize();
+        xmlrpc_value *elem;
+        xmlrpc_value *result;
+
+        // XMLRPC-C timestamp
+        elem = xmlrpc_double_new(&env, time);
+
         valP->_block._size = size;
         valP->_block._allocated = size;
         valP->_block._block = dbuf;
-        resultP->instantiate(valP);
+
+         // Create result struct
+        result = xmlrpc_struct_new(&env);
+        xmlrpc_struct_set_value(&env, result, "data", valP);
+        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+
+        resultP->instantiate(result);
+
+        xmlrpc_DECREF(elem);
+        xmlrpc_DECREF(result);
+        xmlrpc_env_clean(&env);
     }
 }
 

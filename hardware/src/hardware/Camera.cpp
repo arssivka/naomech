@@ -106,6 +106,12 @@ void Camera::initMMAP() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+int Camera::getTime() {
+    return this -> dcm -> getTime(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Camera::enableCamera() {
     int err = 0;
     struct v4l2_buffer buf;
@@ -182,12 +188,6 @@ unsigned char *Camera::captureImage() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-shared_ptr<Image> Camera::getBinary() {
-    unsigned char *dbuf = this->captureImage();
-    return make_shared<Image>(dbuf, dcm->getTime(0));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<CvImage> Camera::getCV() {
     this->captureImage();
@@ -208,8 +208,7 @@ shared_ptr<CvImage> Camera::getCV() {
 
         }
     }
-    //TODO: Get the time from dcm module
-    return make_shared<CvImage>(decoded, 0);
+    return make_shared<CvImage>(decoded, this -> dcm -> getTime(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

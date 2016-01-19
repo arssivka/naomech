@@ -6,7 +6,6 @@
 #define NAOMECH_CAMERA_H
 
 #include "opencv2/core/core.hpp"
-#include <rd/representation/Image.h>
 #include <rd/representation/CvImage.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
@@ -27,8 +26,6 @@ namespace rd {
 
             void disableCamera();
 
-            boost::shared_ptr<rd::Image> getBinary();
-
             boost::shared_ptr<rd::CvImage> getCV();
 
             cv::Mat getCVImage();
@@ -44,6 +41,8 @@ namespace rd {
             bool isStartOk();
 
             int getSize();
+
+            int getTime();
 
             std::vector<unsigned char> getBinaryVector();
 
