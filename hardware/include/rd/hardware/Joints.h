@@ -60,14 +60,38 @@ namespace rd {
             JOINTS_COUNT
         };
 
+        /*!
+           \brief HEAD_JOINTS_COUNT constant that stores quantiy of head joints
+         */
         static const int HEAD_JOINTS_COUNT = HEAD_PITCH - HEAD_YAW + 1;
+        /*!
+           \brief ARM_JOINTS_COUNT constant that stores quantity if arm joints
+         */
         static const int ARM_JOINTS_COUNT = L_HAND - L_SHOULDER_PITCH + 1;
+        /*!
+           \brief LEG_JOINTS_COUNT constant that stores quantity of leg joints
+         */
         static const int LEG_JOINTS_COUNT = L_ANKLE_ROLL - L_HIP_YAW_PITCH + 1;
 
+        /*!
+           \brief HEAD_FIRST_JOINT constant that stores number of the first head joint
+         */
         static const int HEAD_FIRST_JOINT = HEAD_YAW;
+        /*!
+           \brief LEFT_ARM_FIRST_JOINT constatnt that stores number of the first left arm joint
+         */
         static const int LEFT_ARM_FIRST_JOINT = L_SHOULDER_PITCH;
+        /*!
+           \brief RIGHT_ARM_FIRST_JOINT constatnt that stores number of the first right arm joint
+         */
         static const int RIGHT_ARM_FIRST_JOINT = R_SHOULDER_PITCH;
+        /*!
+           \brief LEFT_LEG_FIRST_JOINT constant that stores number of the first left leg joint
+         */
         static const int LEFT_LEG_FIRST_JOINT = L_HIP_YAW_PITCH;
+        /*!
+           \brief RIGHT_LEG_FIRST_JOINT constant that stores number of the first right leg joint
+         */
         static const int RIGHT_LEG_FIRST_JOINT = R_HIP_YAW_PITCH;
 
         /*!
@@ -132,7 +156,7 @@ namespace rd {
         /*!
            \brief Sets hardness to all motors
            \param keys keys of motors, which hardness needed to be set. String keys in this case.
-           \param value value of hardness to be set
+           \param values value of hardness to be set
            \return true if succed, otherwise false.
          */
         bool setHardness(const std::vector<std::string> &keys,
@@ -142,7 +166,7 @@ namespace rd {
            \brief Sets hardness to all motors
            \param keys keys of motors, which hardness needed to be set. Integer keys, represented by enum Key
            of this class
-           \param value value of hardness to be set
+           \param values value of hardness to be set
            \return true if succed, otherwise false.
          */
         bool setHardness(const std::vector<int> &keys,

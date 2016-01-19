@@ -25,6 +25,10 @@ namespace rd {
     class RemoteAccelerometer : public RemoteModule {
     public:
 
+        /*!
+           \brief Constructor for creating the RemoteAccelerometer module
+           \param accelerometer shared pointer to the Accelerometer object
+         */
         RemoteAccelerometer(boost::shared_ptr<Accelerometer> accelerometer);
 
     private:
@@ -32,7 +36,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote KeysMethod
-               \param leds Shared pointer to the Accelerometer object.
+               \param accelerometer Shared pointer to the Accelerometer object.
 
                 KeysMethod is the class, object of which is stored in the RemoteAccelerometer module and represents the remote
                 method named keys, that you can call under the name proxy.accelerometer.keys(). KeysMethod is the child class of
@@ -57,7 +61,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote AccelerationMethode
-               \param joints Shared pointer to the Accelerometer object.
+               \param accelerometer Shared pointer to the Accelerometer object.
 
                 AccelerationMethod is the class, object of which is stored in the RemoteAccelerometer module and represents the remote
                 method named acceleration, that you can call under the name proxyname.accelerometer.acceleration(params). AccelerationMethod is the child class of
