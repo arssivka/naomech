@@ -5,6 +5,16 @@
 #ifndef NAOMECH_HWCONTROLLER_H
 #define NAOMECH_HWCONTROLLER_H
 
+/*!
+  \defgroup naoqi NAOQi
+  */
+
+/*!
+  \defgroup hwcontroler HWController
+  \ingroup naoqi
+  */
+
+
 #include <alcommon/almodule.h>
 #include <boost/shared_ptr.hpp>
 
@@ -14,8 +24,11 @@ namespace AL {
     class ALMemoryFastAccess;
     class DCMProxy;
 }
-
+///@{
 namespace rd {
+/*!
+       \brief Enumeration for managing the hardware parts
+     */
     enum SensorType {
         HEAD_YAW, HEAD_PITCH,
         L_SHOULDER_PITCH,
@@ -45,19 +58,45 @@ namespace rd {
         NUM_OF_JOINTS
     };
 
+
+    /*!
+       \brief This is the class for providing acces to the nao's hardware. This is the only naoqi-thing that we are using.
+        It is the noaqi-module that allows you to exchange data with nao's hardware.
+        We were not able to refuse usage of this naoqi-module because we
+        failed to find other way to control nao actuators smoothly and without errors.
+     */
     class HWController : public AL::ALModule {
     public:
+        /*!
+           \brief Construcot for creating the HWController
+           \param pBroker broker for providing connection to the nao
+           \param pName name of the module
+         */
         HWController(boost::shared_ptr<AL::ALBroker> pBroker,
                      const std::string &pName);
 
+        /*!
+           \brief Destructor (Thanks, Captain!)
+         */
         virtual ~HWController();
 
+        /*!
+           \brief init runs all the methods for initialize the HWController parts
+         */
         virtual void init();
 
+        /*!
+           \brief Sends the desired values to the joints
+           \param values the diserid values to be set to the joints
+         */
         void setJointData(const AL::ALValue &values);
 
+        /*!
+           \brief It is for recieving current values from nao joints
+           \return ALValue that stores all the needed values
+         */
         AL::ALValue getJointData();
-
+///@}
     private:
 
         void startLoop();
