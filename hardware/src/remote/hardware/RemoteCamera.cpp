@@ -38,22 +38,22 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
         xmlrpc_value *result;
 
         // XMLRPC-C timestamp
-        elem = xmlrpc_double_new(&env, time);
+        elem = xmlrpc_double_new(&envP, time);
 
         valP->_block._size = size;
         valP->_block._allocated = size;
         valP->_block._block = dbuf;
 
         // Create result struct
-        result = xmlrpc_struct_new(&env);
-        xmlrpc_struct_set_value(&env, result, "data", valP);
-        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+        result = xmlrpc_struct_new(&envP);
+        xmlrpc_struct_set_value(&envP, result, "data", valP);
+        xmlrpc_struct_set_value(&envP, result, "timestamp", elem);
 
         resultP->instantiate(result);
 
         xmlrpc_DECREF(elem);
         xmlrpc_DECREF(result);
-        xmlrpc_env_clean(&env);
+        xmlrpc_env_clean(&envP);
 
     }
     else {
@@ -64,22 +64,22 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
         xmlrpc_value *result;
 
         // XMLRPC-C timestamp
-        elem = xmlrpc_double_new(&env, time);
+        elem = xmlrpc_double_new(&envP, time);
 
         valP->_block._size = size;
         valP->_block._allocated = size;
         valP->_block._block = dbuf;
 
          // Create result struct
-        result = xmlrpc_struct_new(&env);
-        xmlrpc_struct_set_value(&env, result, "data", valP);
-        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+        result = xmlrpc_struct_new(&envP);
+        xmlrpc_struct_set_value(&envP, result, "data", valP);
+        xmlrpc_struct_set_value(&envP, result, "timestamp", elem);
 
         resultP->instantiate(result);
 
         xmlrpc_DECREF(elem);
         xmlrpc_DECREF(result);
-        xmlrpc_env_clean(&env);
+        xmlrpc_env_clean(&envP);
     }
 }
 
