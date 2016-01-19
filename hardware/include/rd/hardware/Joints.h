@@ -60,6 +60,16 @@ namespace rd {
             JOINTS_COUNT
         };
 
+        static const int HEAD_JOINTS_COUNT = HEAD_PITCH - HEAD_YAW + 1;
+        static const int ARM_JOINTS_COUNT = L_HAND - L_SHOULDER_PITCH + 1;
+        static const int LEG_JOINTS_COUNT = L_ANKLE_ROLL - L_HIP_YAW_PITCH + 1;
+
+        static const int HEAD_FIRST_JOINT = HEAD_YAW;
+        static const int LEFT_ARM_FIRST_JOINT = L_SHOULDER_PITCH;
+        static const int RIGHT_ARM_FIRST_JOINT = R_SHOULDER_PITCH;
+        static const int LEFT_LEG_FIRST_JOINT = L_HIP_YAW_PITCH;
+        static const int RIGHT_LEG_FIRST_JOINT = R_HIP_YAW_PITCH;
+
         /*!
            \brief Constructor for creating the Jojnts class
            \param brocker Broker that allows to connect to the Nao's modules.
