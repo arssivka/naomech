@@ -34,8 +34,8 @@ Robot::Robot(string name, const string &ip, unsigned int port) {
 
     this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true, broker);
     this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true, broker);
-    this->top_camera->setFPS(25);
-    this->bot_camera->setFPS(25);
+    this->top_camera->setFPS(30);
+    this->bot_camera->setFPS(30);
     this->top_camera->enableCamera();
     this->bot_camera->enableCamera();
 }

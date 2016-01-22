@@ -195,11 +195,11 @@ shared_ptr<CvImage> Camera::getCV() {
     unsigned char *dbuf = (unsigned char *) tbuf->start;
     for (int i = 0; i < w; ++i) {
         for (int j = 0; j < h; ++j) {
-            int temp = j * w + i;
-            double y = (double) dbuf[PIXEL_SIZE_YUV422 * (temp)];
-            double u = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 1 -
+            int temp = (j * w + i) * PIXEL_SIZE_YUV422;
+            double y = (double) dbuf[(temp)];
+            double u = (double) dbuf[(temp) + 1 -
                                      ((i & 1) << 1)];
-            double v = (double) dbuf[PIXEL_SIZE_YUV422 * (temp) + 3 -
+            double v = (double) dbuf[(temp) + 3 -
                                      ((i & 1) << 1)];
 
             decoded.at<cv::Vec3b>(j, i)[0] = (unsigned char) y;

@@ -4,6 +4,7 @@
 #include <xmlrpc-c/base.h>
 #include <xmlrpc-c/base_int.h>
 #include <time.h>
+#include <rd/representation/CvImage.h>
 
 using namespace xmlrpc_c;
 using namespace boost;
@@ -48,12 +49,11 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
         result = xmlrpc_struct_new(&envP);
         xmlrpc_struct_set_value(&envP, result, "data", valP);
         xmlrpc_struct_set_value(&envP, result, "timestamp", elem);
-
         resultP->instantiate(result);
 
         xmlrpc_DECREF(elem);
         xmlrpc_DECREF(result);
-        xmlrpc_env_clean(&envP);
+        //xmlrpc_env_clean(&envP);
 
     }
     else {
@@ -79,7 +79,7 @@ void RemoteCamera::ImageMethod::execute(paramList const &paramList, value *const
 
         xmlrpc_DECREF(elem);
         xmlrpc_DECREF(result);
-        xmlrpc_env_clean(&envP);
+       // xmlrpc_env_clean(&envP);
     }
 }
 
