@@ -36,8 +36,8 @@ we wanted to manage our data manually.
 
 ### Installation (This is for linux systems only!)
 
-1. You need ctc installed on your system. If you haven't already go to the aldebaran's site and download 32-bit or 64-bit version according
-to your system: [Aldebaran's site][aldbr]
+1. You need ctc installed on your system. Go to the aldebaran's site and download 32-bit or 64-bit version according
+to your system, if you haven't already: [Aldebaran's site][aldbr]
 2. Extract it wherever you like. Let it be the folder ~/ctc for example.
 3. Now you need to install new drivers provided by BHuman. Follow their instructions [here][BHumanKernel].
 4. Clone [this][rep] repository:
@@ -45,7 +45,7 @@ to your system: [Aldebaran's site][aldbr]
   ```sh
   $ git clone https://github.com/arssivka/naomech
   ```
-5. Copy the script ctc_restructurer.sh to your ctc folder and run it. This is made to provide the work of CMake without qibuild.
+5. Copy the script ctc_restructurer.sh to your ctc folder and run it. This is done to provide the work of CMake without qibuild.
 
   ```sh
   $ bash path/to/ctc/ctc_restructurer.sh
