@@ -17,9 +17,9 @@ For example, you can write python script like this to set the hardness of motors
  proxy.joints.hardness(0.6)
 ```
 
-You can make such call in every language with xmlrpc suppirt.
+You can make such call in every language with xmlrpc support.
 
-### More detailed example of how to set joints values:
+### More detailed example of how to set joints values in python:
 Remember that this can be done only after finishing 7-th step
 of the installation section.
 
