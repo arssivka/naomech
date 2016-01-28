@@ -35,7 +35,7 @@ Then connect to your robot. This is the example of ip adress, you need to use yo
  proxy = xmlrpclib.ServerProxy("http://192.168.0.51:8080")
 ```
 
-Now you can set the hardness of motors vai calling the procedure "hardness" of "joints" module:
+Now you can set the hardness of motors via calling the procedure "hardness" of "joints" module:
 
 ```python
  proxy.joints.hardness(0.6)
