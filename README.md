@@ -17,6 +17,51 @@ For example, you can write python script like this to set the hardness of motors
  proxy.joints.hardness(0.6)
 ```
 
+You can make such call in every language with xmlrpc suppirt.
+
+### More detailed example of how to set joints values:
+Remember that this can be done only after finishing 7-th step
+of the installation section.
+
+First of all import xmlrpc:
+
+```python
+ import xmlrpclib
+```
+
+Then connect to your robot. This is the example of ip adress, you need to use yours.
+
+```python
+ proxy = xmlrpclib.ServerProxy("http://192.168.0.51:8080")
+```
+
+Now you can set the hardness of motors vai calling the procedure "hardness" of "joints" module:
+
+```python
+ proxy.joints.hardness(0.6)
+```
+
+You can recieve the keys of joints if you want to:
+
+```python
+ joints_keys = proxy.joints.keys()
+```
+
+Let's set all the motors positions to the 0.0:
+
+```python
+ values = [0.0 for i in range(len(joints_keys))]
+ proxy.joints.position(joints_keys, values)
+```
+
+It is also possible to use integer keys instead of strings. You can set the hardness
+of the desired motors similar way:
+
+```python
+ proxy.joints.position([0, 1], [0.5, 0.6])
+```
+
+
 ### Why?
 
 The creation of this system was motivated by our wish to minimize the usage of Aldebaran's system and bad compatibility of
