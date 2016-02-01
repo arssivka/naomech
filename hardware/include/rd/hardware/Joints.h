@@ -71,10 +71,10 @@ namespace rd {
         static const int RIGHT_LEG_FIRST_JOINT = R_HIP_YAW_PITCH;
 
         /*!
-           \brief Constructor for creating the Jojnts class
+           \brief Constructor for creating the Joints class
            \param brocker Broker that allows to connect to the Nao's modules.
          */
-        Joints(boost::shared_ptr<AL::ALBroker> brocker);
+        Joints(boost::shared_ptr<AL::ALBroker> broker);
 
         /*!
            \brief Returns the vector of keys needed to control nao's hardware
@@ -88,8 +88,8 @@ namespace rd {
            \param values values needed to be set to the motors
            \return true if succed, otherwise false
          */
-        bool setPosition(const std::vector<std::string> &keys,
-                         const std::vector<double> &values);
+        bool setPositions(const std::vector<std::string>& keys,
+                          const std::vector<double>& values);
 
         /*!
            \brief Sets the position of motors
@@ -97,8 +97,8 @@ namespace rd {
            \param values values needed to be set to the motors
            \return true if succed, otherwise false.
          */
-        bool setPosition(const std::vector<int> &keys,
-                         const std::vector<double> &values);
+        bool setPositions(const std::vector<int>& keys,
+                          const std::vector<double>& values);
 
         /*!
            \brief Returns the positions of motors
@@ -106,7 +106,7 @@ namespace rd {
            of this class.
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<int> &keys);
+        boost::shared_ptr<SensorData<double> > getPositions(const std::vector<int>& keys);
 
 
         /*!
@@ -114,13 +114,13 @@ namespace rd {
            \param keys keys of motors, which positions needed to be returned. String keys in this case.
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<std::string> &keys);
+        boost::shared_ptr<SensorData<double> > getPositions(const std::vector<std::string>& keys);
 
         /*!
            \brief Returns the positions of all motors
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPosition();
+        boost::shared_ptr<SensorData<double> > getPositions();
 
         /*!
            \brief Sets hardness to all motors
@@ -171,7 +171,6 @@ namespace rd {
         ///@}
 
     private:
-        const static std::string DCM_POSITION_ALIAS;
         const static std::string DCM_HARDNESS_ALIAS;
 
         boost::shared_ptr<AL::ALMemoryProxy> mem;
@@ -183,18 +182,11 @@ namespace rd {
 
         std::vector<std::string> keys;
 
-        AL::ALValue position_in_list;
-        AL::ALValue position_out_list;
         AL::ALValue hardness_list;
         std::map<std::string, int> out_map;
-        std::map<std::string, std::string> position_map;
         std::map<std::string, std::string> hardness_map;
 
         void makeAlias(const std::string &name, const AL::ALValue &keys);
-
-        void initKeysMap(std::map<std::string, std::string> &container,
-                         const std::vector<std::string> &keys,
-                         const std::vector<std::string> &values);
     };
 }
 

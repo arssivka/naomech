@@ -11,22 +11,7 @@ using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string Joints::DCM_POSITION_ALIAS("rd/actuators/joints/positions");
 const std::string Joints::DCM_HARDNESS_ALIAS("rd/actuators/joints/hardness");
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Joints::initKeysMap(map<string, string> &container,
-                         const vector<string> &keys,
-                         const vector<string> &values) {
-    vector<string>::const_iterator first_it = keys.begin();
-    vector<string>::const_iterator second_it = values.begin();
-    while (first_it != keys.end() && second_it != values.end()) {
-        container.insert(make_pair<std::string, std::string>(*first_it, *second_it));
-        ++first_it;
-        ++second_it;
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,12 +84,10 @@ Joints::Joints(shared_ptr<ALBroker> broker)
     this->hardness_list[R_SHOULDER_ROLL] = string("Device/SubDeviceList/RShoulderRoll/Hardness/Actuator/Value");
     this->hardness_list[R_WRIST_YAW] = string("Device/SubDeviceList/RWristYaw/Hardness/Actuator/Value");
     // Create output keys map
-    for (int i = 0; i < keys.size(); ++i) this->out_map.insert(make_pair<string, int>(keys[i], i));
-    // Create input keys map
-    this->initKeysMap(this->position_map, this->keys, this->position_in_list);
-    this->initKeysMap(this->hardness_map, this->keys, this->hardness_list);
-    // Prepare DCM aliaces
-    this->makeAlias(Joints::DCM_POSITION_ALIAS, this->position_out_list);
+    for (int i = 0; i < this->keys.size(); ++i) {
+        this->out_map.insert(make_pair(this->keys[i], i));
+        this->hardness_map.insert(make_pair(this->keys[i], this->hardness_list[i]));
+    }
     this->makeAlias(Joints::DCM_HARDNESS_ALIAS, this->hardness_list);
     // Prepare DCM command
     this->dcm_cmd.arraySetSize(6);
@@ -124,8 +107,8 @@ const vector<string> &Joints::getKeys() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setPosition(const vector<string> &keys,
-                         const vector<double> &values) {
+bool Joints::setPositions(const vector<string>& keys,
+                          const vector<double>& values) {
     bool success = true;
     // Read data from sensors
     ALValue data = this->hw->call<ALValue>("getJointData");
@@ -146,8 +129,8 @@ bool Joints::setPosition(const vector<string> &keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setPosition(const std::vector<int> &keys,
-                         const std::vector<double> &values) {
+bool Joints::setPositions(const std::vector<int>& keys,
+                          const std::vector<double>& values) {
     bool success = true;
     // Read data from sensors
     ALValue data = this->hw->call<ALValue>("getJointData");
@@ -168,47 +151,35 @@ bool Joints::setPosition(const std::vector<int> &keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPosition(const vector<int> &keys) {
+shared_ptr<SensorData<double> > Joints::getPositions(const vector<int>& keys) {
+    ALValue data = this->hw->call<ALValue>("getJointData");
     unsigned int length = keys.size();
-    ALValue data;
-    data.arraySetSize(length);
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(length, this->dcm->getTime(0));
     for (int i = 0; i < length; ++i) {
-        try {
-            data[i] = this->position_in_list[keys.at(i)];
-        } catch (out_of_range &e) {
-            return make_shared<SensorData<double> >();
-        }
+        if (keys[i] > JOINTS_COUNT)
+            return make_shared<SensorData<double> >(0, this->dcm->getTime(0));
+        res->data[i] = data[keys[i]];
     }
-
-    data = this->mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
-    for (unsigned int i = 0; i < length; ++i) res->data[i] = data[i];
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPosition(const vector<string> &keys) {
-    ALValue data;
-    data.arraySetSize(JOINTS_COUNT);
-    for (int i = 0; i < JOINTS_COUNT; ++i) {
-        try {
-            data[i] = this->position_map[keys.at(i)];
-        } catch (out_of_range &e) {
-            return make_shared<SensorData<double> >();
-        }
+shared_ptr<SensorData<double> > Joints::getPositions(const vector<string>& keys) {
+    vector<int> k(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        const map<string, int>::iterator& found = this->out_map.find(keys[i]);
+        if (found == this->out_map.end())
+            return make_shared<SensorData<double> >(0, this->dcm->getTime(0));
+        k[i] = found->second;
     }
-
-    data = this->mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
-    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
-    return res;
+    return this->getPositions(k);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPosition() {
-    ALValue data = this->mem->getListData(this->position_in_list);
+shared_ptr<SensorData<double> > Joints::getPositions() {
+    ALValue data = this->hw->call<ALValue>("getJointData");
     shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, this->dcm->getTime(0));
     for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
     return res;
