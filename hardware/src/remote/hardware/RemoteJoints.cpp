@@ -137,7 +137,7 @@ void RemoteJoints::HardnessMethod::execute(paramList const &paramList, value *co
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteJoints::PositionMethod::PositionMethod(shared_ptr<Joints> joints)
-        : RemoteMethod("position", "A:,S:A,n:AA", "Position control method"), joints(joints) { }
+        : RemoteMethod("positions", "A:,S:A,n:AA", "Position control method"), joints(joints) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -156,11 +156,11 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         if (integer_keys) {
             vector<int> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
-            this->joints->setPosition(joint_names, data);
+            this->joints->setPositions(joint_names, data);
         } else {
             vector<string> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
-            this->joints->setPosition(joint_names, data);
+            this->joints->setPositions(joint_names, data);
         }
         *resultP = value_nil();
         return;
@@ -168,7 +168,7 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
     // S:
     shared_ptr<SensorData<double> > data;
     if (paramList.size() == 0) {
-        data = this->joints->getPosition();
+        data = this->joints->getPositions();
     } else if (paramList.size() == 1) {
         // Empty check
         vector<value> keys = paramList.getArray(0);
@@ -177,11 +177,11 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         if (integer_keys) {
             vector<int> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
-            data = this->joints->getPosition(joint_names);
+            data = this->joints->getPositions(joint_names);
         } else {
             vector<string> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
-            data = this->joints->getPosition(joint_names);
+            data = this->joints->getPositions(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
 
@@ -195,6 +195,7 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
     xmlrpc_value *result;
 
     // Init result array
+    values = xmlrpc_array_new(&env);
     for (int i = 0; i < data->data.size(); ++i) {
         elem = xmlrpc_double_new(&env, data->data[i]);
         xmlrpc_array_append_item(&env, values, elem);

@@ -9,7 +9,7 @@ using namespace AL;
 using namespace boost;
 
 
-Clock::Clock(shared_ptr<DCMProxy> dcm) : dcm(dcm) { }
+Clock::Clock(shared_ptr<ALBroker> broker) : dcm(make_shared<DCMProxy>(broker)) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

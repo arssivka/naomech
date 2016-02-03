@@ -22,9 +22,9 @@ namespace rd {
 
         /*!
            \brief Constructor for creating the object of the Clock class
-           \param dcm shared pointer to the DCMProxy object
+           \param Broker that allows to connect to the Nao's modules.
          */
-        Clock(boost::shared_ptr<AL::DCMProxy> dcm);
+        Clock(boost::shared_ptr<AL::ALBroker> broker);
 
         /*!
            \brief Returns the current timestamp

@@ -6,6 +6,7 @@
  */
 
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
 #include <rd/hardware/Accelerometer.h>
 #include <rd/hardware/Gyro.h>
 #include <rd/hardware/Joints.h>
@@ -26,10 +27,11 @@ namespace rd {
         /*!
            \brief Constructor for creating the Robot object
            \param name Who's that pokemon?
-           \param ip Nao robot ip adress
+           \param ip Nao robot ip address
            \param port Port number
+           \param config_filename Path to JSON configuration file
          */
-        Robot(std::string name, const std::string &ip, unsigned int port);
+        Robot(const std::string& name, const std::string& ip, unsigned int port, const std::string& config_filename);
 
         /*!
            \brief Returns the Joints object
@@ -66,17 +68,33 @@ namespace rd {
            \return Shared pointer to Camera object
          */
         boost::shared_ptr<Camera> getTopCamera();
+
+        /*!
+           \brief Returns Clock object
+           \return Reference to Clock object
+         */
+        boost::shared_ptr<Clock> getClock();
+
+        /*!
+           \brief Returns configuration property tree
+           \return Reference to property tree
+         */
+        boost::shared_ptr<boost::property_tree::ptree> getConfig();
+
         /*!
            \brief Destructor
          */
-        virtual ~Robot();
+        ~Robot();
         ///@}
 
     private:
+        boost::shared_ptr<boost::property_tree::ptree> config;
+
         boost::shared_ptr<AL::ALBroker> broker;
         boost::shared_ptr<AL::DCMProxy> dcm;
         boost::shared_ptr<AL::ALMemoryProxy> mem;
 
+        boost::shared_ptr<Clock> clock;
         boost::shared_ptr<Joints> joints;
         boost::shared_ptr<LEDs> leds;
         boost::shared_ptr<Gyro> gyro;

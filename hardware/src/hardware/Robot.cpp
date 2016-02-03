@@ -4,13 +4,18 @@
 
 #include <rd/hardware/Robot.h>
 #include <alcommon/albrokermanager.h>
+#include <boost/property_tree/json_parser.hpp>
 
 using namespace AL;
 using namespace boost;
 using namespace std;
 using namespace rd;
 
-Robot::Robot(string name, const string &ip, unsigned int port) {
+Robot::Robot(const std::string& name, const std::string& ip, unsigned int port, const std::string& config_filename)
+        : config(make_shared<boost::property_tree::ptree>()) {
+    // Load config
+    property_tree::read_json(config_filename, *this->config);
+    // Connect to naoqi
     const string broker_ip = string("0.0.0.0");
     const int broker_port = 54000;
     try {
@@ -21,16 +26,17 @@ Robot::Robot(string name, const string &ip, unsigned int port) {
         ALBrokerManager::kill();
         // TODO Raise exception
     }
-
+    // Make proxies
     ALBrokerManager::setInstance(this->broker->fBrokerManager.lock());
     ALBrokerManager::getInstance()->addBroker(this->broker);
     this->dcm = make_shared<DCMProxy>(this->broker);
     this->mem = make_shared<ALMemoryProxy>(this->broker);
-
+    // Devices initialisation
     this->joints = make_shared<Joints>(broker);
     this->leds = make_shared<LEDs>(broker);
     this->gyro = make_shared<Gyro>(broker);
     this->accelerometer = make_shared<Accelerometer>(broker);
+    this->clock = make_shared<Clock>(broker);
 
     this->top_camera = make_shared<Camera>("/dev/video0", 320, 240, true, broker);
     this->bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true, broker);
@@ -66,19 +72,31 @@ shared_ptr<LEDs> Robot::getLEDs() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<Gyro> Robot::getGyro() {
+shared_ptr<Gyro> Robot::getGyro() {
     return this->gyro;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<Accelerometer> Robot::getAccelerometer() {
+shared_ptr<Accelerometer> Robot::getAccelerometer() {
     return this->accelerometer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+boost::shared_ptr<Clock> Robot::getClock() {
+    return this->clock;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<property_tree::ptree> Robot::getConfig() {
+    return this->config;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Robot::~Robot() {
-    AL::ALBrokerManager::getInstance()->killAllBroker();
-    AL::ALBrokerManager::kill();
+    ALBrokerManager::getInstance()->killAllBroker();
+    ALBrokerManager::kill();
 }

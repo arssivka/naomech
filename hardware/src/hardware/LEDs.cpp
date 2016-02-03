@@ -18,7 +18,7 @@ void LEDs::initKeysMap(map<string, string> &container,
     vector<string>::const_iterator first_it = keys.begin();
     vector<string>::const_iterator second_it = values.begin();
     while (first_it != keys.end() && second_it != values.end()) {
-        container.insert(make_pair<std::string, std::string>(*first_it, *second_it));
+        container.insert(make_pair(*first_it, *second_it));
         ++first_it;
         ++second_it;
     }

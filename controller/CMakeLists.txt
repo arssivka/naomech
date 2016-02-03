@@ -86,5 +86,7 @@ target_include_directories(controller PUBLIC ${INCLUDE_DIRS})
 
 target_link_libraries(controller ${LIBS})
 
-install(TARGETS controller
-        RUNTIME DESTINATION bin)
+file(COPY resources DESTINATION ${PROJECT_SOURCE_DIR}/build/etc/naomech)
+
+install(TARGETS controller RUNTIME DESTINATION bin)
+install(DIRECTORY resources DESTINATION etc/naomech)
