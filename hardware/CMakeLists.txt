@@ -17,8 +17,7 @@ set(SRCS src/hardware/Accelerometer.cpp
         src/hardware/LEDs.cpp
         src/hardware/Joints.cpp
         src/hardware/Robot.cpp
-        src/hardware/Camera.cpp
-        src/control/Kinematics.cpp)
+        src/hardware/Camera.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
@@ -28,43 +27,7 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Joints.h
         include/rd/hardware/LEDs.h
         include/rd/hardware/Robot.h
-        include/rd/representation/Image.h
-        include/rd/representation/CvImage.h
-        include/rd/control/Kinematics.h
-
-        include/bhuman/representations/configuration/CameraCalibration.h
-        include/bhuman/representations/configuration/JointCalibration.h
-        include/bhuman/representations/configuration/MassCalibration.h
-        include/bhuman/representations/configuration/RobotDimensions.h
-
-        src/bhuman/representations/infrastructure/CameraInfo.cpp
-        include/bhuman/representations/infrastructure/CameraInfo.h
-        include/bhuman/representations/infrastructure/JointData.h
-
-        src/bhuman/representations/perception/CameraMatrix.cpp
-        include/bhuman/representations/perception/CameraMatrix.h
-
-        include/bhuman/tools/Boundary.h
-        include/bhuman/tools/ForwardKinematic.h
-        include/bhuman/tools/InverseKinematic.h
-        include/bhuman/tools/Range.h
-
-        include/bhuman/tools/math/BHMath.h
-        include/bhuman/tools/math/Matrix.h
-        src/bhuman/tools/Matrix.cpp
-        include/bhuman/tools/math/Matrix2x2.h
-        include/bhuman/tools/math/Matrix3x3.h
-        include/bhuman/tools/math/Matrix4x4.h
-        include/bhuman/tools/math/Pose2D.h
-        include/bhuman/tools/math/Pose3D.h
-        src/bhuman/tools/RotationMatrix.cpp
-        include/bhuman/tools/math/RotationMatrix.h
-        src/bhuman/tools/Transformation.cpp
-        include/bhuman/tools/math/Transformation.h
-        include/bhuman/tools/math/Vector.h
-        include/bhuman/tools/math/Vector2.h
-        include/bhuman/tools/math/Vector3.h
-        include/bhuman/tools/math/Vector4.h)
+        include/rd/representation/CvImage.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
@@ -94,15 +57,13 @@ if (${BUILD_WRAPPER})
             src/remote/hardware/RemoteCamera.cpp
             src/remote/hardware/RemoteLEDs.cpp
             src/remote/hardware/RemoteGyro.cpp
-            src/remote/hardware/RemoteAccelerometer.cpp
-            src/remote/control/RemoteKinematics.cpp)
+            src/remote/hardware/RemoteAccelerometer.cpp)
     list(APPEND HEADERS
             include/rd/remote/hardware/RemoteJoints.h
             include/rd/remote/hardware/RemoteCamera.h
             include/rd/remote/hardware/RemoteLEDs.h
             include/rd/remote/hardware/RemoteGyro.h
-            include/rd/remote/hardware/RemoteAccelerometer.h
-            include/rd/remote/control/RemoteKinematics.h)
+            include/rd/remote/hardware/RemoteAccelerometer.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()

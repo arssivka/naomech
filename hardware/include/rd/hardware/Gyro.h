@@ -47,7 +47,7 @@ namespace rd {
 
         /*!
            \brief Returns the angular velocity (The Gyro Data)
-           \returnshared pointer to the vector of SensorData
+           \return shared pointer to the vector of SensorData
          */
         boost::shared_ptr<SensorData<double> > getAngularVelocity();
 ///@}

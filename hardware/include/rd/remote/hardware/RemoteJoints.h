@@ -3,7 +3,7 @@
 
 /*!
    \defgroup remote_jojnts RemoteJoints
-   \ingroup hardware
+   \ingroup remote_hardware
  */
 
 #include <rd/network/RemoteModule.h>
@@ -87,7 +87,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote PositionMethod
-               \param Shared pointer to the Joints object.
+               \param joints Shared pointer to the Joints object.
 
                 HardnessMethod is the class object of which is stored in the RemoteJoints module and represents the remote
                 method named hardness, that you can call under the name proxyname.joints.hardness(params). HardnessMethod is the child class of

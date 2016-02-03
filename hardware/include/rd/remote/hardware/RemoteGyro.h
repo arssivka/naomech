@@ -7,7 +7,7 @@
 
 /*!
    \defgroup remote_gyro RemoteGyro
-   \ingroup hardware
+   \ingroup remote_hardware
  */
 
 
@@ -36,7 +36,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote KeysMethod
-               \param leds Shared pointer to the Gyro object.
+               \param gyro Shared pointer to the Gyro object.
 
                 KeysMethod is the class, object of which is stored in the RemoteGyro module and represents the remote
                 method named keys, that you can call under the name proxy.gyro.keys(). KeysMethod is the child class of
@@ -61,7 +61,7 @@ namespace rd {
         public:
             /*!
                \brief Constructor for creating the remote AngularVelocityMethod
-               \param joints Shared pointer to the Gyro object.
+               \param gyro Shared pointer to the Gyro object.
 
                 AngularVelocity is the class, object of which is stored in the RemoteGyro module and represents the remote
                 method named angularvelocity, that you can call under the name proxyname.gyro.angularvelocity(params). AngularVelocityMethod is the child class of
