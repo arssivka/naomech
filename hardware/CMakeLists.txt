@@ -19,11 +19,11 @@ set(SRCS src/hardware/Accelerometer.cpp
         src/hardware/Robot.cpp
         src/hardware/Camera.cpp
         src/control/Kinematics.cpp
-        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/representations/infrastructure/CameraInfo.cpp
-        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/representations/perception/CameraMatrix.cpp
-        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/Matrix.cpp
-        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/RotationMatrix.cpp
-        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/Transformation.cpp)
+        src/bhuman/representations/infrastructure/CameraInfo.cpp
+        src/bhuman/representations/perception/CameraMatrix.cpp
+        src/bhuman/tools/Matrix.cpp
+        src/bhuman/tools/RotationMatrix.cpp
+        src/bhuman/tools/Transformation.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
@@ -35,30 +35,30 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Robot.h
         include/rd/representation/CvImage.h
         include/rd/control/Kinematics.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/CameraCalibration.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/JointCalibration.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/MassCalibration.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/RobotDimensions.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/infrastructure/CameraInfo.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/infrastructure/JointData.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/perception/CameraMatrix.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/BHMath.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix2x2.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix3x3.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix4x4.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Pose2D.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Pose3D.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/RotationMatrix.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Transformation.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector2.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector3.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector4.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/Boundary.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/ForwardKinematic.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/InverseKinematic.h
-        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/Range.h)
+        include/bhuman/representations/configuration/CameraCalibration.h
+        include/bhuman/representations/configuration/JointCalibration.h
+        include/bhuman/representations/configuration/MassCalibration.h
+        include/bhuman/representations/configuration/RobotDimensions.h
+        include/bhuman/representations/infrastructure/CameraInfo.h
+        include/bhuman/representations/infrastructure/JointData.h
+        include/bhuman/representations/perception/CameraMatrix.h
+        include/bhuman/tools/math/BHMath.h
+        include/bhuman/tools/math/Matrix.h
+        include/bhuman/tools/math/Matrix2x2.h
+        include/bhuman/tools/math/Matrix3x3.h
+        include/bhuman/tools/math/Matrix4x4.h
+        include/bhuman/tools/math/Pose2D.h
+        include/bhuman/tools/math/Pose3D.h
+        include/bhuman/tools/math/RotationMatrix.h
+        include/bhuman/tools/math/Transformation.h
+        include/bhuman/tools/math/Vector.h
+        include/bhuman/tools/math/Vector2.h
+        include/bhuman/tools/math/Vector3.h
+        include/bhuman/tools/math/Vector4.h
+        include/bhuman/tools/Boundary.h
+        include/bhuman/tools/ForwardKinematic.h
+        include/bhuman/tools/InverseKinematic.h
+        include/bhuman/tools/Range.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
