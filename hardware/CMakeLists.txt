@@ -17,7 +17,13 @@ set(SRCS src/hardware/Accelerometer.cpp
         src/hardware/LEDs.cpp
         src/hardware/Joints.cpp
         src/hardware/Robot.cpp
-        src/hardware/Camera.cpp)
+        src/hardware/Camera.cpp
+        src/control/Kinematics.cpp
+        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/representations/infrastructure/CameraInfo.cpp
+        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/representations/perception/CameraMatrix.cpp
+        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/Matrix.cpp
+        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/RotationMatrix.cpp
+        /home/arssivka/sources/nao/naomech/hardware/src/bhuman/tools/Transformation.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
@@ -27,7 +33,32 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Joints.h
         include/rd/hardware/LEDs.h
         include/rd/hardware/Robot.h
-        include/rd/representation/CvImage.h)
+        include/rd/representation/CvImage.h
+        include/rd/control/Kinematics.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/CameraCalibration.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/JointCalibration.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/MassCalibration.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/configuration/RobotDimensions.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/infrastructure/CameraInfo.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/infrastructure/JointData.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/representations/perception/CameraMatrix.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/BHMath.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix2x2.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix3x3.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Matrix4x4.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Pose2D.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Pose3D.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/RotationMatrix.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Transformation.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector2.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector3.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/math/Vector4.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/Boundary.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/ForwardKinematic.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/InverseKinematic.h
+        /home/arssivka/sources/nao/naomech/hardware/include/bhuman/tools/Range.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
@@ -57,13 +88,15 @@ if (${BUILD_WRAPPER})
             src/remote/hardware/RemoteCamera.cpp
             src/remote/hardware/RemoteLEDs.cpp
             src/remote/hardware/RemoteGyro.cpp
-            src/remote/hardware/RemoteAccelerometer.cpp)
+            src/remote/hardware/RemoteAccelerometer.cpp
+            src/remote/control/RemoteKinematics.cpp)
     list(APPEND HEADERS
             include/rd/remote/hardware/RemoteJoints.h
             include/rd/remote/hardware/RemoteCamera.h
             include/rd/remote/hardware/RemoteLEDs.h
             include/rd/remote/hardware/RemoteGyro.h
-            include/rd/remote/hardware/RemoteAccelerometer.h)
+            include/rd/remote/hardware/RemoteAccelerometer.h
+            include/rd/remote/control/RemoteKinematics.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()

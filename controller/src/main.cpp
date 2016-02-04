@@ -11,14 +11,45 @@
 #include <rd/network/RPCServer.h>
 #include <rd/remote/hardware/RemoteAccelerometer.h>
 #include <rd/remote/control/RemoteKinematics.h>
+#include <boost/program_options.hpp>
 
 using namespace boost;
+namespace po = boost::program_options;
 
-int main(int argc, char* argv[]) {
-    rd::Robot robot("NAO", "127.0.0.1", 9559, "../etc/naomech/resources/config.json");
+int main(int argc, const char* const argv[]) {
+    // Server parameter variables
+    std::string ip;
+    int port;
+    std::string config_file;
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    desc.add_options()
+            ("help,h", "produce help message")
+            ("ip", po::value<std::string>(&ip)->default_value("127.0.0.1"), "set server ip")
+            ("port", po::value<int>(&port)->default_value(5469), "set server port")
+            ("config", po::value<std::string>(), "path to configuration file");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << std::endl;
+        return 1;
+    }
+
+    if (vm.count("config")) {
+        config_file = vm["config"].as<std::string>();
+    } else {
+        std::cout << "Configuration file was not set" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+
+    rd::Robot robot("NAO", ip, 9559, config_file);
     shared_ptr<rd::Kinematics> kinematics(
             make_shared<rd::Kinematics>(robot.getClock(), robot.getJoints(), robot.getConfig()));
-    rd::RPCServer srv(8080);
+    rd::RPCServer srv(port);
     srv.addModule(make_shared<rd::RemoteJoints>(robot.getJoints()));
     srv.addModule(make_shared<rd::RemoteCamera>(robot.getTopCamera(), robot.getBotCamera()));
     srv.addModule(make_shared<rd::RemoteLEDs>(robot.getLEDs()));
@@ -26,4 +57,5 @@ int main(int argc, char* argv[]) {
     srv.addModule(make_shared<rd::RemoteAccelerometer>(robot.getAccelerometer()));
     srv.addModule(make_shared<rd::RemoteKinematics>(kinematics));
     srv.run();
+    return EXIT_SUCCESS;
 }
