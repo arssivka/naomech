@@ -34,7 +34,7 @@ namespace rd {
         int getTime(int offset = 0) const;
 ///@}
     private:
-        boost::shared_ptr<AL::DCMProxy> dcm;
+        boost::shared_ptr<AL::DCMProxy> m_dcm;
     };
 }
 

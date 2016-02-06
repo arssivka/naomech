@@ -13,7 +13,7 @@
 #include <alproxies/almemoryproxy.h>
 #include <alcommon/alproxy.h>
 
-#include <rd/representation/SensorData.h>
+#include <rd/hardware/SensorData.h>
 #include <rd/hardware/Clock.h>
 
 
@@ -197,18 +197,19 @@ namespace rd {
     private:
         const static std::string DCM_HARDNESS_ALIAS;
 
-        boost::shared_ptr<AL::ALMemoryProxy> mem;
-        boost::shared_ptr<AL::DCMProxy> dcm;
-        boost::shared_ptr<AL::ALProxy> hw;
+        boost::shared_ptr<AL::ALMemoryProxy> m_mem;
+        boost::shared_ptr<AL::DCMProxy> m_dcm;
+        boost::shared_ptr<AL::ALProxy> m_hw;
 
-        boost::mutex synch;
-        AL::ALValue dcm_cmd;
+        boost::mutex m_synch;
+        AL::ALValue m_dcm_cmd;
 
-        std::vector<std::string> keys;
+        std::vector<std::string> m_keys;
 
-        AL::ALValue hardness_list;
-        std::map<std::string, int> out_map;
-        std::map<std::string, std::string> hardness_map;
+
+        AL::ALValue m_hardness_list;
+        std::map<std::string, int> m_out_map;
+        std::map<std::string, std::string> m_hardness_map;
 
         void makeAlias(const std::string &name, const AL::ALValue &keys);
     };

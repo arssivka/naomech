@@ -88,19 +88,17 @@ namespace rd {
         ///@}
 
     private:
-        boost::shared_ptr<boost::property_tree::ptree> config;
+        boost::shared_ptr<boost::property_tree::ptree> m_config;
 
-        boost::shared_ptr<AL::ALBroker> broker;
-        boost::shared_ptr<AL::DCMProxy> dcm;
-        boost::shared_ptr<AL::ALMemoryProxy> mem;
+        boost::shared_ptr<AL::ALBroker> m_broker;
 
-        boost::shared_ptr<Clock> clock;
-        boost::shared_ptr<Joints> joints;
-        boost::shared_ptr<LEDs> leds;
-        boost::shared_ptr<Gyro> gyro;
-        boost::shared_ptr<Accelerometer> accelerometer;
-        boost::shared_ptr<Camera> bot_camera;
-        boost::shared_ptr<Camera> top_camera;
+        boost::shared_ptr<Clock> m_clock;
+        boost::shared_ptr<Joints> m_joints;
+        boost::shared_ptr<LEDs> m_leds;
+        boost::shared_ptr<Gyro> m_gyro;
+        boost::shared_ptr<Accelerometer> m_accelerometer;
+        boost::shared_ptr<Camera> m_bot_camera;
+        boost::shared_ptr<Camera> m_top_camera;
     };
 }
 

@@ -2,7 +2,7 @@
 #define NAOMECH_CAMERA_H
 
 #include "opencv2/core/core.hpp"
-#include <rd/representation/CvImage.h>
+#include <rd/hardware/CvImage.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <alcommon/albroker.h>
@@ -126,14 +126,14 @@ namespace rd {
             int xioctl(int fd, int request, void *arg);
 
             static const unsigned int PIXEL_SIZE_YUV422 = 2;
-            int w, h;
-            int fd;
-            struct VideoImageBuffer *tbuf;
-            int size;
-            bool is_capturing;
-            bool startedNormally;
+        int m_w, m_h;
+        int m_fd;
+        struct VideoImageBuffer* m_tbuf;
+        int m_size;
+        bool m_is_capturing;
+        bool m_started_normally;
 
-            boost::shared_ptr<AL::DCMProxy> dcm;
+        boost::shared_ptr<AL::DCMProxy> m_dcm;
         };
 }
 

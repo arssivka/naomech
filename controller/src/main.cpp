@@ -4,13 +4,13 @@
 
 #include <boost/make_shared.hpp>
 #include <rd/hardware/Robot.h>
-#include <rd/remote/hardware/RemoteJoints.h>
-#include <rd/remote/hardware/RemoteLEDs.h>
-#include <rd/remote/hardware/RemoteCamera.h>
-#include <rd/remote/hardware/RemoteGyro.h>
+#include <rd/hardware/RemoteJoints.h>
+#include <rd/hardware/RemoteLEDs.h>
+#include <rd/hardware/RemoteCamera.h>
+#include <rd/hardware/RemoteGyro.h>
 #include <rd/network/RPCServer.h>
-#include <rd/remote/hardware/RemoteAccelerometer.h>
-#include <rd/remote/control/RemoteKinematics.h>
+#include <rd/hardware/RemoteAccelerometer.h>
+#include <rd/hardware/RemoteKinematics.h>
 #include <boost/program_options.hpp>
 
 using namespace boost;

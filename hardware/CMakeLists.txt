@@ -11,54 +11,54 @@ find_package(OPENCV2_CORE REQUIRED)
 find_package(OPENCV2_HIGHGUI REQUIRED)
 find_package(TBB REQUIRED)
 
-set(SRCS src/hardware/Accelerometer.cpp
-        src/hardware/Clock.cpp
-        src/hardware/Gyro.cpp
-        src/hardware/LEDs.cpp
-        src/hardware/Joints.cpp
-        src/hardware/Robot.cpp
-        src/hardware/Camera.cpp
-        src/control/Kinematics.cpp
-        src/bhuman/representations/infrastructure/CameraInfo.cpp
-        src/bhuman/representations/perception/CameraMatrix.cpp
-        src/bhuman/tools/Matrix.cpp
-        src/bhuman/tools/RotationMatrix.cpp
-        src/bhuman/tools/Transformation.cpp)
+set(SRCS src/rd/hardware/Accelerometer.cpp
+        src/rd/hardware/Clock.cpp
+        src/rd/hardware/Gyro.cpp
+        src/rd/hardware/LEDs.cpp
+        src/rd/hardware/Joints.cpp
+        src/rd/hardware/Robot.cpp
+        src/rd/hardware/Camera.cpp
+        src/rd/hardware/Kinematics.cpp
+        src/bhuman/CameraInfo.cpp
+        src/bhuman/CameraMatrix.cpp
+        src/bhuman/Matrix.cpp
+        src/bhuman/RotationMatrix.cpp
+        src/bhuman/Transformation.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Camera.h
         include/rd/hardware/Clock.h
-        include/rd/representation/SensorData.h
+        include/rd/hardware/SensorData.h
         include/rd/hardware/Gyro.h
         include/rd/hardware/Joints.h
         include/rd/hardware/LEDs.h
         include/rd/hardware/Robot.h
-        include/rd/representation/CvImage.h
-        include/rd/control/Kinematics.h
-        include/bhuman/representations/configuration/CameraCalibration.h
-        include/bhuman/representations/configuration/JointCalibration.h
-        include/bhuman/representations/configuration/MassCalibration.h
-        include/bhuman/representations/configuration/RobotDimensions.h
-        include/bhuman/representations/infrastructure/CameraInfo.h
-        include/bhuman/representations/infrastructure/JointData.h
-        include/bhuman/representations/perception/CameraMatrix.h
-        include/bhuman/tools/math/BHMath.h
-        include/bhuman/tools/math/Matrix.h
-        include/bhuman/tools/math/Matrix2x2.h
-        include/bhuman/tools/math/Matrix3x3.h
-        include/bhuman/tools/math/Matrix4x4.h
-        include/bhuman/tools/math/Pose2D.h
-        include/bhuman/tools/math/Pose3D.h
-        include/bhuman/tools/math/RotationMatrix.h
-        include/bhuman/tools/math/Transformation.h
-        include/bhuman/tools/math/Vector.h
-        include/bhuman/tools/math/Vector2.h
-        include/bhuman/tools/math/Vector3.h
-        include/bhuman/tools/math/Vector4.h
-        include/bhuman/tools/Boundary.h
-        include/bhuman/tools/ForwardKinematic.h
-        include/bhuman/tools/InverseKinematic.h
-        include/bhuman/tools/Range.h)
+        include/rd/hardware/CvImage.h
+        include/rd/hardware/Kinematics.h
+        include/bhuman/CameraCalibration.h
+        include/bhuman/JointCalibration.h
+        include/bhuman/MassCalibration.h
+        include/bhuman/RobotDimensions.h
+        include/bhuman/CameraInfo.h
+        include/bhuman/JointData.h
+        include/bhuman/CameraMatrix.h
+        include/bhuman/BHMath.h
+        include/bhuman/Matrix.h
+        include/bhuman/Matrix2x2.h
+        include/bhuman/Matrix3x3.h
+        include/bhuman/Matrix4x4.h
+        include/bhuman/Pose2D.h
+        include/bhuman/Pose3D.h
+        include/bhuman/RotationMatrix.h
+        include/bhuman/Transformation.h
+        include/bhuman/Vector.h
+        include/bhuman/Vector2.h
+        include/bhuman/Vector3.h
+        include/bhuman/Vector4.h
+        include/bhuman/Boundary.h
+        include/bhuman/ForwardKinematic.h
+        include/bhuman/InverseKinematic.h
+        include/bhuman/Range.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
@@ -84,19 +84,19 @@ set(RD_HARDWARE_LIBRARIES hardware CACHE STRING "Hardware access module include 
 
 if (${BUILD_WRAPPER})
     list(APPEND SRCS
-            src/remote/hardware/RemoteJoints.cpp
-            src/remote/hardware/RemoteCamera.cpp
-            src/remote/hardware/RemoteLEDs.cpp
-            src/remote/hardware/RemoteGyro.cpp
-            src/remote/hardware/RemoteAccelerometer.cpp
-            src/remote/control/RemoteKinematics.cpp)
+            src/rd/hardware/RemoteJoints.cpp
+            src/rd/hardware/RemoteCamera.cpp
+            src/rd/hardware/RemoteLEDs.cpp
+            src/rd/hardware/RemoteGyro.cpp
+            src/rd/hardware/RemoteAccelerometer.cpp
+            src/rd/hardware/RemoteKinematics.cpp)
     list(APPEND HEADERS
-            include/rd/remote/hardware/RemoteJoints.h
-            include/rd/remote/hardware/RemoteCamera.h
-            include/rd/remote/hardware/RemoteLEDs.h
-            include/rd/remote/hardware/RemoteGyro.h
-            include/rd/remote/hardware/RemoteAccelerometer.h
-            include/rd/remote/control/RemoteKinematics.h)
+            include/rd/hardware/RemoteJoints.h
+            include/rd/hardware/RemoteCamera.h
+            include/rd/hardware/RemoteLEDs.h
+            include/rd/hardware/RemoteGyro.h
+            include/rd/hardware/RemoteAccelerometer.h
+            include/rd/hardware/RemoteKinematics.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()

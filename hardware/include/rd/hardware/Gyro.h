@@ -9,7 +9,7 @@
  */
 
 #include <alcommon/albroker.h>
-#include <rd/representation/SensorData.h>
+#include <rd/hardware/SensorData.h>
 #include <alproxies/almemoryproxy.h>
 #include <alproxies/dcmproxy.h>
 
@@ -52,11 +52,10 @@ namespace rd {
         boost::shared_ptr<SensorData<double> > getAngularVelocity();
 ///@}
     private:
-        std::vector<std::string> keys;
-        boost::shared_ptr<AL::ALMemoryProxy> mem;
-        boost::shared_ptr<AL::DCMProxy> dcm;
-
-        AL::ALValue sensors;
+        std::vector<std::string> m_keys;
+        boost::shared_ptr<AL::ALMemoryProxy> m_mem;
+        boost::shared_ptr<AL::DCMProxy> m_dcm;
+        AL::ALValue m_sensors;
     };
 }
 

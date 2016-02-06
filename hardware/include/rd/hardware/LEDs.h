@@ -11,7 +11,7 @@
  */
 
 
-#include <rd/representation/SensorData.h>
+#include <rd/hardware/SensorData.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include <alproxies/dcmproxy.h>
@@ -177,15 +177,14 @@ namespace rd {
          ///@}
 
     private:
-        boost::shared_ptr<AL::ALMemoryProxy> mem;
-        boost::shared_ptr<AL::DCMProxy> dcm;
+        boost::shared_ptr<AL::ALMemoryProxy> m_mem;
+        boost::shared_ptr<AL::DCMProxy> m_dcm;
+        boost::mutex m_synch;
+        AL::ALValue m_cmd;
 
-        boost::mutex synch;
-        AL::ALValue cmd;
-
-        std::vector<std::string> keys;
-        std::vector<std::string> leds_list;
-        std::map<std::string, std::string> leds_map;
+        std::vector<std::string> m_keys;
+        std::vector<std::string> m_leds_list;
+        std::map<std::string, std::string> m_leds_map;
 
         void initKeysMap(std::map<std::string, std::string> &container,
                          const std::vector<std::string> &keys,
