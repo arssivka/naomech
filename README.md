@@ -85,24 +85,28 @@ we wanted to manage our data manually.
 to your system, if you haven't already: [Aldebaran's site][aldbr]
 2. Extract it wherever you like. Let it be the folder ~/ctc for example.
 3. Now you need to install new drivers provided by BHuman. Follow their instructions [here][BHumanKernel].
-4. Clone [this][rep] repository:
+4. You need qibuild installed on your system. To install, use:
+  ```sh
+  $ sudo pip install qibuild
+  ```
+5. Clone [this][rep] repository:
 
   ```sh
   $ git clone https://github.com/arssivka/naomech
   ```
-5. Copy the script ctc_restructurer.sh to your ctc folder and run it. This is done to provide the work of CMake without qibuild.
+6. Copy the script ctc_restructurer.sh to your ctc folder and run it. This is done to provide the work of CMake without qibuild.
 
   ```sh
   $ bash path/to/ctc/ctc_restructurer.sh
   ```
   
-5. Connect to your Nao via ssh and create folder naomech:
+7. Connect to your Nao via ssh and create folder naomech:
 
   ```sh
   $ ssh nao@your.nao.ip
   $ mkdir naomech
   ```
-6. Now you can build the project. For that you can run the script naomech/tools/scripts/install.sh with parameters:
+8. Now you can build the project. For that you can run the script naomech/tools/scripts/install.sh with parameters:
   - --ip IP of your Nao
   - --sources-path Path to source files
   - -b Path where project will be built
@@ -116,7 +120,7 @@ to your system, if you haven't already: [Aldebaran's site][aldbr]
   This script will also copy all the needed files to the robot.
   Note: if you have any idea how to improve this, feel free to share that idea with us! ;)
   
-7. Connect to your Nao via ssh:
+9. Connect to your Nao via ssh:
 
   ```sh
   $ ssh nao@your.nao.ip
