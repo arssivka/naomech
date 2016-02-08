@@ -86,7 +86,7 @@ to your system, if you haven't already: [Aldebaran's site][aldbr]
 2. Extract it wherever you like. Let it be the folder ~/ctc for example.
 3. Now you need to install new drivers provided by BHuman. Follow their instructions [here][BHumanKernel].
 4. You need qibuild installed on your system. To install, use:
-  ```sh
+  ```
   $ sudo pip install qibuild
   ```
 5. Clone [this][rep] repository:
