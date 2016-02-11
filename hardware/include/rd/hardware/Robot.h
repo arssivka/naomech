@@ -12,6 +12,7 @@
 #include <rd/hardware/Joints.h>
 #include <rd/hardware/LEDs.h>
 #include <rd/hardware/Camera.h>
+#include "Angle.h"
 
 
 namespace rd {
@@ -58,6 +59,12 @@ namespace rd {
         boost::shared_ptr<Accelerometer> getAccelerometer();
 
         /*!
+           \brief Returns the Angle object
+           \return Shared pointer to Accelerometer object
+         */
+        boost::shared_ptr<Angle> getAngle();
+
+        /*!
            \brief Returns Camera object representing bottom camera
            \return Shared pointer to Camera object
          */
@@ -92,6 +99,7 @@ namespace rd {
 
         boost::shared_ptr<AL::ALBroker> m_broker;
 
+        boost::shared_ptr<Angle> m_angle;
         boost::shared_ptr<Clock> m_clock;
         boost::shared_ptr<Joints> m_joints;
         boost::shared_ptr<LEDs> m_leds;

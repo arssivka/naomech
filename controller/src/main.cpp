@@ -12,6 +12,7 @@
 #include <rd/hardware/RemoteAccelerometer.h>
 #include <rd/hardware/RemoteKinematics.h>
 #include <boost/program_options.hpp>
+#include <rd/hardware/RemoteAngle.h>
 
 using namespace boost;
 namespace po = boost::program_options;
@@ -55,6 +56,7 @@ int main(int argc, const char* const argv[]) {
     srv.addModule(make_shared<rd::RemoteLEDs>(robot.getLEDs()));
     srv.addModule(make_shared<rd::RemoteGyro>(robot.getGyro()));
     srv.addModule(make_shared<rd::RemoteAccelerometer>(robot.getAccelerometer()));
+    srv.addModule(make_shared<rd::RemoteAngle>(robot.getAngle()));
     srv.addModule(make_shared<rd::RemoteKinematics>(kinematics));
     srv.run();
     return EXIT_SUCCESS;

@@ -27,9 +27,9 @@ namespace rd {
            \brief The Key enumeration representing the keys, needed for recieving data from the gyro
          */
         enum Key {
-            REF, // What this is kind of pokemon?! // What this is kind of the comment?!
             X,
             Y,
+            Z, // What this is kind of pokemon?! // What this is kind of the comment?!
             SENSOR_COUNT
         };
 

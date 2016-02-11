@@ -19,13 +19,27 @@ set(SRCS src/rd/hardware/Accelerometer.cpp
         src/rd/hardware/Robot.cpp
         src/rd/hardware/Camera.cpp
         src/rd/hardware/Kinematics.cpp
+        src/rd/hardware/Angle.cpp
         src/bhuman/CameraInfo.cpp
         src/bhuman/CameraMatrix.cpp
         src/bhuman/Matrix.cpp
         src/bhuman/RotationMatrix.cpp
-        src/bhuman/Transformation.cpp)
+        src/bhuman/Transformation.cpp
+        src/nb/MetaGait.cpp
+        src/nb/NBMath.cpp
+        src/nb/NBMatrixMath.cpp
+        src/nb/Observer.cpp
+        src/nb/Step.cpp
+        src/nb/StepGenerator.cpp
+        src/nb/WalkingArm.cpp
+        src/nb/WalkingLeg.cpp
+        src/nb/ZmpAccEKF.cpp
+        src/nb/ZmpEKF.cpp
+        src/nb/AbstractGait.cpp
+        src/nb/Gait.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
+        include/rd/hardware/Angle.h
         include/rd/hardware/Camera.h
         include/rd/hardware/Clock.h
         include/rd/hardware/SensorData.h
@@ -58,7 +72,26 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/bhuman/Boundary.h
         include/bhuman/ForwardKinematic.h
         include/bhuman/InverseKinematic.h
-        include/bhuman/Range.h)
+        include/bhuman/Range.h
+        include/nb/WalkingArm.h
+        include/nb/EKF.h
+        include/nb/NBMath.h
+        include/nb/MotionConstants.h
+        include/nb/StepGenerator.h
+        include/nb/ZmpEKF.h
+        include/nb/Step.h
+        include/nb/WalkController.h
+        include/nb/ZmpAccEKF.h
+        include/nb/MetaGait.h
+        include/nb/NBMatrixMath.h
+        include/nb/Observer.h
+        include/nb/WalkingLeg.h
+        include/nb/CoordFrame.h
+        include/nb/Structs.h
+        include/nb/WalkingConstants.h
+        include/nb/GaitConstants.h
+        include/nb/Gait.h
+        include/nb/AbstractGait.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}
@@ -89,14 +122,16 @@ if (${BUILD_WRAPPER})
             src/rd/hardware/RemoteLEDs.cpp
             src/rd/hardware/RemoteGyro.cpp
             src/rd/hardware/RemoteAccelerometer.cpp
-            src/rd/hardware/RemoteKinematics.cpp)
+            src/rd/hardware/RemoteKinematics.cpp
+            src/rd/hardware/RemoteAngle.cpp)
     list(APPEND HEADERS
             include/rd/hardware/RemoteJoints.h
             include/rd/hardware/RemoteCamera.h
             include/rd/hardware/RemoteLEDs.h
             include/rd/hardware/RemoteGyro.h
             include/rd/hardware/RemoteAccelerometer.h
-            include/rd/hardware/RemoteKinematics.h)
+            include/rd/hardware/RemoteKinematics.h
+            include/rd/hardware/RemoteAngle.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()

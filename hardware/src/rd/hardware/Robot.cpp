@@ -33,6 +33,7 @@ Robot::Robot(const std::string& name, const std::string& ip, unsigned int port, 
     m_joints = make_shared<Joints>(m_broker);
     m_leds = make_shared<LEDs>(m_broker);
     m_gyro = make_shared<Gyro>(m_broker);
+    m_angle = make_shared<Angle>(m_broker);
     m_accelerometer = make_shared<Accelerometer>(m_broker);
     m_clock = make_shared<Clock>(m_broker);
 
@@ -90,6 +91,12 @@ boost::shared_ptr<Clock> Robot::getClock() {
 
 shared_ptr<property_tree::ptree> Robot::getConfig() {
     return m_config;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<Angle> Robot::getAngle() {
+    return m_angle;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
