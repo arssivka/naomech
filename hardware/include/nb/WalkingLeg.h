@@ -147,7 +147,6 @@ private:
 
     const boost::tuple<const float, const float> getSensorFeedback();
 
-    void debugProcessing();
 //hack
 public:
     const float getFootRotation();

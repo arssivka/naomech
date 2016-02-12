@@ -1,3 +1,4 @@
+
 // This file is part of Man, a robotic perception, locomotion, and
 // team strategy application created by the Northern Bites RoboCup
 // team of Bowdoin College in Brunswick, Maine, for the Aldebaran
@@ -24,7 +25,7 @@
 #include "NBMath.h"
 
 //Homogeneous 3D coordinates (really this is 2D
-namespace CoordFrame3D {
+namespace CoordFrame3D{
 
     enum Axis {
         X_AXIS = 0,
@@ -34,13 +35,13 @@ namespace CoordFrame3D {
 
     // -------------------- Helper matrix methods --------------------
     const NBMath::ufmatrix3 rotation3D(const Axis axis,
-                                       const float angle);
+                                              const float angle);
 
     const NBMath::ufmatrix3 translation3D(const float dx,
-                                          const float dy);
+                                                 const float dy);
 
     const NBMath::ufvector3 vector3D(const float x, const float y,
-                                     const float z = 1.0f);
+                                            const float z = 1.0f);
 
     const NBMath::ufrowVector3 rowVector3D(const float x,
                                            const float y,
@@ -50,7 +51,7 @@ namespace CoordFrame3D {
 };
 
 
-namespace CoordFrame4D {
+namespace CoordFrame4D{
     enum Axis {
         X_AXIS = 0,
         Y_AXIS,
@@ -61,8 +62,8 @@ namespace CoordFrame4D {
     // -------------------- Helper matrix methods --------------------
 
     const NBMath::ufmatrix4
-            rotation4D(const Axis axis,
-                       const float angle);
+    rotation4D(const Axis axis,
+               const float angle);
 
     const NBMath::ufmatrix4 translation4D(const float dx,
                                           const float dy,
@@ -84,7 +85,7 @@ namespace CoordFrame4D {
                                            const float wz);
 
     const NBMath::ufmatrix4
-            invertHomogenous(const NBMath::ufmatrix4 source);
+    invertHomogenous(const NBMath::ufmatrix4 source);
 
 };
 #endif

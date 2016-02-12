@@ -97,7 +97,7 @@ LegJointStiffTuple WalkingLeg::tick(boost::shared_ptr<Step> step,
             throw "Invalid SupportMode passed to WalkingLeg::tick";
     }
 
-    debugProcessing();
+
 
     computeOdoUpdate();
 

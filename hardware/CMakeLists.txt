@@ -38,7 +38,9 @@ set(SRCS src/rd/hardware/Accelerometer.cpp
         src/nb/AbstractGait.cpp
         src/nb/Gait.cpp
         src/nb/COMKinematics.cpp
-        src/nb/InverseKinematics.cpp)
+        src/nb/InverseKinematics.cpp
+        src/nb/CoordFrame3D.cpp
+        src/nb/CoordFrame4D.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Angle.h

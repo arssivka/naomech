@@ -243,14 +243,13 @@ void StepGenerator::tick_controller() {
 
 WalkLegsTuple StepGenerator::tick_legs() {
 
-
     //Decide if this is the first frame into any double support phase
     //which is the critical point when we must swap coord frames, etc
     if (leftLeg.isSwitchingSupportMode() && leftLeg.stateIsDoubleSupport()) {
         swapSupportLegs();
     }
 
-    //cout << "Support step is " << *supportStep_f <<endl;
+    //std::cout << "Support step is " << *supportStep_f <<std::endl;
     //hack-ish for now to do hyp pitch crap
     leftLeg.setSteps(swingingStepSource_f, swingingStep_f, supportStep_f);
     rightLeg.setSteps(swingingStepSource_f, swingingStep_f, supportStep_f);

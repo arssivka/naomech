@@ -13,6 +13,11 @@
 #include <rd/hardware/RemoteKinematics.h>
 #include <boost/program_options.hpp>
 #include <rd/hardware/RemoteAngle.h>
+///testing
+#include <nb/StepGenerator.h>
+#include <nb/MetaGait.h>
+#include <vector>
+#include <nb/Gait.h>
 
 using namespace boost;
 namespace po = boost::program_options;
@@ -47,16 +52,35 @@ int main(int argc, const char* const argv[]) {
     }
 
 
-    rd::Robot robot("NAO", ip, 9559, config_file);
+    boost::shared_ptr<rd::Robot> robot = boost::make_shared<rd::Robot>("NAO", ip, 9559, config_file);
+    //testing
+    MetaGait *test;
+    StepGenerator sg(robot, test);
+    robot->getJoints()->setHardness(0.8);
+    std::vector<float>* allJoints;
+    allJoints = sg.getDefaultStance(DEFAULT_GAIT);
+    std::vector<double> allJointsDoubles(allJoints->begin(), allJoints->end());
+    robot->getJoints()->setPositions(robot->getJoints()->getKeys(), allJointsDoubles);
+    //sg.setSpeed(100.0, 100.0, 0.0);
+    sg.takeSteps(100.0, 100.0, 0.0, 10); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    robot->getJoints()->setHardness(0.0);
+    std::cout << "legs ticked" << std::endl;
+    while (!sg.isDone()) { // pocka vse shagi ne sdelani (ya tak predpolagayu)
+        sg.tick_legs(); // generireum joints i stiffnesi dlya nog
+        sg.tick_arms(); //dlya ruk
+        sg.tick_controller(); // krutim frame ili tipa togo. koroche nuzhnaya shtuka
+    }
+    std::cout << "legs ticked" << std::endl;
+    //testing
     shared_ptr<rd::Kinematics> kinematics(
-            make_shared<rd::Kinematics>(robot.getClock(), robot.getJoints(), robot.getConfig()));
+            make_shared<rd::Kinematics>(robot->getClock(), robot->getJoints(), robot->getConfig()));
     rd::RPCServer srv(port);
-    srv.addModule(make_shared<rd::RemoteJoints>(robot.getJoints()));
-    srv.addModule(make_shared<rd::RemoteCamera>(robot.getTopCamera(), robot.getBotCamera()));
-    srv.addModule(make_shared<rd::RemoteLEDs>(robot.getLEDs()));
-    srv.addModule(make_shared<rd::RemoteGyro>(robot.getGyro()));
-    srv.addModule(make_shared<rd::RemoteAccelerometer>(robot.getAccelerometer()));
-    srv.addModule(make_shared<rd::RemoteAngle>(robot.getAngle()));
+    srv.addModule(make_shared<rd::RemoteJoints>(robot->getJoints()));
+    srv.addModule(make_shared<rd::RemoteCamera>(robot->getTopCamera(), robot->getBotCamera()));
+    srv.addModule(make_shared<rd::RemoteLEDs>(robot->getLEDs()));
+    srv.addModule(make_shared<rd::RemoteGyro>(robot->getGyro()));
+    srv.addModule(make_shared<rd::RemoteAccelerometer>(robot->getAccelerometer()));
+    srv.addModule(make_shared<rd::RemoteAngle>(robot->getAngle()));
     srv.addModule(make_shared<rd::RemoteKinematics>(kinematics));
     srv.run();
     return EXIT_SUCCESS;
