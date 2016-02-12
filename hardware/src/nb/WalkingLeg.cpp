@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "nb/WalkingLeg.h"
+#include "rd/hardware/Robot.h"
 #include "nb/COMKinematics.h"
 
 using namespace std;
@@ -26,9 +27,8 @@ using namespace Kinematics;
 using namespace NBMath;
 
 //
-WalkingLeg::WalkingLeg(boost::shared_ptr<Sensors> s,
+WalkingLeg::WalkingLeg(boost::shared_ptr<rd::Robot> s,
                        const MetaGait* _gait,
-                       const SensorAngles* _sensorAngles,
                        ChainID id)
         : sensors(s),
           state(SUPPORTING),
@@ -41,7 +41,7 @@ WalkingLeg::WalkingLeg(boost::shared_ptr<Sensors> s,
           lastRotation(0.0f), odoUpdate(3, 0.0f),
           leg_sign(id == LLEG_CHAIN ? 1 : -1),
           leg_name(id == LLEG_CHAIN ? "left" : "right"),
-          sensorAngles(_sensorAngles), sensorAngleX(0.0f), sensorAngleY(0.0f) {
+          sensorAngleX(0.0f), sensorAngleY(0.0f) {
 
 
     for (unsigned int i = 0; i < LEG_JOINTS; i++) lastJoints[i] = 0.0f;
@@ -202,7 +202,7 @@ const vector<float> WalkingLeg::finalizeJoints(const ufvector3& footGoal) {
     //Center of mass control
 #ifdef USE_COM_CONTROL
     const float COM_SCALE = startStopSensorScale;
-    const ufvector4 com_c = Kinematics::getCOMc(sensors->getMotionBodyAngles());
+    const ufvector4 com_c = Kinematics::getCOMc(sensors->getJoints()->getPositions()->data);
 #else
     const float COM_SCALE = startStopSensorScale;
     const ufvector4 com_c = CoordFrame4D::vector4D(0, 0, 0);
@@ -214,13 +214,10 @@ const vector<float> WalkingLeg::finalizeJoints(const ufvector3& footGoal) {
     ufvector3 comFootGoal = footGoal;
     comFootGoal(2) += COM_Z_OFF * COM_SCALE;
 
-    const boost::tuple<const float, const float> sensorCompensation =
-            sensorAngles->getAngles(startStopSensorScale);
-
     const float bodyAngleX = sensorAngleX =
-                                     sensorCompensation.get<SensorAngles::X>();
+                                     sensors->getAngle()->getAngle()->data[0];
     const float bodyAngleY = sensorAngleY = gait->stance[WP::BODY_ROT_Y] +
-                                            sensorCompensation.get<SensorAngles::Y>();
+                                            sensors->getAngle()->getAngle()->data[1];
 
     //Hack
     const boost::tuple<const float, const float> ankleAngleCompensation =
@@ -584,70 +581,4 @@ void WalkingLeg::assignStateTimes(boost::shared_ptr<Step> step) {
     doubleSupportFrames = step->doubleSupportFrames;
     singleSupportFrames = step->singleSupportFrames;
     cycleFrames = step->stepDurationFrames;
-}
-
-void WalkingLeg::debugProcessing() {
-#ifdef DEBUG_WALKING_STATE_TRANSITIONS
-    if (firstFrame()){
-        if(chainID == LLEG_CHAIN){
-            cout<<"Left leg "
-        }else{
-            cout<<"Right leg "
-        }
-      if(state == SUPPORTING)
-          cout <<"switched into single support"<<endl;
-      else if(state== DOUBLE_SUPPORT || state == PERSISTENT_DOUBLE_SUPPORT)
-          cout <<"switched into double support"<<endl;
-      else if(state == SWINGING)
-          cout << "switched into swinging."<<endl;
-    }
-#endif
-
-#ifdef DEBUG_WALKING_GOAL_CONTINUITY
-    ufvector3 diff = goal - last_goal;
-#define GTHRSH 6
-
-
-
-    if(diff(0) > GTHRSH || diff(1) > GTHRSH ||diff(2) > GTHRSH ){
-        if(chainID == LLEG_CHAIN){
-            cout << "Left leg ";
-        }else
-            cout << "Right leg ";
-        cout << "noticed a big jump from last frame"<< diff<<endl;
-        cout << "  from: "<< last_goal<<endl;
-        cout << "  to: "<< goal<<endl;
-
-    }
-#endif
-
-//DANGER/HACK these static timers probably get incremented twice per frame
-//once in th left leg, and once in the right leg
-
-#ifdef DEBUG_WALKING_LOCUS_LOGGING
-    static float ttime= 0.0f;
-    fprintf(locus_log,"%f\t%f\t%f\t%f\t%d\n",ttime,goal(0),goal(1),goal(2),state);
-    ttime += MOTION_FRAME_LENGTH_S;
-#endif
-#ifdef DEBUG_WALKING_DEST_LOGGING
-    static float stime= 0.0f;
-    fprintf(dest_log,"%f\t%f\t%f\t%f\t%f\t%d\n",stime,
-            cur_dest->x,cur_dest->y,
-            swing_src->x,swing_src->y,state);
-    stime += MOTION_FRAME_LENGTH_S;
-#endif
-#ifdef DEBUG_WALKING_SENSOR_LOGGING
-    static float sentime= 0.0f;
-    Inertial inertial = sensors->getInertial();
-    fprintf(sensor_log,
-            "%f\t%f\t"
-            "%f\t%f\t"
-            "%f\t%f\t"
-            "%f\t%d\n",sentime,
-            0.0f,gait->stance[WP::BODY_ROT_Y],
-            sensorAngleX,sensorAngleY,
-            inertial.angleX,inertial.angleY,
-            state);
-    sentime += MOTION_FRAME_LENGTH_S;
-#endif
 }

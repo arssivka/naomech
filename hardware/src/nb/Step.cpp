@@ -1,7 +1,7 @@
 #include <string>
-#include "Step.h"
-#include "MotionConstants.h"
-#include "Observer.h"
+#include "nb/Step.h"
+#include "nb/MotionConstants.h"
+#include "nb/Observer.h"
 
 using namespace std;
 

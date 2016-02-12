@@ -1,6 +1,6 @@
-#include "ZmpEKF.h"
-#include "BasicWorldConstants.h"
-#include "Kinematics.h"
+#include "nb/ZmpEKF.h"
+#include "nb/Kinematics.h"
+#include "nb/BasicWorldConstants.h"
 
 using namespace Kinematics;
 

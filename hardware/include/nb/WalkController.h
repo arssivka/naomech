@@ -26,7 +26,6 @@
 
 #include <list>
 
-#include "Sensors.h"
 
 class WalkController {
 public:

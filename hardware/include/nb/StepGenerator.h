@@ -90,6 +90,8 @@
 #include "ZmpEKF.h"
 #include "ZmpAccEKF.h"
 
+#include "Kinematics.h"
+
 
 enum SupportFoot {
     LEFT_SUPPORT = 0,
@@ -243,13 +245,7 @@ private:
 
     NBMath::ufvector4 mAccInWorldFrame;
 
-#ifdef DEBUG_CONTROLLER_COM
-    FILE* com_log;
-    NBMath::ufmatrix3 fi_Transform;
-#endif
-#ifdef DEBUG_SENSOR_ZMP
-    FILE* zmp_log;
-#endif
+
 
 };
 

@@ -1,4 +1,4 @@
-#include "NBMatrixMath.h"
+#include "nb/NBMatrixMath.h"
 
 using namespace NBMath;
 

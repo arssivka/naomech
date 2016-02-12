@@ -1,5 +1,5 @@
-#include  "MetaGait.h"
-#include  "MotionConstants.h"
+#include  "nb/MetaGait.h"
+#include  "nb/MotionConstants.h"
 
 //using namespace std;
 

@@ -17,7 +17,7 @@
 // and the GNU Lesser Public License along with Man.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include "Observer.h"
+#include "nb/Observer.h"
 
 using std::list;
 

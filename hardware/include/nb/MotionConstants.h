@@ -21,8 +21,8 @@
 #ifndef _MotionConstants_h_DEFINED
 #define _MotionConstants_h_DEFINED
 
-#include "Kinematics.h"
-#include "Common.h"
+#include "nb/Kinematics.h"
+#include "nb/Common.h"
 
 namespace MotionConstants {
 

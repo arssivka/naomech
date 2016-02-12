@@ -1,4 +1,4 @@
-#include "Gait.h"
+#include "nb/Gait.h"
 #include <iostream>
 
 using namespace std;

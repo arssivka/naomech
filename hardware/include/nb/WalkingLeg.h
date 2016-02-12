@@ -54,12 +54,13 @@
 #include <boost/tuple/tuple.hpp>
 #include "WalkingConstants.h"
 #include "MetaGait.h"
-#include "SensorAngles.h"
 #include "Step.h"
 #include "CoordFrame.h"
 #include "Kinematics.h"
+#include "InverseKinematics.h"
 #include "NBMatrixMath.h"
-#include  "Sensors.h"
+#include "rd/hardware/Robot.h"
+
 
 typedef boost::tuple<std::vector<float>,
         std::vector<float> > LegJointStiffTuple;
@@ -72,9 +73,8 @@ enum JointStiffIndex {
 
 class WalkingLeg {
 public:
-    WalkingLeg(boost::shared_ptr<Sensors> s,
+    WalkingLeg(boost::shared_ptr<rd::Robot> s,
                const MetaGait* _gait,
-               const SensorAngles* _sensorAngles,
                Kinematics::ChainID id);
 
     ~WalkingLeg();
@@ -175,7 +175,7 @@ private:
     inline Kinematics::ChainID getOtherLegChainID();
 
 private:
-    boost::shared_ptr<Sensors> sensors;
+    boost::shared_ptr<rd::Robot> sensors;
     //FSA Attributes
     SupportMode state;
     SupportMode supportMode; //soon to be deprecated
@@ -198,18 +198,8 @@ private:
     int leg_sign; //-1 for right leg, 1 for left leg
     std::string leg_name;
 
-    const SensorAngles* sensorAngles;
     float sensorAngleX, sensorAngleY;
 
-#ifdef DEBUG_WALKING_LOCUS_LOGGING
-    FILE * locus_log;
-#endif
-#ifdef DEBUG_WALKING_DEST_LOGGING
-    FILE * dest_log;
-#endif
-#ifdef DEBUG_WALKING_SENSOR_LOGGING
-    FILE * sensor_log;
-#endif
 };
 
 #endif

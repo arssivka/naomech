@@ -29,11 +29,12 @@ using boost::shared_ptr;
 
 #include <nb/StepGenerator.h>
 #include "nb/Observer.h"
+#include "nb/BasicWorldConstants.h"
 
 using namespace boost::numeric;
 using namespace NBMath;
+using namespace Kinematics;
 
-static const float GRAVITY_mss = -9.8f; //in Z direction (up is positive)m/s^2
 
 StepGenerator::StepGenerator(shared_ptr<rd::Robot> robot, const MetaGait* _gait)
         : x(0.0f), y(0.0f), theta(0.0f),
@@ -49,8 +50,8 @@ StepGenerator::StepGenerator(shared_ptr<rd::Robot> robot, const MetaGait* _gait)
           fc_Transform(CoordFrame3D::identity3D()),
           cc_Transform(CoordFrame3D::identity3D()),
           m_robot(robot), gait(_gait), nextStepIsLeft(true), waitForController(0),
-          leftLeg(robot, gait, &sensorAngles, LLEG_CHAIN),
-          rightLeg(robot, gait, &sensorAngles, RLEG_CHAIN),
+          leftLeg(robot, gait, LLEG_CHAIN),
+          rightLeg(robot, gait, RLEG_CHAIN),
           leftArm(gait, LARM_CHAIN), rightArm(gait, RARM_CHAIN),
           supportFoot(LEFT_SUPPORT),
         //m_controller_x(new PreviewController()),
@@ -130,7 +131,6 @@ void StepGenerator::generate_steps() {
 void StepGenerator::findSensorZMP() {
 
     //TODO: Figure out how to use unfiltered
-    Inertial inertial = sensors->getInertial();
 
     //The robot may or may not be tilted with respect to vertical,
     //so, since walking is conducted from a bird's eye perspective
@@ -139,12 +139,12 @@ void StepGenerator::findSensorZMP() {
 
     //TODO: Rotate with angleX,etc
     const ufmatrix4 bodyToWorldTransform =
-            prod(CoordFrame4D::rotation4D(CoordFrame4D::X_AXIS, -inertial.angleX),
-                 CoordFrame4D::rotation4D(CoordFrame4D::Y_AXIS, -inertial.angleY));
+            prod(CoordFrame4D::rotation4D(CoordFrame4D::X_AXIS, -m_robot->getAngle()->getAngle()->data[0]),
+                 CoordFrame4D::rotation4D(CoordFrame4D::Y_AXIS, -m_robot->getAngle()->getAngle()->data[1]));
 
-    const ufvector4 accInBodyFrame = CoordFrame4D::vector4D(inertial.accX,
-                                                            inertial.accY,
-                                                            inertial.accZ);
+    const ufvector4 accInBodyFrame = CoordFrame4D::vector4D(m_robot->getAccelerometer()->getAcceleration()->data[0],
+                                                            m_robot->getAccelerometer()->getAcceleration()->data[1],
+                                                            m_robot->getAccelerometer()->getAcceleration()->data[2]);
 
     mAccInWorldFrame = accInBodyFrame;
     //TODO: Currently rotating the coordinate frames exacerbates the problem
@@ -243,7 +243,7 @@ void StepGenerator::tick_controller() {
 
 WalkLegsTuple StepGenerator::tick_legs() {
 
-    sensorAngles.tick_sensors();
+
     //Decide if this is the first frame into any double support phase
     //which is the critical point when we must swap coord frames, etc
     if (leftLeg.isSwitchingSupportMode() && leftLeg.stateIsDoubleSupport()) {
@@ -646,7 +646,7 @@ void StepGenerator::resetSteps(const bool startLeft) {
     //Each time we restart, we need to reset the estimated sensor ZMP:
     m_zmp_filter = ZmpEKF();
 
-    sensorAngles.reset();
+
 
     //Third, we reset the memory of where to generate ZMP from steps back to
     //the origin

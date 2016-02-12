@@ -1,4 +1,4 @@
-#include "NBMath.h"
+#include "nb/NBMath.h"
 
 using namespace NBMath;
 
