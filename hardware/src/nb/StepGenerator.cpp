@@ -188,7 +188,7 @@ void StepGenerator::tick_controller() {
 
 
 WalkLegsTuple StepGenerator::tick_legs() {
-    //m_sensor_angles->tick_sensors();
+    m_sensor_angles->tick_sensors();
 
     //Decide if this is the first frame into any double support phase
     //which is the critical point when we must swap coord frames, etc

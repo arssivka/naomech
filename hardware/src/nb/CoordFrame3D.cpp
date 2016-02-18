@@ -78,10 +78,15 @@ const NBMath::ufvector3 CoordFrame3D::vector3D(const double x, const double y,
 const NBMath::ufrowVector3 CoordFrame3D::rowVector3D(const double x,
                                                   const double y,
                                                   const double z) {
-    NBMath::ufrowVector3 p;
+
+    NBMath::ufrowVector3 p(1, 3);
+
     p(0,0) = x;
+
     p(0,1) = y;
+
     p(0,2) = z;
+
     return p;
 }
 

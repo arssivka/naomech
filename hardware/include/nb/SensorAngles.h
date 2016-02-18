@@ -35,7 +35,6 @@ private:
 
     //store what will be returned by getAngles
     double sensorAngleX, sensorAngleY;
-
     SpringSensor springX,springY;
 
     //OLD

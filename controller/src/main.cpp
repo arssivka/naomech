@@ -101,7 +101,9 @@ int main(int argc, const char* const argv[]) {
     double FAST_ODO[] = {1.0, 1.0, 1.0};
     double FAST_ARM[] = {10.0};
 
-    Gait nextGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
+    //Gait nextGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
+
+    Gait nextGait(DEFAULT_GAIT);
     Gait startGait(DEFAULT_GAIT);
     test.setStartGait(startGait);
     test.setNewGaitTarget(nextGait);
@@ -111,7 +113,7 @@ int main(int argc, const char* const argv[]) {
     std::vector<int> keys(&StepGenerator::NB_WALKING_JOINTS[0], &StepGenerator::NB_WALKING_JOINTS[19]);
 //    robot->getJoints()->setPositions(keys, *joints_data);
     //sg.setSpeed(100.0, 100.0, 0.0);
-    sg.takeSteps(10.0, 0.0, 0.0, 5); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    sg.takeSteps(100.0, 0.0, 0.0, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
     boost::shared_ptr<rd::Joints> joints = robot->getJoints();
     sleep(2);
     std::cout << "legs ticked" << std::endl;

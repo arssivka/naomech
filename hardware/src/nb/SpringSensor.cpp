@@ -22,7 +22,8 @@ SpringSensor::SpringSensor(const MetaGait * _gait,
     name(axis == X ? "springX" : "springY"),
     lastSensorAngle(0.0)
 {
-/*
+
+
     //build statematrix
     A = ublas::identity_matrix<double>(3);
     A(0,1) = A(1,2)= MOTION_FRAME_LENGTH_S;
@@ -33,8 +34,9 @@ SpringSensor::SpringSensor(const MetaGait * _gait,
     //in A(2,1)
 
     reset();
+
     updateMatrices();
-    */
+
 }
 
 SpringSensor::~SpringSensor()
