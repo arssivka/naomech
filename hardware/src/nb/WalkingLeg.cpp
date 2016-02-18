@@ -29,10 +29,12 @@ using namespace NBMath;
 
 //
 WalkingLeg::WalkingLeg(boost::shared_ptr<rd::Robot> robot,
+                       boost::shared_ptr<SensorAngles> sensor_angles,
                        const MetaGait* _gait,
                        ChainID id)
         : m_keys(&StepGenerator::NB_WALKING_JOINTS[0], &StepGenerator::NB_WALKING_JOINTS[19]),
           m_robot(robot),
+          m_sensor_angles(sensor_angles),
           state(SUPPORTING),
           frameCounter(0),
           cur_dest(EMPTY_STEP), swing_src(EMPTY_STEP), swing_dest(EMPTY_STEP),
@@ -210,11 +212,11 @@ const vector<double> WalkingLeg::finalizeJoints(const ufvector3& footGoal) {
     ufvector3 comFootGoal = footGoal;
     comFootGoal(2) += COM_Z_OFF * COM_SCALE;
 
-    boost::shared_ptr<rd::SensorData<double> > data;
-    data = m_robot->getAngle()->getAngle();
-    const double bodyAngleX = m_sensor_angle_x = data->data[rd::Angle::X] * startStopSensorScale;
-    const double bodyAngleY = m_sensor_angle_y = gait->stance[WP::BODY_ROT_Y]
-                                                 + data->data[rd::Angle::Y] * startStopSensorScale;
+    const boost::tuple <const float, const float > sensorCompensation =
+            m_sensor_angles->getAngles(startStopSensorScale);
+
+    const float bodyAngleX = m_sensor_angle_x = sensorCompensation.get<SensorAngles::X>();
+    const float bodyAngleY = m_sensor_angle_y = sensorCompensation.get<SensorAngles::Y>();
 
     //Hack
     const boost::tuple<const double, const double> ankleAngleCompensation = getAnkleAngles();

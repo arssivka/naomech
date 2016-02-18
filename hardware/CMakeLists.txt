@@ -40,7 +40,9 @@ set(SRCS src/rd/hardware/Accelerometer.cpp
         src/nb/COMKinematics.cpp
         src/nb/InverseKinematics.cpp
         src/nb/CoordFrame3D.cpp
-        src/nb/CoordFrame4D.cpp)
+        src/nb/CoordFrame4D.cpp
+        src/nb/SensorAngles.cpp
+        src/nb/SpringSensor.cpp)
 
 set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Angle.h
@@ -101,7 +103,9 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/nb/Common.h
         include/nb/InverseKinematics.h
         include/nb/BasicWorldConstants.h
-        include/nb/EKFStructs.h)
+        include/nb/EKFStructs.h
+        include/nb/SensorAngles.h
+        include/nb/SpringSensor.h)
 
 set(INCLUDE_DIRS ${RD_HARDWARE_INCLUDE_DIRS}
         ${BOOST_INCLUDE_DIRS}

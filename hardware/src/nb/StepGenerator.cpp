@@ -61,6 +61,7 @@ int StepGenerator::NB_WALKING_JOINTS[20] = {
 StepGenerator::StepGenerator(shared_ptr<rd::Robot> robot, const MetaGait* _gait)
         : m_x(0.0), m_y(0.0), m_theta(0.0),
           m_done(true),
+          m_sensor_angles(boost::make_shared<SensorAngles>(robot, _gait)),
           m_com_i(CoordFrame3D::vector3D(0.0, 0.0)),
           m_com_f(CoordFrame3D::vector3D(0.0, 0.0)),
           m_est_zmp_i(CoordFrame3D::vector3D(0.0, 0.0)),
@@ -72,8 +73,8 @@ StepGenerator::StepGenerator(shared_ptr<rd::Robot> robot, const MetaGait* _gait)
           m_fc_transform(CoordFrame3D::identity3D()),
           cc_Transform(CoordFrame3D::identity3D()),
           m_robot(robot), m_gait(_gait), m_next_step_is_feft(true), waitForController(0),
-          leftLeg(robot, m_gait, LLEG_CHAIN),
-          rightLeg(robot, m_gait, RLEG_CHAIN),
+          leftLeg(robot, m_sensor_angles, m_gait, LLEG_CHAIN),
+          rightLeg(robot, m_sensor_angles, m_gait, RLEG_CHAIN),
           leftArm(m_gait, LARM_CHAIN), rightArm(m_gait, RARM_CHAIN),
           supportFoot(LEFT_SUPPORT),
           m_controller_x(new Observer()),
@@ -187,6 +188,7 @@ void StepGenerator::tick_controller() {
 
 
 WalkLegsTuple StepGenerator::tick_legs() {
+    //m_sensor_angles->tick_sensors();
 
     //Decide if this is the first frame into any double support phase
     //which is the critical point when we must swap coord frames, etc
@@ -545,6 +547,7 @@ void StepGenerator::resetSteps(const bool startLeft) {
     m_controller_y->initState(0.0, 0.0, 0.0);
     //Each time we restart, we need to reset the estimated sensor ZMP:
     m_zmp_filter = ZmpEKF();
+    m_sensor_angles->reset();
 
     //Third, we reset the memory of where to generate ZMP from steps back to
     //the origin

@@ -60,6 +60,7 @@
 #include "InverseKinematics.h"
 #include "NBMatrixMath.h"
 #include "rd/hardware/Robot.h"
+#include "nb/SensorAngles.h"
 
 
 typedef boost::tuple<std::vector<double>,
@@ -74,6 +75,7 @@ enum JointStiffIndex {
 class WalkingLeg {
 public:
     WalkingLeg(boost::shared_ptr<rd::Robot> robot,
+                boost::shared_ptr<SensorAngles> sensor_angles,
                const MetaGait* _gait,
                Kinematics::ChainID id);
 
@@ -181,6 +183,7 @@ private:
 
     //destination attributes
     boost::shared_ptr<Step> cur_dest, swing_src, swing_dest, support_step;
+    boost::shared_ptr<SensorAngles> m_sensor_angles;
 
     //Leg Attributes
     Kinematics::ChainID chainID; //keep track of which leg this is

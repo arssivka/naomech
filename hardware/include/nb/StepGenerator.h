@@ -89,6 +89,7 @@
 #include "NBMatrixMath.h"
 #include "ZmpEKF.h"
 #include "ZmpAccEKF.h"
+#include "nb/SensorAngles.h"
 
 #include "Kinematics.h"
 
@@ -212,6 +213,7 @@ private:
     boost::shared_ptr<Step> m_support_step_f;
     boost::shared_ptr<Step> m_swinging_step_f;
     boost::shared_ptr<Step> m_swinging_step_source_f;
+    boost::shared_ptr<SensorAngles> m_sensor_angles;
 
     //Reference frames for the Walking Leg
     //These are updated in real time, as we are processing steps
