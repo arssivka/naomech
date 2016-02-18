@@ -7,7 +7,7 @@
 #include "Gait.h"
 
 
-typedef boost::tuple<const float, const float, const float> distVector;
+typedef boost::tuple<const double, const double, const double> distVector;
 
 enum StepType {
     REGULAR_STEP = 0,
@@ -22,12 +22,12 @@ enum Foot {
 };
 
 struct WalkVector {
-    float x;
-    float y;
-    float theta;
+    double x;
+    double y;
+    double theta;
 };
 
-static const WalkVector ZERO_WALKVECTOR = {0.0f, 0.0f, 0.0f};
+static const WalkVector ZERO_WALKVECTOR = {0.0, 0.0, 0.0};
 
 /**
  * Container to hold information about steps.
@@ -47,39 +47,39 @@ public:
          const StepType _type = REGULAR_STEP);
 
     // Copy constructor to allow changing reference frames:
-    Step(const float new_x, const float new_y, const float new_theta,
+    Step(const double new_x, const double new_y, const double new_theta,
          const Step& other);
 
-    void updateFrameLengths(const float duration,
-                            const float dblSuppF);
+    void updateFrameLengths(const double duration,
+                            const double dblSuppF);
 
     friend std::ostream& operator<<(std::ostream& o, const Step& s) {
-        return o << "Step(" << s.x << "," << s.y << "," << s.theta
-               << ") in " << s.stepConfig[WP::DURATION]
+        return o << "Step(" << s.m_x << "," << s.m_y << "," << s.theta
+               << ") in " << s.m_step_config[WP::DURATION]
                << " secs with foot "
                << s.foot << " and type " << s.type;
     }
 
 public:
-    float x;
-    float y;
-    float theta;
-    WalkVector walkVector;
-    unsigned int stepDurationFrames;
-    unsigned int doubleSupportFrames;
-    unsigned int singleSupportFrames;
-    float sOffsetY;
+    double m_x;
+    double m_y;
+    double theta;
+    WalkVector m_walk_vector;
+    unsigned int m_step_duration_frames;
+    unsigned int m_double_support_frames;
+    unsigned int m_single_support_frames;
+    double sOffsetY;
     Foot foot;
     StepType type;
     bool zmpd;
 
-    float stepConfig[WP::LEN_STEP_CONFIG];
-    float zmpConfig[WP::LEN_ZMP_CONFIG];
-    float stanceConfig[WP::LEN_STANCE_CONFIG];
+    double m_step_config[WP::LEN_STEP_CONFIG];
+    double m_zmp_config[WP::LEN_ZMP_CONFIG];
+    double m_stance_config[WP::LEN_STANCE_CONFIG];
 private:
-    void copyGaitAttributes(const float _step_config[],
-                            const float _zmp_config[],
-                            const float _stance_config[]);
+    void copyGaitAttributes(const double _step_config[],
+                            const double _zmp_config[],
+                            const double _stance_config[]);
 
     void copyAttributesFromOther(const Step& other);
 

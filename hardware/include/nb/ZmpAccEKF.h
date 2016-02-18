@@ -35,22 +35,22 @@ public:
     virtual ~ZmpAccEKF();
 
     // Update functions
-    void update(const float accx,
-                const float accy,
-                const float accz);
+    void update(const double accx,
+                const double accy,
+                const double accz);
 
     // getters
-    const float getX() const { return xhat_k(0); }
+    const double getX() const { return xhat_k(0); }
 
-    const float getY() const { return xhat_k(1); }
+    const double getY() const { return xhat_k(1); }
 
-    const float getZ() const { return xhat_k(2); }
+    const double getZ() const { return xhat_k(2); }
 
-    const float getXUnc() const { return P_k(0, 0); }
+    const double getXUnc() const { return P_k(0, 0); }
 
-    const float getYUnc() const { return P_k(1, 1); }
+    const double getYUnc() const { return P_k(1, 1); }
 
-    const float getZUnc() const { return P_k(2, 2); }
+    const double getZUnc() const { return P_k(2, 2); }
 
 private:
     // Core functions
@@ -61,15 +61,15 @@ private:
                                         MeasurementMatrix& R_k,
                                         MeasurementVector& V_k);
 
-    const float scale(const float);
+    const double scale(const double);
 
-    const float getVariance(float, float);
+    const double getVariance(double, double);
 
 private: // Constants
     static const int num_dimensions;
-    static const float beta;
-    static const float gamma;
-    static const float variance;
+    static const double beta;
+    static const double gamma;
+    static const double variance;
 };
 
 #endif

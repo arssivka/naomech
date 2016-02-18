@@ -34,15 +34,15 @@ using namespace CoordFrame3D;
 
 // -------------------- Helper matrix methods --------------------
 const NBMath::ufmatrix3 CoordFrame3D::rotation3D(const Axis axis,
-                                                 const float angle) {
+                                                 const double angle) {
     NBMath::ufmatrix3 rot =
-        boost::numeric::ublas::identity_matrix <float>(3);
+        boost::numeric::ublas::identity_matrix <double>(3);
 
     if (angle == 0.0) { //OPTIMIZAION POINT
         return rot;
     }
-    const float sinAngle = std::sin(angle);
-    const float cosAngle = std::cos(angle);
+    const double sinAngle = std::sin(angle);
+    const double cosAngle = std::cos(angle);
 
     switch(axis) {
     case Z_AXIS:
@@ -57,27 +57,27 @@ const NBMath::ufmatrix3 CoordFrame3D::rotation3D(const Axis axis,
     return rot;
 }
 
-const NBMath::ufmatrix3 CoordFrame3D::translation3D(const float dx,
-                                                    const float dy) {
-    boost::numeric::ublas::matrix <float> trans =
-        boost::numeric::ublas::identity_matrix <float>(3);
+const NBMath::ufmatrix3 CoordFrame3D::translation3D(const double dx,
+                                                    const double dy) {
+    boost::numeric::ublas::matrix <double> trans =
+        boost::numeric::ublas::identity_matrix <double>(3);
     trans(X_AXIS, Z_AXIS) = dx;
     trans(Y_AXIS, Z_AXIS) = dy;
     return trans;
 }
 
-const NBMath::ufvector3 CoordFrame3D::vector3D(const float x, const float y,
-                                               const float z) {
-    NBMath::ufvector3 p = boost::numeric::ublas::zero_vector <float> (3);
+const NBMath::ufvector3 CoordFrame3D::vector3D(const double x, const double y,
+                                               const double z) {
+    NBMath::ufvector3 p = boost::numeric::ublas::zero_vector <double> (3);
     p(0) = x;
     p(1) = y;
     p(2) = z;
     return p;
 }
 
-const NBMath::ufrowVector3 CoordFrame3D::rowVector3D(const float x,
-                                                  const float y,
-                                                  const float z) {
+const NBMath::ufrowVector3 CoordFrame3D::rowVector3D(const double x,
+                                                  const double y,
+                                                  const double z) {
     NBMath::ufrowVector3 p;
     p(0,0) = x;
     p(0,1) = y;
@@ -86,5 +86,5 @@ const NBMath::ufrowVector3 CoordFrame3D::rowVector3D(const float x,
 }
 
 const NBMath::ufmatrix3 CoordFrame3D::identity3D(){
-    return boost::numeric::ublas::identity_matrix <float> (3);
+    return boost::numeric::ublas::identity_matrix <double> (3);
 }

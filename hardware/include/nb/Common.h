@@ -53,10 +53,10 @@ typedef unsigned char byte;
 #endif
 static const long long MICROS_PER_SECOND = 1000000;
 
-const static float MOTION_FRAME_LENGTH_S = 0.01f;
+const static double MOTION_FRAME_LENGTH_S = 0.01;
 // 1 second * 1000 ms/s * 1000 us/ms
-const float MOTION_FRAME_LENGTH_uS = 1000.0f * 1000.0f * MOTION_FRAME_LENGTH_S;
-const float MOTION_FRAME_RATE = 1.0f / MOTION_FRAME_LENGTH_S;
+const double MOTION_FRAME_LENGTH_uS = 1000.0 * 1000.0 * MOTION_FRAME_LENGTH_S;
+const double MOTION_FRAME_RATE = 1.0 / MOTION_FRAME_LENGTH_S;
 
 
 static long long micro_time (void)

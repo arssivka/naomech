@@ -37,13 +37,13 @@ public:
                 const ZmpMeasurement zMeasure);
 
     // getters
-    const float get_zmp_x() const { return xhat_k(0); }
+    const double get_zmp_x() const { return xhat_k(0); }
 
-    const float get_zmp_y() const { return xhat_k(1); }
+    const double get_zmp_y() const { return xhat_k(1); }
 
-    const float get_zmp_unc_x() const { return P_k(0, 0); }
+    const double get_zmp_unc_x() const { return P_k(0, 0); }
 
-    const float get_zmp_unc_y() const { return P_k(1, 1); }
+    const double get_zmp_unc_y() const { return P_k(1, 1); }
 
 private:
     // Core functions
@@ -55,6 +55,6 @@ private:
                                         MeasurementVector& V_k);
 
 private: // Constants
-    static const float beta;
-    static const float gamma;
+    static const double beta;
+    static const double gamma;
 };

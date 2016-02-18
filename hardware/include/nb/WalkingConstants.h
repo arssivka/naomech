@@ -35,17 +35,17 @@ enum SupportMode {
     PERSISTENT_DOUBLE_SUPPORT
 };
 
-static const float LARM_WALK_ANGLES[Kinematics::ARM_JOINTS] =
-        {M_PI_FLOAT / 2.0f, .26f, 0.0f, 0.0f};
-static const float RARM_WALK_ANGLES[Kinematics::ARM_JOINTS] =
-        {M_PI_FLOAT / 2.0f, -.26f, 0.0f, 0.0f};
+static const double LARM_WALK_ANGLES[Kinematics::ARM_JOINTS] =
+        {M_PI_double / 2.0, .26, 0.0, 0.0};
+static const double RARM_WALK_ANGLES[Kinematics::ARM_JOINTS] =
+        {M_PI_double / 2.0, -.26, 0.0, 0.0};
 
 
 //Sensitivity to new walk vectors -- currently 0, giving maximum sensitivity
 //when a new vector differs by more than these constants, the internal
 //walk vector held in the StepGenerator changes
-const float NEW_VECTOR_THRESH_MMS = 0.0f; //difference in speed in mm/second
-const float NEW_VECTOR_THRESH_RADS = 0.0f; //difference in speed in radians/second
+const double NEW_VECTOR_THRESH_MMS = 0.0; //difference in speed in mm/second
+const double NEW_VECTOR_THRESH_RADS = 0.0; //difference in speed in radians/second
 
 
 

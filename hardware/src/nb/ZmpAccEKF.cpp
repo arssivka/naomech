@@ -4,10 +4,10 @@
 using namespace boost::numeric;
 
 const int ZmpAccEKF::num_dimensions = ACC_NUM_DIMENSIONS;
-const float ZmpAccEKF::beta = 0.2f;
-const float ZmpAccEKF::gamma = .2f;
-const float ZmpAccEKF::variance = 0.22f;
-//const float ZmpAccEKF::variance  = 100.00f;
+const double ZmpAccEKF::beta = 0.2;
+const double ZmpAccEKF::gamma = .2;
+const double ZmpAccEKF::variance = 0.22;
+//const double ZmpAccEKF::variance  = 100.00;
 
 ZmpAccEKF::ZmpAccEKF()
         : EKF<AccelMeasurement, int, num_dimensions, num_dimensions>(beta, gamma) {
@@ -17,8 +17,8 @@ ZmpAccEKF::ZmpAccEKF()
     A_k(2, 2) = 1.0;
 
     // Set default values for the accelerometers
-    xhat_k(0) = 0.0f;
-    xhat_k(1) = 0.0f;
+    xhat_k(0) = 0.0;
+    xhat_k(1) = 0.0;
     xhat_k(2) = GRAVITY_mss;
 
     //Set uncertainties
@@ -37,9 +37,9 @@ ZmpAccEKF::~ZmpAccEKF() {
 /**
  * Method that gets called when we want to advance the filter to the next state
  */
-void ZmpAccEKF::update(const float accX,
-                       const float accY,
-                       const float accZ) {
+void ZmpAccEKF::update(const double accX,
+                       const double accY,
+                       const double accZ) {
     timeUpdate(0); // update model? we don't have one. it's an int. don't care.
 
     AccelMeasurement m = {accX, accY, accZ};
@@ -50,43 +50,43 @@ void ZmpAccEKF::update(const float accX,
 
 EKF<AccelMeasurement, int, 3, 3>::StateVector
 ZmpAccEKF::associateTimeUpdate(int u_k) {
-    return ublas::zero_vector<float>(num_dimensions);
+    return ublas::zero_vector<double>(num_dimensions);
 }
 
-const float ZmpAccEKF::scale(const float x) {
-    //return .4f * std::pow(3.46572f, x);
-    // Highly filtered: return 100.0f * std::pow(x, 5.0f) + 580.4f;
+const double ZmpAccEKF::scale(const double x) {
+    //return .4 * std::pow(3.46572, x);
+    // Highly filtered: return 100.0 * std::pow(x, 5.0) + 580.4;
     // A bezier curve - pretty tight fit, still lags a bit
-//     return 6.73684f * std::pow(x,3) +
-//        37.8947f * std::pow(x,2) +
-//        -54.6316f * x +
-//        20.0f;
+//     return 6.73684 * std::pow(x,3) +
+//        37.8947 * std::pow(x,2) +
+//        -54.6316 * x +
+//        20.0;
 
     //very tight fit
-    return 2.0f * std::pow(3.0f, x);
+    return 2.0 * std::pow(3.0, x);
 
     //Looser fit:
-//     return 6.73684f * std::pow(x,3) +
-//        37.8947f * std::pow(x,2) +
-//        -54.6316f * x +
-//        70.0f;
+//     return 6.73684 * std::pow(x,3) +
+//        37.8947 * std::pow(x,2) +
+//        -54.6316 * x +
+//        70.0;
 
-    //return 80 - 79 * std::exp( - .36f * std::pow( - 2.5f + x , 2));
+    //return 80 - 79 * std::exp( - .36 * std::pow( - 2.5 + x , 2));
 
-//     if (x > 9.0f)
-//         return 400.0f;
+//     if (x > 9.0)
+//         return 400.0;
 //     else
-//         return 80 - 79 * std::exp( - .25f * std::pow( - 2.7f + x , 2));
+//         return 80 - 79 * std::exp( - .25 * std::pow( - 2.7 + x , 2));
 }
 
-const float ZmpAccEKF::getVariance(float delta, float divergence) {
+const double ZmpAccEKF::getVariance(double delta, double divergence) {
     delta = std::abs(delta);
     divergence = std::abs(divergence);
 
-    const float big = 3.5f;
-    const float small = 1.0f;
-    const float trust = .2f;
-    const float dont_trust = 1000.0f;
+    const double big = 3.5;
+    const double small = 1.0;
+    const double trust = .2;
+    const double dont_trust = 1000.0;
 
     if (delta > big && divergence < small) {
         return trust;
@@ -104,7 +104,7 @@ void ZmpAccEKF::incorporateMeasurement(AccelMeasurement z,
                                        MeasurementMatrix& R_k,
                                        MeasurementVector& V_k) {
     static MeasurementVector last_measurement(
-            ublas::scalar_vector<float>(num_dimensions, 0.0f));
+            ublas::scalar_vector<double>(num_dimensions, 0.0));
 
     MeasurementVector z_x(num_dimensions);
     z_x(0) = z.x;
@@ -115,9 +115,9 @@ void ZmpAccEKF::incorporateMeasurement(AccelMeasurement z,
 
     // The Jacobian is the identity because the observation space is the same
     // as the state space.
-    H_k(0, 0) = 1.0f;
-    H_k(1, 1) = 1.0f;
-    H_k(2, 2) = 1.0f;
+    H_k(0, 0) = 1.0;
+    H_k(1, 1) = 1.0;
+    H_k(2, 2) = 1.0;
 
     //
     MeasurementVector deltaS = z_x - last_measurement;

@@ -6,9 +6,9 @@ using namespace Kinematics;
 
 using namespace boost::numeric;
 
-const float ZmpEKF::beta = 0.1f;
-const float ZmpEKF::gamma = 0.5f;
-//const float ZmpEKF::variance  = 100.00f;
+const double ZmpEKF::beta = 0.1;
+const double ZmpEKF::gamma = 0.5;
+//const double ZmpEKF::variance  = 100.00;
 
 ZmpEKF::ZmpEKF()
         : EKF<ZmpMeasurement, ZmpTimeUpdate, ZMP_NUM_DIMENSIONS, ZMP_NUM_MEASUREMENTS>(beta, gamma) {
@@ -17,8 +17,8 @@ ZmpEKF::ZmpEKF()
     A_k(1, 1) = 1.0;
 
     // Set default values for sensor zmp
-    xhat_k(0) = 0.0f;
-    xhat_k(1) = 0.0f;
+    xhat_k(0) = 0.0;
+    xhat_k(1) = 0.0;
 
     //Set uncertainties
     P_k(0, 0) = HIP_OFFSET_Y;
@@ -45,7 +45,7 @@ void ZmpEKF::update(const ZmpTimeUpdate tUp,
 
 EKF<ZmpMeasurement, ZmpTimeUpdate, ZMP_NUM_DIMENSIONS, ZMP_NUM_MEASUREMENTS>::StateVector
 ZmpEKF::associateTimeUpdate(ZmpTimeUpdate u_k) {
-    static ZmpTimeUpdate lastUpdate = {0.0f, 0.0f};
+    static ZmpTimeUpdate lastUpdate = {0.0, 0.0};
 
     StateVector delta(ZMP_NUM_DIMENSIONS);
     delta(0) = u_k.cur_zmp_x - xhat_k(0);
@@ -55,19 +55,19 @@ ZmpEKF::associateTimeUpdate(ZmpTimeUpdate u_k) {
 }
 
 
-const float getDontTrustVariance(const float divergence) {
+const double getDontTrustVariance(const double divergence) {
     //For observations from untrustworth sensors, we inflate the variance
     //very high
-    static const float minVariance = 20000.0f;
-    static const float varianceScale = 4000.0f;
+    static const double minVariance = 20000.0;
+    static const double varianceScale = 4000.0;
     return minVariance + std::abs(divergence) * varianceScale;
 }
 
-const float getVariance(const float divergence) {
+const double getVariance(const double divergence) {
     //For observations from mostly trustworthy sensors,
     // can use a lower variance
-    static const float minVariance = .5f;
-    static const float varianceScale = 1.5f;
+    static const double minVariance = .5;
+    static const double varianceScale = 1.5;
     return minVariance + std::abs(divergence) * varianceScale;
 }
 
@@ -76,9 +76,9 @@ void ZmpEKF::incorporateMeasurement(ZmpMeasurement z,
                                     StateMeasurementMatrix& H_k,
                                     MeasurementMatrix& R_k,
                                     MeasurementVector& V_k) {
-    static const float com_height = 310; //TODO: Move this
+    static const double com_height = 310; //TODO: Move this
     static MeasurementVector last_measurement(
-            ublas::scalar_vector<float>(measurementSize, 0.0f));
+            ublas::scalar_vector<double>(measurementSize, 0.0));
 
     MeasurementVector z_x(measurementSize);
     z_x(0) = z.comX + com_height / GRAVITY_mss * z.accX;
@@ -86,8 +86,8 @@ void ZmpEKF::incorporateMeasurement(ZmpMeasurement z,
 
     // The Jacobian is the identity because the observation space is the same
     // as the state space.
-    H_k(0, 0) = 1.0f;
-    H_k(1, 1) = 1.0f;
+    H_k(0, 0) = 1.0;
+    H_k(1, 1) = 1.0;
 
     V_k = z_x - xhat_k; // divergence
 

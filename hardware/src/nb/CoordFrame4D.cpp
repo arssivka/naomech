@@ -38,8 +38,8 @@ using namespace CoordFrame4D;
 // also, make all these use bounded matrices (see NBMatrixMath)
 const NBMath::ufmatrix4
 CoordFrame4D::rotation4D(const Axis axis,
-                         const float angle) {
-    NBMath::ufmatrix4 rot = boost::numeric::ublas::identity_matrix <float>(4);
+                         const double angle) {
+    NBMath::ufmatrix4 rot = boost::numeric::ublas::identity_matrix <double>(4);
 
     if (angle == 0.0) { //OPTIMIZAION POINT
         return rot;
@@ -75,20 +75,20 @@ CoordFrame4D::rotation4D(const Axis axis,
     return rot;
 }
 
-const NBMath::ufmatrix4 CoordFrame4D::translation4D(const float dx,
-                                                    const float dy,
-                                                    const float dz) {
-    NBMath::ufmatrix4 trans = boost::numeric::ublas::identity_matrix <float>(4);
+const NBMath::ufmatrix4 CoordFrame4D::translation4D(const double dx,
+                                                    const double dy,
+                                                    const double dz) {
+    NBMath::ufmatrix4 trans = boost::numeric::ublas::identity_matrix <double>(4);
     trans(X_AXIS, W_AXIS) = dx;
     trans(Y_AXIS, W_AXIS) = dy;
     trans(Z_AXIS, W_AXIS) = dz;
     return trans;
 }
 
-const NBMath::ufvector4 CoordFrame4D::vector4D(const float x, const float y,
-                                               const float z,
-                                               const float w) {
-    NBMath::ufvector4 p = boost::numeric::ublas::zero_vector <float> (4);
+const NBMath::ufvector4 CoordFrame4D::vector4D(const double x, const double y,
+                                               const double z,
+                                               const double w) {
+    NBMath::ufvector4 p = boost::numeric::ublas::zero_vector <double> (4);
     p(0) = x;
     p(1) = y;
     p(2) = z;
@@ -100,18 +100,18 @@ const NBMath::ufvector4 CoordFrame4D::vector4D(const float x, const float y,
 /**
  * Returns precalculated Trans[x,y,z].Rotz[wz].Roty[wy].Rotx[wx]
  */
-const NBMath::ufmatrix4 CoordFrame4D::get6DTransform(const float x,
-                                                     const float y,
-                                                     const float z,
-                                                     const float wx,
-                                                     const float wy,
-                                                     const float wz){
+const NBMath::ufmatrix4 CoordFrame4D::get6DTransform(const double x,
+                                                     const double y,
+                                                     const double z,
+                                                     const double wx,
+                                                     const double wy,
+                                                     const double wz){
     float cwx,cwy,cwz,
         swx,swy,swz;
     sincosf(wx,&swx,&cwx);
     sincosf(wy,&swy,&cwy);
     sincosf(wz,&swz,&cwz);
-    NBMath::ufmatrix4 r = boost::numeric::ublas::identity_matrix<float>(4);
+    NBMath::ufmatrix4 r = boost::numeric::ublas::identity_matrix<double>(4);
 
     //Row 1
     r(0,0) =cwy*cwz;
@@ -140,7 +140,7 @@ CoordFrame4D::invertHomogenous(const NBMath::ufmatrix4 source){
                                                                source(1,3),
                                                                source(2,3)));
     NBMath::ufmatrix4 result =
-        boost::numeric::ublas::identity_matrix<float>(4);
+        boost::numeric::ublas::identity_matrix<double>(4);
     subrange(result,0,3,0,3) = Rt;
     result(0,3) = Rtd(0);
     result(1,3) = Rtd(1);

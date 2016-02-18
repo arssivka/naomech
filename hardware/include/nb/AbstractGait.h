@@ -16,40 +16,40 @@ public:
 protected:
     void setGaitFromGait(const AbstractGait& other);
 
-    void setGaitFromArrays(const float _stance_config[WP::LEN_STANCE_CONFIG],
-                           const float _step_config[WP::LEN_STEP_CONFIG],
-                           const float _zmp_config[WP::LEN_ZMP_CONFIG],
-                           const float _joint_hack_config[WP::LEN_HACK_CONFIG],
-                           const float _sensor_config[WP::LEN_SENSOR_CONFIG],
-                           const float _stiffness_config[WP::LEN_STIFF_CONFIG],
-                           const float _odo_config[WP::LEN_ODO_CONFIG],
-                           const float _arm_config[WP::LEN_ARM_CONFIG]);
+    void setGaitFromArrays(const double _stance_config[WP::LEN_STANCE_CONFIG],
+                           const double _step_config[WP::LEN_STEP_CONFIG],
+                           const double _zmp_config[WP::LEN_ZMP_CONFIG],
+                           const double _joint_hack_config[WP::LEN_HACK_CONFIG],
+                           const double _sensor_config[WP::LEN_SENSOR_CONFIG],
+                           const double _stiffness_config[WP::LEN_STIFF_CONFIG],
+                           const double _odo_config[WP::LEN_ODO_CONFIG],
+                           const double _arm_config[WP::LEN_ARM_CONFIG]);
 
 
     template<const unsigned int length>
-    static void addSubComponent(float target[length],
-                                const float array1[length],
-                                const float array2[length]);
+    static void addSubComponent(double target[length],
+                                const double array1[length],
+                                const double array2[length]);
 
     template<const unsigned int length>
-    static void multiplySubComponent(float target[length],
-                                     const float source[length],
-                                     const float scalar);
+    static void multiplySubComponent(double target[length],
+                                     const double source[length],
+                                     const double scalar);
 
     static void interpolateGaits(AbstractGait& targetGait,
                                  const AbstractGait& startGait,
                                  const AbstractGait& endGait,
-                                 const float percentComplete);
+                                 const double percentComplete);
 
     template<const unsigned int length>
     static void
-            combineSubComponents(float target[length],
-                                 const float source1[length],
-                                 const float source2[length],
-                                 const float percentSwitched);
+            combineSubComponents(double target[length],
+                                 const double source1[length],
+                                 const double source2[length],
+                                 const double percentSwitched);
 
 public:
-    float stance[WP::LEN_STANCE_CONFIG],
+    double stance[WP::LEN_STANCE_CONFIG],
             step[WP::LEN_STEP_CONFIG],
             zmp[WP::LEN_ZMP_CONFIG],
             hack[WP::LEN_HACK_CONFIG],

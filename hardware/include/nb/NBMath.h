@@ -7,33 +7,33 @@
 
 #include <cmath>
 
-static const float M_TO_CM = 100.0f;
-static const float CM_TO_M = 0.01f;
-static const float CM_TO_MM = 10.0f;
-static const float MM_TO_CM = 0.1f;
+static const double M_TO_CM = 100.0;
+static const double CM_TO_M = 0.01;
+static const double CM_TO_MM = 10.0;
+static const double MM_TO_CM = 0.1;
 
 static const double PI = M_PI;
 static const double DEG_OVER_RAD = 180.0 / M_PI;
 static const double RAD_OVER_DEG = M_PI / 180.0;
-static const float M_PI_FLOAT = static_cast<float>(M_PI);
-static const float TO_DEG = 180.0f / M_PI_FLOAT;
+static const double M_PI_double = static_cast<double>(M_PI);
+static const double TO_DEG = 180.0 / M_PI_double;
 #ifndef TO_RAD
-static const float TO_RAD = M_PI_FLOAT / 180.0f;
+static const double TO_RAD = M_PI_double / 180.0;
 #endif
-static const float QUART_CIRC_RAD = M_PI_FLOAT / 2.0f;
+static const double QUART_CIRC_RAD = M_PI_double / 2.0;
 
 #ifdef __APPLE__
-inline static void sincosf(float _x, float * _sinx, float * _cosx) {
+inline static void sincosf(double _x, double * _sinx, double * _cosx) {
     *_sinx = std::sin(_x);
     *_cosx = std::cos(_x);
 }
 
 #define isnan(x)                                                        \
-    (	sizeof (x) == sizeof(float )	?	__inline_isnanf((float)(x))	\
+    (	sizeof (x) == sizeof(double )	?	__inline_isnanf((double)(x))	\
         :	sizeof (x) == sizeof(double)	?	__inline_isnand((double)(x)) \
         :	__inline_isnan ((long double)(x)))
 #define isinf(x)                                                        \
-    (	sizeof (x) == sizeof(float )	?	__inline_isinff((float)(x))	\
+    (	sizeof (x) == sizeof(double )	?	__inline_isinff((double)(x))	\
         :	sizeof (x) == sizeof(double)	?	__inline_isinfd((double)(x)) \
         :	__inline_isinf ((long double)(x)))
 
@@ -41,28 +41,28 @@ inline static void sincosf(float _x, float * _sinx, float * _cosx) {
 
 namespace NBMath {
 
-    const int ROUND(float x);
+    const int ROUND(double x);
 
-    const float clip(const float value, const float minValue,
-                     const float maxValue);
+    const double clip(const double value, const double minValue,
+                     const double maxValue);
 
-    const float clip(const float value, const float minMax);
-
-    /**
-     * Given a float return its sign
-     *
-     * @param f the number to examine the sign of
-     * @return -1.0f if f is less than 0.0f, 1.0f if positive, 0.0f otherwise
-     */
-    const float sign(const float f);
+    const double clip(const double value, const double minMax);
 
     /**
-     * Given a float return its sign
+     * Given a double return its sign
      *
      * @param f the number to examine the sign of
-     * @return -1.0f if f is less than 0.0f, 1.0f otherwise
+     * @return -1.0 if f is less than 0.0, 1.0 if positive, 0.0 otherwise
      */
-    const float signNoZero(const float f);
+    const double sign(const double f);
+
+    /**
+     * Given a double return its sign
+     *
+     * @param f the number to examine the sign of
+     * @return -1.0 if f is less than 0.0, 1.0 otherwise
+     */
+    const double signNoZero(const double f);
 
     /**
      * Returns an equivalent angle to the one passed in with value between
@@ -72,19 +72,19 @@ namespace NBMath {
      *
      * @return The equivalent angle between -pi and pi.
      */
-    const float subPIAngle(float theta);
+    const double subPIAngle(double theta);
 
-    const float safe_asin(const float input);
+    const double safe_asin(const double input);
 
-    const float safe_acos(const float input);
+    const double safe_acos(const double input);
 
-    const float safe_atan2(const float y,
-                           const float x);
+    const double safe_atan2(const double y,
+                           const double x);
 
 
-    const float cycloidx(const float theta);
+    const double cycloidx(const double theta);
 
-    const float cycloidy(const float theta);
+    const double cycloidy(const double theta);
 
 
 }

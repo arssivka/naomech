@@ -14,15 +14,9 @@ MetaGait::MetaGait() :
 MetaGait::~MetaGait() { }
 
 void MetaGait::tick_gait() {
-
     if (updateGaits()) {
-
         interpolateGaits(*this, curGait, nextGait, getPercentComplete());
-
-
     }
-    //interpolateGaits(*this,DEFAULT_GAIT,DEFAULT_GAIT,1.0f);
-
 }
 
 void MetaGait::setNewGaitTarget(Gait& nextTarget) {
@@ -37,20 +31,19 @@ void MetaGait::setStartGait(Gait& newCurGait) {
     resetTransitioning();
 }
 
-float MetaGait::getPercentComplete() {
+double MetaGait::getPercentComplete() {
     if (transitionFrames == 0)
-        return 1.0f;
-    return NBMath::clip(static_cast<float>(transitionCounter) /
-                        static_cast<float>(transitionFrames),
-                        0.0f, 1.0f);
+        return 1.0;
+    return NBMath::clip(static_cast<double>(transitionCounter) /
+                        static_cast<double>(transitionFrames),
+                        0.0, 1.0);
 }
 
 void MetaGait::resetTransitioning() {
     //First, find the maximum
-    const float maxTime = std::max(curGait.stance[WP::TRANS_TIME],
+    const double maxTime = std::max(curGait.stance[WP::TRANS_TIME],
                                    nextGait.stance[WP::TRANS_TIME]);
-    transitionFrames =
-            static_cast<unsigned int>(maxTime / MOTION_FRAME_LENGTH_S);
+    transitionFrames = static_cast<unsigned int>(maxTime / MOTION_FRAME_LENGTH_S);
 
     transitionCounter = 1;
 }
@@ -59,7 +52,7 @@ bool MetaGait::updateGaits() {
     if (newGaitSent) {
         //Make a hybrid gait from the currently selected gaits
         AbstractGait hybridGait;
-        const float percComplete = getPercentComplete();
+        const double percComplete = getPercentComplete();
         interpolateGaits(hybridGait, curGait, nextGait, percComplete);
 
         //Swap the gaits
@@ -71,8 +64,6 @@ bool MetaGait::updateGaits() {
         newGaitSent = false;
     } else {
         transitionCounter = std::min(transitionCounter + 1, transitionFrames + 1);
-        // cout << "Updated transition counter to "<<transitionCounter
-        //      << "  Transition frames is "<< transitionFrames<<endl;
     }
 
     //we still need more processing,

@@ -20,34 +20,34 @@ namespace NBMath {
  * handle is 3x3, so a bounded array of size 9 is sufficient.
  */
     typedef boost::numeric::ublas::matrix<
-            float,
+            double,
             boost::numeric::ublas::row_major,
-            boost::numeric::ublas::bounded_array<float, 9> > ufmatrix3;
+            boost::numeric::ublas::bounded_array<double, 9> > ufmatrix3;
     typedef boost::numeric::ublas::vector<
-            float, boost::numeric::ublas::bounded_array<float, 3> > ufvector3;
+            double, boost::numeric::ublas::bounded_array<double, 3> > ufvector3;
     typedef boost::numeric::ublas::matrix<
-            float,
+            double,
             boost::numeric::ublas::row_major,
-            boost::numeric::ublas::bounded_array<float, 3> > ufrowVector3;
+            boost::numeric::ublas::bounded_array<double, 3> > ufrowVector3;
 
     typedef boost::numeric::ublas::matrix<
-            float,
+            double,
             boost::numeric::ublas::row_major,
-            boost::numeric::ublas::bounded_array<float, 16> > ufmatrix4;
+            boost::numeric::ublas::bounded_array<double, 16> > ufmatrix4;
     typedef boost::numeric::ublas::vector<
-            float, boost::numeric::ublas::bounded_array<float, 4> > ufvector4;
+            double, boost::numeric::ublas::bounded_array<double, 4> > ufvector4;
 
 
-    const boost::numeric::ublas::matrix<float>
-            invert2by2(boost::numeric::ublas::matrix<float> m);
+    const boost::numeric::ublas::matrix<double>
+            invert2by2(boost::numeric::ublas::matrix<double> m);
 
-    const boost::numeric::ublas::vector<float>
-            solve(boost::numeric::ublas::matrix<float> A,
-                  const boost::numeric::ublas::vector<float>& b);
+    const boost::numeric::ublas::vector<double>
+            solve(boost::numeric::ublas::matrix<double> A,
+                  const boost::numeric::ublas::vector<double>& b);
 
-    const boost::numeric::ublas::matrix<float>
-            solve(boost::numeric::ublas::matrix<float> A,
-                  const boost::numeric::ublas::matrix<float>& B);
+    const boost::numeric::ublas::matrix<double>
+            solve(boost::numeric::ublas::matrix<double> A,
+                  const boost::numeric::ublas::matrix<double>& B);
 
 
 // Solve the linear system Ax=b for the vector x.

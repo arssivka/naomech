@@ -10,8 +10,7 @@
 #include <boost/tuple/tuple.hpp>
 
 
-typedef boost::tuple<std::vector<float>,
-        std::vector<float> > ArmJointStiffTuple;
+typedef boost::tuple<std::vector<double>, std::vector<double> > ArmJointStiffTuple;
 
 class WalkingArm {
 public:
@@ -34,7 +33,7 @@ private:
 
     void setState(SupportMode newState);
 
-    const float getShoulderPitchAddition(boost::shared_ptr<Step> supportStep);
+    const double getShoulderPitchAddition(boost::shared_ptr<Step> supportStep);
 
 private:
     SupportMode state;

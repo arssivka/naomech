@@ -15,8 +15,8 @@
 #include <boost/numeric/ublas/io.hpp> // for cout
 
 // Default uncertainty growth parameters
-#define DEFAULT_BETA 3.0f
-#define DEFAULT_GAMMA 2.0f
+#define DEFAULT_BETA 3.0
+#define DEFAULT_GAMMA 2.0
 
 // Dimensions of implemented classes
 #define LOC_EKF_DIMENSION 3 // Number of states in Loc EKF
@@ -32,7 +32,7 @@ static const int ANGLE_NUM_MEASUREMENTS = 2;
 
 static const int ZMP_NUM_DIMENSIONS = 2;
 static const int ZMP_NUM_MEASUREMENTS = 2;
-static const float DONT_PROCESS_KEY = -1337.0f;
+static const double DONT_PROCESS_KEY = -1337.0;
 
 /**
  * @brief An abstract class which implements the computational components of
@@ -49,35 +49,35 @@ public:
     // We define our own types for simpler use throughout the class
 
     // A vector with the number of state dimensions
-    typedef boost::numeric::ublas::vector<float, boost::numeric::ublas::
-    bounded_array<float, dimension> >
+    typedef boost::numeric::ublas::vector<double, boost::numeric::ublas::
+    bounded_array<double, dimension> >
             StateVector;
     // A vector with the length of the measurement dimensions
-    typedef boost::numeric::ublas::vector<float, boost::numeric::ublas::
-    bounded_array<float, mSize> >
+    typedef boost::numeric::ublas::vector<double, boost::numeric::ublas::
+    bounded_array<double, mSize> >
             MeasurementVector;
 
     // A square matrix with state dimension number of rows and cols
-    typedef boost::numeric::ublas::matrix<float,
+    typedef boost::numeric::ublas::matrix<double,
             boost::numeric::ublas::row_major,
             boost::numeric::ublas::
-            bounded_array<float, dimension *
+            bounded_array<double, dimension *
                                  dimension> >
             StateMatrix;
 
     // A square matrix with measurement dimension number of rows and cols
-    typedef boost::numeric::ublas::matrix<float,
+    typedef boost::numeric::ublas::matrix<double,
             boost::numeric::ublas::row_major,
             boost::numeric::ublas::
-            bounded_array<float, mSize *
+            bounded_array<double, mSize *
                                  mSize> >
             MeasurementMatrix;
 
     // A matrix that is of size measurement * states
-    typedef boost::numeric::ublas::matrix<float,
+    typedef boost::numeric::ublas::matrix<double,
             boost::numeric::ublas::row_major,
             boost::numeric::ublas::
-            bounded_array<float, mSize *
+            bounded_array<double, mSize *
                                  dimension> >
             StateMeasurementMatrix;
 
@@ -88,7 +88,7 @@ protected:
     StateMatrix A_k; // Update measurement Jacobian
     StateMatrix P_k; // Uncertainty Matrix
     StateMatrix P_k_bar; // A priori uncertainty Matrix
-    const boost::numeric::ublas::identity_matrix<float> dimensionIdentity;
+    const boost::numeric::ublas::identity_matrix<double> dimensionIdentity;
     const unsigned int numStates; // number of states in the kalman filter
     const unsigned int measurementSize; // dimension of the observation (z_k)
 
@@ -97,7 +97,7 @@ protected:
     int frameCounter;
 public:
     // Constructors & Destructors
-    EKF(float _beta, float _gamma)
+    EKF(double _beta, double _gamma)
             : xhat_k(dimension), xhat_k_bar(dimension),
               Q_k(dimension, dimension), A_k(dimension, dimension),
               P_k(dimension, dimension), P_k_bar(dimension, dimension),
@@ -108,13 +108,13 @@ public:
         // Initialize all matrix values to 0
         for (unsigned i = 0; i < dimension; ++i) {
             for (unsigned j = 0; j < dimension; ++j) {
-                Q_k(i, j) = 0.0f;
-                A_k(i, j) = 0.0f;
-                P_k(i, j) = 0.0f;
-                P_k_bar(i, j) = 0.0f;
+                Q_k(i, j) = 0.0;
+                A_k(i, j) = 0.0;
+                P_k(i, j) = 0.0;
+                P_k_bar(i, j) = 0.0;
             }
-            xhat_k(i) = 0.0f;
-            xhat_k_bar(i) = 0.0f;
+            xhat_k(i) = 0.0;
+            xhat_k_bar(i) = 0.0;
             betas(i) = _beta;
             gammas(i) = _gamma;
         }
@@ -185,16 +185,16 @@ public:
         // Necessary computational matrices
         // Kalman gain matrix
         StateMeasurementMatrix K_k =
-                boost::numeric::ublas::scalar_matrix<float>(numStates,
+                boost::numeric::ublas::scalar_matrix<double>(numStates,
                                                             measurementSize,
-                                                            0.0f);
+                                                            0.0);
         // Observation jacobian
         StateMeasurementMatrix H_k =
-                boost::numeric::ublas::scalar_matrix<float>(measurementSize,
-                                                            numStates, 0.0f);
+                boost::numeric::ublas::scalar_matrix<double>(measurementSize,
+                                                            numStates, 0.0);
         // Assumed error in measurment sensors
-        MeasurementMatrix R_k = boost::numeric::ublas::scalar_matrix<float>(
-                measurementSize, measurementSize, 0.0f);
+        MeasurementMatrix R_k = boost::numeric::ublas::scalar_matrix<double>(
+                measurementSize, measurementSize, 0.0);
         // Measurement invariance
         MeasurementVector v_k(measurementSize);
 
@@ -214,7 +214,7 @@ public:
             } else {
                 const MeasurementMatrix inv =
                         NBMath::solve(prod(H_k, pTimesHTrans) + R_k,
-                                      boost::numeric::ublas::identity_matrix<float>(
+                                      boost::numeric::ublas::identity_matrix<double>(
                                               measurementSize));
                 K_k = prod(pTimesHTrans, inv);
             }

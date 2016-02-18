@@ -62,8 +62,8 @@
 #include "rd/hardware/Robot.h"
 
 
-typedef boost::tuple<std::vector<float>,
-        std::vector<float> > LegJointStiffTuple;
+typedef boost::tuple<std::vector<double>,
+        std::vector<double> > LegJointStiffTuple;
 
 
 enum JointStiffIndex {
@@ -73,7 +73,7 @@ enum JointStiffIndex {
 
 class WalkingLeg {
 public:
-    WalkingLeg(boost::shared_ptr<rd::Robot> s,
+    WalkingLeg(boost::shared_ptr<rd::Robot> robot,
                const MetaGait* _gait,
                Kinematics::ChainID id);
 
@@ -114,14 +114,14 @@ public:
                state == PERSISTENT_DOUBLE_SUPPORT || state == SUPPORTING;
     };
 
-    std::vector<float> getOdoUpdate();
+    std::vector<double> getOdoUpdate();
 
     void computeOdoUpdate();
 
-    static std::vector<float>
+    static std::vector<double>
             getAnglesFromGoal(const Kinematics::ChainID chainID,
                               const NBMath::ufvector3& goal,
-                              const float stance[WP::LEN_STANCE_CONFIG]);
+                              const double stance[WP::LEN_STANCE_CONFIG]);
 
 private:
     //Execution methods, get called depending on which state the leg is in
@@ -130,7 +130,7 @@ private:
     LegJointStiffTuple swinging(NBMath::ufmatrix3 fc_Transform);
 
     //Consolidated goal handleing
-    const std::vector<float> finalizeJoints(const NBMath::ufvector3& legGoal);
+    const std::vector<double> finalizeJoints(const NBMath::ufvector3& legGoal);
 
     //FSA methods
     void setState(SupportMode newState);
@@ -145,36 +145,32 @@ private:
 
     void assignStateTimes(boost::shared_ptr<Step> step);
 
-    const boost::tuple<const float, const float> getSensorFeedback();
-
 //hack
 public:
-    const float getFootRotation();
+    const double getFootRotation();
 
 private:
-    const boost::tuple<const float, const float>
+    const boost::tuple<const double, const double>
             getAnkleAngles();
 
-    const float getEndStepSensorScale();
+    const double getEndStepSensorScale();
 
-    const float getFootRotation_c();
+    const double getFootRotation_c();
 
-    const float getHipYawPitch();
+    const double getHipYawPitch();
 
-    void applyHipHacks(float angles[]);
+    void applyHipHacks(double angles[]);
 
-    const std::vector<float> getStiffnesses();
+    const std::vector<double> getStiffnesses();
 
-    const boost::tuple<const float, const float> getHipHack(const float HYPAngle);
-
-    const float cycloidy(float theta);
-
-    const float cycloidx(float theta);
+    const boost::tuple<const double, const double> getHipHack(const double HYPAngle);
 
     inline Kinematics::ChainID getOtherLegChainID();
 
 private:
-    boost::shared_ptr<rd::Robot> sensors;
+    std::vector<int> m_keys;
+
+    boost::shared_ptr<rd::Robot> m_robot;
     //FSA Attributes
     SupportMode state;
     SupportMode supportMode; //soon to be deprecated
@@ -189,15 +185,15 @@ private:
     //Leg Attributes
     Kinematics::ChainID chainID; //keep track of which leg this is
     const MetaGait* gait;
-    float lastJoints[Kinematics::LEG_JOINTS];
+    double lastJoints[Kinematics::LEG_JOINTS];
     NBMath::ufvector3 goal;
     NBMath::ufvector3 last_goal;
-    float lastRotation;
-    std::vector<float> odoUpdate;
+    double lastRotation;
+    std::vector<double> odoUpdate;
     int leg_sign; //-1 for right leg, 1 for left leg
     std::string leg_name;
 
-    float sensorAngleX, sensorAngleY;
+    double m_sensor_angle_x, m_sensor_angle_y;
 
 };
 

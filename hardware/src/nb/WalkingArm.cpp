@@ -17,17 +17,17 @@ WalkingArm::~WalkingArm() { }
 
 
 ArmJointStiffTuple WalkingArm::tick(shared_ptr <Step> supportStep) {
-    singleSupportFrames = supportStep->singleSupportFrames;
-    doubleSupportFrames = supportStep->doubleSupportFrames;
+    singleSupportFrames = supportStep->m_single_support_frames;
+    doubleSupportFrames = supportStep->m_double_support_frames;
 
-    vector<float> armJoints = (chainID == LARM_CHAIN ?
-                               vector<float>(LARM_WALK_ANGLES,
+    vector<double> armJoints = (chainID == LARM_CHAIN ?
+                               vector<double>(LARM_WALK_ANGLES,
                                              &LARM_WALK_ANGLES[ARM_JOINTS]) :
-                               vector<float>(RARM_WALK_ANGLES,
+                               vector<double>(RARM_WALK_ANGLES,
                                              &RARM_WALK_ANGLES[ARM_JOINTS]));
 
     armJoints[0] += getShoulderPitchAddition(supportStep);
-    vector<float> armStiffnesses(ARM_JOINTS, gait->stiffness[WP::ARM]);
+    vector<double> armStiffnesses(ARM_JOINTS, gait->stiffness[WP::ARM]);
     armStiffnesses[0] = gait->stiffness[WP::ARM_PITCH];
 
     frameCounter++;
@@ -43,42 +43,42 @@ ArmJointStiffTuple WalkingArm::tick(shared_ptr <Step> supportStep) {
  * Currently, the arms only move in the forward direction by modulating the
  * shoulderPitch
  */
-const float WalkingArm::getShoulderPitchAddition(shared_ptr <Step> supportStep) {
-    float direction = 1.0f; //forward = negative
-    float percentComplete = 0.0f;
+const double WalkingArm::getShoulderPitchAddition(shared_ptr <Step> supportStep) {
+    double direction = 1.0; //forward = negative
+    double percentComplete = 0.0;
     switch (state) {
         case SUPPORTING:
             //When the leg on this side is supporting (i.e. swinging back)
             //this arm should swing forward with the foot from the other side
-            direction = -1.0f;
-            percentComplete = static_cast<float>(frameCounter) /
-                              static_cast<float>(singleSupportFrames);
+            direction = -1.0;
+            percentComplete = static_cast<double>(frameCounter) /
+                              static_cast<double>(singleSupportFrames);
             break;
         case SWINGING:
             //When the leg on this side is swinging (i.e. swinging forward)
             //this arm should swing backward with the foot from the other side
-            direction = 1.0f;
-            percentComplete = static_cast<float>(frameCounter) /
-                              static_cast<float>(singleSupportFrames);
+            direction = 1.0;
+            percentComplete = static_cast<double>(frameCounter) /
+                              static_cast<double>(singleSupportFrames);
             break;
         case DOUBLE_SUPPORT:
             //When the leg on this side is in non-persistent double support,
             //it was just recently SUPPORTING, so this arm was swinging back
             //so during double support it should stay back
-            direction = -1.0f;
-            percentComplete = 1.0f;
+            direction = -1.0;
+            percentComplete = 1.0;
             break;
         case PERSISTENT_DOUBLE_SUPPORT:
             //When the leg on this side is in persistent double support,
             //it was just recently SWINGING, so this arm was swinging forwward
             //so during persistent double support it should stay forward
-            direction = 1.0f;
-            percentComplete = 1.0f;
+            direction = 1.0;
+            percentComplete = 1.0;
             break;
     }
 
-    float start = -direction * gait->arm[WP::AMPLITUDE];
-    float end = direction * gait->arm[WP::AMPLITUDE];
+    double start = -direction * gait->arm[WP::AMPLITUDE];
+    double end = direction * gait->arm[WP::AMPLITUDE];
 
     //We need to intelligently deal with non-regular steps
     //Since end steps are employed in both the starting and stopping contexts
@@ -90,24 +90,24 @@ const float WalkingArm::getShoulderPitchAddition(shared_ptr <Step> supportStep) 
     //the arms should be held at their default values
     if (supportStep->type == END_STEP) {
         if (lastStepType == END_STEP) {
-            start = end = 0.0f;
+            start = end = 0.0;
         } else if (startStep) {
-            start = 0.0f;
+            start = 0.0;
             end = -end;
         } else {
-            end = 0.0f;
+            end = 0.0;
             start = -start;
         }
         //all end steps should be entirely composed of DOUBLE SUPPORT!
-        percentComplete = static_cast<float>(frameCounter) /
-                          static_cast<float>(doubleSupportFrames);
+        percentComplete = static_cast<double>(frameCounter) /
+                          static_cast<double>(doubleSupportFrames);
     }
 
     //Even though we already calcualted percent complete, we should really
     //have a more gradual arm motion, which we can do by employing a cycloid
 
-    const float theta = percentComplete * 2.0f * M_PI_FLOAT;
-    const float percentToDest = NBMath::cycloidx(theta) / (2.0f * M_PI_FLOAT);
+    const double theta = percentComplete * 2.0 * M_PI_double;
+    const double percentToDest = NBMath::cycloidx(theta) / (2.0 * M_PI_double);
 
     return start + percentToDest * (end - start);
 

@@ -15,7 +15,7 @@ using namespace std;
  */
 const Kinematics::IKLegResult Kinematics::simpleLegIK(const ChainID chainID,
                                                       const ufvector3 & legGoal,
-                                                      float startAngles []){
+                                                      double startAngles []){
 #ifdef USE_ANALYTIC_IK
     const ufvector3 footOrientation = CoordFrame3D::vector3D(0,0,0);
     const ufvector3 bodyGoal = CoordFrame3D::vector3D(0,0,0);
@@ -29,9 +29,9 @@ const Kinematics::IKLegResult Kinematics::simpleLegIK(const ChainID chainID,
 
 const Kinematics::IKLegResult Kinematics::angleXYIK(const ChainID chainID,
                                                     const ufvector3 & legGoal,
-                                                    const float bodyAngleX,
-                                                    const float bodyAngleY,
-                                                    const float HYPAngle){
+                                                    const double bodyAngleX,
+                                                    const double bodyAngleY,
+                                                    const double HYPAngle){
     const ufvector3 footOrientation = CoordFrame3D::vector3D(0,0,0);
     const ufvector3 bodyGoal = CoordFrame3D::vector3D(0,0,0);
     const ufvector3 bodyOrientation = CoordFrame3D::vector3D(bodyAngleX,
@@ -40,28 +40,16 @@ const Kinematics::IKLegResult Kinematics::angleXYIK(const ChainID chainID,
                          bodyGoal,bodyOrientation,HYPAngle);
 }
 
-const Kinematics::IKLegResult
- Kinematics::legIK(const ChainID chainID,
-                   const ufvector3 &footGoal,
-                   const ufvector3 &footOrientation,
-                   const ufvector3 &bodyGoal,
-                   const ufvector3 &bodyOrientation,
-                   const float HYPAngle){
+const Kinematics::IKLegResult Kinematics::legIK(const ChainID chainID,
+                                                const ufvector3 &footGoal,
+                                                const ufvector3 &footOrientation,
+                                                const ufvector3 &bodyGoal,
+                                                const ufvector3 &bodyOrientation,
+                                                const double HYPAngle){
 
 #ifdef USE_ANALYTIC_IK
     IKLegResult result = analyticLegIK(chainID,footGoal,footOrientation,
                                        bodyGoal,bodyOrientation);
-
-#ifdef DEBUG_IK
-    cout << "IK command with leg"<<chainID <<" :"<<endl
-             <<"    tried to put foot to "<<footGoal
-             << "      with orientation  "<<footOrientation<<endl
-             <<"    tried to put body to "<<bodyGoal
-             << "      with orientation  "<<bodyOrientation<<endl;
-        cout << "   result angles: {";
-        for(int i =0; i<6; i++){cout<<result.angles[i]<<",";}cout<<"}"<<endl;
-#endif
-
 #else
     #error "JACOBIAN IK NOT SETUP RIGHT NOW"
 #endif
@@ -82,7 +70,7 @@ const Kinematics::IKLegResult
  * and will return nothing. The old values will be lost.
  */
 const void Kinematics::clipChainAngles(const ChainID chainID,
-                                       float angles[]) {
+                                       double angles[]) {
     switch (chainID) {
     case LLEG_CHAIN:
         for (unsigned int i=0; i<LEG_JOINTS; i++) {
@@ -119,7 +107,7 @@ const void Kinematics::clipChainAngles(const ChainID chainID,
 }
 
 
-const float Kinematics::getMinValue(const ChainID id, const int jointNumber) {
+const double Kinematics::getMinValue(const ChainID id, const int jointNumber) {
     switch (id) {
     case LARM_CHAIN:
         return LEFT_ARM_BOUNDS[jointNumber][0];
@@ -137,7 +125,7 @@ const float Kinematics::getMinValue(const ChainID id, const int jointNumber) {
 }
 
 
-const float Kinematics::getMaxValue(const ChainID id, const int jointNumber) {
+const double Kinematics::getMaxValue(const ChainID id, const int jointNumber) {
     switch (id) {
     case LARM_CHAIN:
         return LEFT_ARM_BOUNDS[jointNumber][1];
@@ -155,16 +143,16 @@ const float Kinematics::getMaxValue(const ChainID id, const int jointNumber) {
 }
 
 const ufvector3 Kinematics::forwardKinematics(const ChainID id,
-                                              const float angles[]){
-    float x=0.0f,y=0.0f,z=0.0f;
+                                              const double angles[]){
+    double x=0.0,y=0.0,z=0.0;
     if(id == LLEG_CHAIN || id == RLEG_CHAIN||
        id == LANKLE_CHAIN || id == RANKLE_CHAIN){
-        const float HYP = angles[0];
-        const float HR = angles[1];
-        const float HP = angles[2];
-        const float KP = angles[3];
-        const float AP = angles[4];
-        const float AR = angles[5];
+        const double HYP = angles[0];
+        const double HR = angles[1];
+        const double HP = angles[2];
+        const double KP = angles[3];
+        const double AP = angles[4];
+        const double AR = angles[5];
 
         float sinHYP,cosHYP,sinHR,cosHR,sinHP,cosHP,sinKP,cosKP,sinAP,cosAP,sinAR,cosAR;
         sincosf(HYP,&sinHYP,&cosHYP);
@@ -175,11 +163,11 @@ const ufvector3 Kinematics::forwardKinematics(const ChainID id,
         sincosf(AR,&sinAR,&cosAR);
 
         //Other odd angles:
-        const float cosHRPlusPiFourth = std::cos(HR+M_PI_FLOAT*0.25f);
-        const float cosHRMinusPiFourth = std::cos(HR-M_PI_FLOAT*0.25f);
-        const float sinHRPlusPiFourth = std::sin(HR+M_PI_FLOAT*0.25f);
-        const float sinHRMinusPiFourth = std::sin(HR-M_PI_FLOAT*0.25f);
-        const float sqrt2 = std::sqrt(2.0f);
+        const double cosHRPlusPiFourth = std::cos(HR+M_PI_double*0.25);
+        const double cosHRMinusPiFourth = std::cos(HR-M_PI_double*0.25);
+        const double sinHRPlusPiFourth = std::sin(HR+M_PI_double*0.25);
+        const double sinHRMinusPiFourth = std::sin(HR-M_PI_double*0.25);
+        const double sqrt2 = std::sqrt(2.0);
 
         switch(id){
         case LLEG_CHAIN:
@@ -211,10 +199,10 @@ const ufvector3 Kinematics::forwardKinematics(const ChainID id,
 
     }else if( id == LARM_CHAIN || id == RARM_CHAIN ){
         // Variables for arms.
-        const float SP = angles[0];
-        const float SR = angles[1];
-        const float EY = angles[2];
-        const float ER = angles[3];
+        const double SP = angles[0];
+        const double SR = angles[1];
+        const double EY = angles[2];
+        const double ER = angles[3];
 
         float sinSP, cosSP, sinSR, cosSR, sinEY, cosEY, sinER, cosER;
 		sincosf(SP, &sinSP, &cosSP);
@@ -240,8 +228,8 @@ const ufvector3 Kinematics::forwardKinematics(const ChainID id,
             throw "Should not be a possible chain id";
         }
     }else if(id == HEAD_CHAIN){
-        x = 0.0f;
-        y = 0.0f;
+        x = 0.0;
+        y = 0.0;
         z = NECK_OFFSET_Z;
     }else
         throw "Invalid chain name in InverseKinematics";
@@ -250,13 +238,13 @@ const ufvector3 Kinematics::forwardKinematics(const ChainID id,
 
 
 const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
-                               const float angles[]){
-    const float HYP = angles[0];
-    const float HR = angles[1];
-    const float HP = angles[2];
-    const float KP = angles[3];
-    const float AP = angles[4];
-    const float AR = angles[5];
+                               const double angles[]){
+    const double HYP = angles[0];
+    const double HR = angles[1];
+    const double HP = angles[2];
+    const double KP = angles[3];
+    const double AP = angles[4];
+    const double AR = angles[5];
 
     float sinHYP,cosHYP,sinHR,cosHR,sinHP,cosHP,sinKP,cosKP,sinAP,cosAP,sinAR,cosAR;
     sincosf(HYP,&sinHYP,&cosHYP);
@@ -267,25 +255,25 @@ const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
     sincosf(AR,&sinAR,&cosAR);
 
     //Other odd angles:
-    const float cosHRPlusPiFourth = std::cos(HR+M_PI_FLOAT*0.25f);
-    const float cosHRMinusPiFourth = std::cos(HR-M_PI_FLOAT*0.25f);
-    const float sinHRPlusPiFourth = std::sin(HR+M_PI_FLOAT*0.25f);
-    const float sinHRMinusPiFourth = std::sin(HR-M_PI_FLOAT*0.25f);
-    const float sqrt2 = std::sqrt(2.0f);
+    const double cosHRPlusPiFourth = std::cos(HR+M_PI_double*0.25);
+    const double cosHRMinusPiFourth = std::cos(HR-M_PI_double*0.25);
+    const double sinHRPlusPiFourth = std::sin(HR+M_PI_double*0.25);
+    const double sinHRMinusPiFourth = std::sin(HR-M_PI_double*0.25);
+    const double sqrt2 = std::sqrt(2.0);
     if( id == LANKLE_CHAIN){
 //Jacobians
 //Left*leg
 //NO*HEEL
 
-        const float j_1_1 = THIGH_LENGTH*cosHP*sinHYP*sinHRPlusPiFourth-TIBIA_LENGTH*(-cosHP*cosKP*sinHYP*sinHRPlusPiFourth+sinHP*sinHYP*sinKP*sinHRPlusPiFourth);
-        const float j_1_2 = -THIGH_LENGTH*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)+(-cosHYP*sinHP-cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
-        const float j_1_3 = -TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
-        const float j_2_1 = -THIGH_LENGTH*cosHP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
-        const float j_2_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
-        const float j_2_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
-        const float j_3_1 = -THIGH_LENGTH*cosHP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
-        const float j_3_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
-        const float j_3_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
+        const double j_1_1 = THIGH_LENGTH*cosHP*sinHYP*sinHRPlusPiFourth-TIBIA_LENGTH*(-cosHP*cosKP*sinHYP*sinHRPlusPiFourth+sinHP*sinHYP*sinKP*sinHRPlusPiFourth);
+        const double j_1_2 = -THIGH_LENGTH*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)+(-cosHYP*sinHP-cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
+        const double j_1_3 = -TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
+        const double j_2_1 = -THIGH_LENGTH*cosHP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
+        const double j_2_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
+        const double j_2_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
+        const double j_3_1 = -THIGH_LENGTH*cosHP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
+        const double j_3_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
+        const double j_3_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
 
         ufmatrix3 jacobian(3,3);
         jacobian(0,0) = j_1_1;  jacobian(0,1) = j_1_2;  jacobian(0,2) = j_1_3;
@@ -295,12 +283,12 @@ const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
 
     }else if(id == LLEG_CHAIN){
 //WITH*HEEL
-        const float j_1_1 = -FOOT_HEIGHT*cosAR*(cosAP*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP)-sinAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)*sinKP));
-        const float j_1_2 = -FOOT_HEIGHT*(-sinAR*(sinAP*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP)+cosAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)*sinKP))-cosAR*sinHYP*sinHRPlusPiFourth);
-        const float j_2_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))));
-        const float j_2_2 = -FOOT_HEIGHT*(-cosAR*(cosHRPlusPiFourth/sqrt2+(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))));
-        const float j_3_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))));
-        const float j_3_2 = -FOOT_HEIGHT*(-cosAR*(-cosHRPlusPiFourth/sqrt2+(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))));
+        const double j_1_1 = -FOOT_HEIGHT*cosAR*(cosAP*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP)-sinAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)*sinKP));
+        const double j_1_2 = -FOOT_HEIGHT*(-sinAR*(sinAP*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP)+cosAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)*sinKP))-cosAR*sinHYP*sinHRPlusPiFourth);
+        const double j_2_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))));
+        const double j_2_2 = -FOOT_HEIGHT*(-cosAR*(cosHRPlusPiFourth/sqrt2+(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)))));
+        const double j_3_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))));
+        const double j_3_2 = -FOOT_HEIGHT*(-cosAR*(-cosHRPlusPiFourth/sqrt2+(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)))));
 
         ufmatrix3 jacobian(3,2);
         jacobian(0,0) = j_1_1;  jacobian(0,1) = j_1_2;
@@ -310,15 +298,15 @@ const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
     }else if(id == RANKLE_CHAIN){
 //Right*leg
 //NO*HEEL
-        const float j_1_1 = THIGH_LENGTH*cosHP*sinHYP*sinHRPlusPiFourth-TIBIA_LENGTH*(-cosHP*cosKP*sinHYP*sinHRPlusPiFourth+sinHP*sinHYP*sinKP*sinHRPlusPiFourth);
-        const float j_1_2 = -THIGH_LENGTH*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)+(-cosHYP*sinHP-cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
-        const float j_1_3 = -TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
-        const float j_2_1 = -THIGH_LENGTH*cosHP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
-        const float j_2_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
-        const float j_2_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
-        const float j_3_1 = -THIGH_LENGTH*cosHP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
-        const float j_3_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
-        const float j_3_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
+        const double j_1_1 = THIGH_LENGTH*cosHP*sinHYP*sinHRPlusPiFourth-TIBIA_LENGTH*(-cosHP*cosKP*sinHYP*sinHRPlusPiFourth+sinHP*sinHYP*sinKP*sinHRPlusPiFourth);
+        const double j_1_2 = -THIGH_LENGTH*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)+(-cosHYP*sinHP-cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
+        const double j_1_3 = -TIBIA_LENGTH*(cosKP*(cosHP*cosHYP-cosHRPlusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRPlusPiFourth*sinHYP)*sinKP);
+        const double j_2_1 = -THIGH_LENGTH*cosHP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(-cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
+        const double j_2_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
+        const double j_2_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2-sinHRPlusPiFourth/sqrt2)));
+        const double j_3_1 = -THIGH_LENGTH*cosHP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-TIBIA_LENGTH*(cosHP*cosKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2)-sinHP*sinKP*(cosHRPlusPiFourth/sqrt2-(cosHYP*sinHRPlusPiFourth)/sqrt2));
+        const double j_3_2 = -THIGH_LENGTH*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))-TIBIA_LENGTH*(sinKP*((sinHP*sinHYP)/sqrt2-cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
+        const double j_3_3 = -TIBIA_LENGTH*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRPlusPiFourth)/sqrt2+sinHRPlusPiFourth/sqrt2)));
 
         ufmatrix3 jacobian(3,3);
         jacobian(0,0) = j_1_1;  jacobian(0,1) = j_1_2;  jacobian(0,2) = j_1_3;
@@ -328,12 +316,12 @@ const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
 
     }else if(id == RLEG_CHAIN){
 //WITH*HEEL
-        const float j_1_1 = -FOOT_HEIGHT*cosAR*(cosAP*(cosKP*(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)*sinKP)-sinAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)*sinKP));
-        const float j_1_2 = -FOOT_HEIGHT*(-sinAR*(sinAP*(cosKP*(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)*sinKP)+cosAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)*sinKP))-cosAR*sinHYP*sinHRMinusPiFourth);
-        const float j_2_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))-sinAP*(cosKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))));
-        const float j_2_2 = -FOOT_HEIGHT*(-cosAR*(cosHRMinusPiFourth/sqrt2-(cosHYP*sinHRMinusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))+cosAP*(cosKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))));
-        const float j_3_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))));
-        const float j_3_2 = -FOOT_HEIGHT*(-cosAR*(cosHRMinusPiFourth/sqrt2+(cosHYP*sinHRMinusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))));
+        const double j_1_1 = -FOOT_HEIGHT*cosAR*(cosAP*(cosKP*(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)*sinKP)-sinAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)*sinKP));
+        const double j_1_2 = -FOOT_HEIGHT*(-sinAR*(sinAP*(cosKP*(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)-(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)*sinKP)+cosAP*(cosKP*(cosHYP*sinHP+cosHP*cosHRMinusPiFourth*sinHYP)+(cosHP*cosHYP-cosHRMinusPiFourth*sinHP*sinHYP)*sinKP))-cosAR*sinHYP*sinHRMinusPiFourth);
+        const double j_2_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))-sinAP*(cosKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))));
+        const double j_2_2 = -FOOT_HEIGHT*(-cosAR*(cosHRMinusPiFourth/sqrt2-(cosHYP*sinHRMinusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))+cosAP*(cosKP*((sinHP*sinHYP)/sqrt2+cosHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*((cosHP*sinHYP)/sqrt2-sinHP*(-(cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))));
+        const double j_3_1 = -FOOT_HEIGHT*cosAR*(cosAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))-sinAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))));
+        const double j_3_2 = -FOOT_HEIGHT*(-cosAR*(cosHRMinusPiFourth/sqrt2+(cosHYP*sinHRMinusPiFourth)/sqrt2)-sinAR*(sinAP*(-sinKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+cosKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))+cosAP*(cosKP*(-(sinHP*sinHYP)/sqrt2+cosHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2))+sinKP*(-(cosHP*sinHYP)/sqrt2-sinHP*((cosHYP*cosHRMinusPiFourth)/sqrt2-sinHRMinusPiFourth/sqrt2)))));
         ufmatrix3 jacobian(3,2);
         jacobian(0,0) = j_1_1;  jacobian(0,1) = j_1_2;
         jacobian(1,0) = j_2_1;  jacobian(1,1) = j_2_2;
@@ -345,16 +333,16 @@ const ufmatrix3 Kinematics::buildJacobians(const ChainID id,
 
 const bool Kinematics::adjustAnkle(const ChainID chainID,
                                    const ufvector3 &goal,
-                                   float startAngles[],
-                                   const float maxError = .1) {
+                                   double startAngles[],
+                                   const double maxError = .1) {
     const ufmatrix3 dampenMatrix =
-        ublas::identity_matrix<float> (3)*(dampFactor*dampFactor);
+        ublas::identity_matrix<double> (3)*(dampFactor*dampFactor);
 
     ChainID ankleChainID = (chainID == LLEG_CHAIN ?
                             LANKLE_CHAIN : RANKLE_CHAIN);
 
     // for error calculations
-    float dist_e;
+    double dist_e;
     int iterations = 0;
 
     while (iterations < maxAnkleIterations) {
@@ -402,15 +390,15 @@ const bool Kinematics::adjustAnkle(const ChainID chainID,
 
 const bool Kinematics::adjustHeel(const ChainID chainID,
                                   const ufvector3 &goal,
-                                  float startAngles[],
-                                  const float maxError = .1) {
+                                  double startAngles[],
+                                  const double maxError = .1) {
     ChainID ankleChainID = (chainID == LLEG_CHAIN ?
                             LANKLE_CHAIN : RANKLE_CHAIN);
     const ufmatrix3 dampenMatrix =
-        ublas::identity_matrix<float> (3)*(dampFactor*dampFactor);
+        ublas::identity_matrix<double> (3)*(dampFactor*dampFactor);
 
     int iterations = 0;
-    float dist_e_heel;
+    double dist_e_heel;
 
     while (iterations < maxHeelIterations) {
         iterations++;
@@ -451,9 +439,9 @@ const bool Kinematics::adjustHeel(const ChainID chainID,
 const Kinematics::IKLegResult
 Kinematics::dls(const ChainID chainID,
                 const ufvector3 &goal,
-                const float startAngles[],
-                const float maxError,
-                const float maxHeelError) {
+                const double startAngles[],
+                const double maxError,
+                const double maxHeelError) {
     ChainID ankleChainID = (chainID == LLEG_CHAIN ?
                             LANKLE_CHAIN : RANKLE_CHAIN);
 
@@ -462,15 +450,15 @@ Kinematics::dls(const ChainID chainID,
     // the ankle should be FOOT_HEIGHT above what the final goal is
     ankleGoal(2) = ankleGoal(2) + FOOT_HEIGHT;
 
-    float currentAngles[LEG_JOINTS];
-    memcpy(currentAngles, startAngles, LEG_JOINTS*sizeof(float));
+    double currentAngles[LEG_JOINTS];
+    memcpy(currentAngles, startAngles, LEG_JOINTS*sizeof(double));
 
     // The optimization method hits a singularity if the leg is perfectly
     // straight, so we can virtually bend the knee .3 radians and go around
     // that.
 
-    if( fabs(currentAngles[3]) < .2f )
-        currentAngles[3] = .2f;
+    if( fabs(currentAngles[3]) < .2 )
+        currentAngles[3] = .2;
 
     bool ankleSuccess =
         adjustAnkle(chainID, ankleGoal, currentAngles, maxError);
@@ -488,7 +476,7 @@ Kinematics::dls(const ChainID chainID,
 
     IKLegResult result;
     result.outcome = (ankleSuccess && heelSuccess ? SUCCESS : STUCK);
-    memcpy(result.angles,currentAngles,LEG_JOINTS*sizeof(float));
+    memcpy(result.angles,currentAngles,LEG_JOINTS*sizeof(double));
     return result;
 }
 
@@ -521,17 +509,9 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
                                       const ufvector3 &footOrientation,
                                       const ufvector3 &bodyGoal,
                                       const ufvector3 &bodyOrientation,
-                                      const float givenHYPAngle)
+                                      const double givenHYPAngle)
 {
     bool success = true;
-#ifdef DEBUG_ANA
-    cout << "anaIK inputs:"<<endl
-         <<"  footGoal: "<<footGoal<<endl
-         <<"  footOrientation: "<<footOrientation<<endl
-         <<"  bodyGoal: "<<bodyGoal<<endl
-         <<"  bodyOrientation: "<<bodyOrientation<<endl
-         <<"  HYP Angle: " <<givenHYPAngle<<endl;
-#endif
     //fo - translate from f to o
     const ufmatrix4 fo_Transform = CoordFrame4D::get6DTransform(footGoal(0),
                                                 footGoal(1),footGoal(2),
@@ -544,10 +524,6 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
                                                 bodyOrientation(0),
                                                 bodyOrientation(1),
                                                 bodyOrientation(2));
-#ifdef DEBUG_ANA
-    cout << "fo_Transform: "<<endl<< "  "<<fo_Transform<<endl;
-    cout << "co_Transform: "<<endl<< "  "<<co_Transform<<endl;
-#endif
     //fc - translate from f to o to c
     const ufmatrix4 fc_Transform =
         prod(CoordFrame4D::invertHomogenous(co_Transform),fo_Transform);
@@ -556,19 +532,14 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
     const ufmatrix4 cf_Transform =
         prod(CoordFrame4D::invertHomogenous(fo_Transform),co_Transform);
 
-#ifdef DEBUG_ANA
-    cout << "cf_Transform: "<<endl<< "  "<<cf_Transform<<endl;
-    cout << "fc_Transform: "<<endl<< "  "<<fc_Transform<<endl;
-#endif
-
-    const float leg_sign = (chainID == LLEG_CHAIN ? 1.0f : -1.0f);
+    const double leg_sign = (chainID == LLEG_CHAIN ? 1.0 : -1.0);
 
     //The location of the hip rotation center in the C frame
-    const ufvector4 hipOffset_c = CoordFrame4D::vector4D(0.0f,
+    const ufvector4 hipOffset_c = CoordFrame4D::vector4D(0.0,
                                                          leg_sign*HIP_OFFSET_Y,
                                                          -HIP_OFFSET_Z);
-    const ufvector4 ankleOffset_f =CoordFrame4D::vector4D(0.0f,
-                                                          0.0f,
+    const ufvector4 ankleOffset_f =CoordFrame4D::vector4D(0.0,
+                                                          0.0,
                                                           FOOT_HEIGHT);
 
     //Find the location of the hip in the F frame that is shifted
@@ -576,55 +547,31 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
     const ufvector4 hipPosition_fprime =
         prod(cf_Transform,hipOffset_c) - ankleOffset_f;
 
-#ifdef DEBUG_ANA
-    cout<< "Hip position in fprime: "<< hipPosition_fprime<<endl;
-#endif
-
     //squared dist from ankle to hip
-    const float legLength = norm_2(hipPosition_fprime);
-    const float legLengthSq = std::pow(legLength,2);
+    const double legLength = norm_2(hipPosition_fprime);
+    const double legLengthSq = std::pow(legLength, 2);
     if(legLength > THIGH_LENGTH+TIBIA_LENGTH)
         success = false;
-#ifdef DEBUG_ANA
-    cout<< "LegLength: "<< legLength << ", sqrd = "<<legLengthSq<<endl;
-#endif
 
     //Using the law of cosines to find knee pitch in TTL triangle
-    const float kneeCosine =
+    const double kneeCosine =
         (legLengthSq -TIBIA_LENGTH*TIBIA_LENGTH - THIGH_LENGTH*THIGH_LENGTH)/
-                  (2.0f*TIBIA_LENGTH*THIGH_LENGTH);
-#ifdef DEBUG_ANA
-    cout<< "KneeCosine: "<<kneeCosine
-        << " unclipped cos"<< std::acos(kneeCosine)<<endl;
-#endif
+                  (2.0*TIBIA_LENGTH*THIGH_LENGTH);
 
-    const float KP = std::acos(std::min(std::max(kneeCosine,-1.0f),
-                                               1.0f));
-#ifdef DEBUG_ANA
-    cout<< "Calculated KP: "<<KP<<endl;
-#endif
+    const double KP = std::acos(std::min(std::max(kneeCosine,-1.0), 1.0));
     //Now, we can find the ankle roll using only the position of hip in f:
-    const float AR = std::atan2(hipPosition_fprime(CoordFrame4D::Y_AXIS),
+    const double AR = std::atan2(hipPosition_fprime(CoordFrame4D::Y_AXIS),
                                 hipPosition_fprime(CoordFrame4D::Z_AXIS));
-
-#ifdef DEBUG_ANA
-    cout<< "Calculated AR: "<<AR<<endl;
-#endif
 
     //To find AP, we first use the law of sines to find angle opposite
     //the THIGH in the TTL tri.
     //Also, note, even though the TTL triangle is not in the plane XZ plane of
     //the F frame, the following still works, since scaling the triangle into
     //that frame creates a similar triangle with the same angles
-    const float pitch0 = std::asin(THIGH_LENGTH*std::sin(KP)/legLength);
-    const float AP =
-        std::asin(-hipPosition_fprime(CoordFrame4D::X_AXIS)/legLength) - pitch0;
+    const double pitch0 = std::asin(THIGH_LENGTH*std::sin(KP)/legLength);
+    const double AP = std::asin(-hipPosition_fprime(CoordFrame4D::X_AXIS)/legLength) - pitch0;
 
-#ifdef DEBUG_ANA
-    cout<< "Calculated AP: "<<AP<<endl;
-#endif
-
-    float tempHYP = givenHYPAngle;
+    double tempHYP = givenHYPAngle;
     //If the HYP was not passed in, we need to find it:
     if(givenHYPAngle == HYP_NOT_SET){
         //find the rotation-only transform from C to F back to Hip
@@ -652,7 +599,7 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
         // neat stuff...
         if(chainID == LLEG_CHAIN){
             tempHYP =
-                std::atan2(std::sqrt(2.0f)*cfh_Transform(CoordFrame3D::Y_AXIS,
+                std::atan2(std::sqrt(2.0)*cfh_Transform(CoordFrame3D::Y_AXIS,
                                                          CoordFrame3D::X_AXIS),
                            cfh_Transform(CoordFrame3D::Y_AXIS,
                                          CoordFrame3D::Y_AXIS) +
@@ -660,7 +607,7 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
                                          CoordFrame3D::Z_AXIS));
         }else{
             tempHYP =
-                std::atan2(-std::sqrt(2.0f)*cfh_Transform(CoordFrame3D::Y_AXIS,
+                std::atan2(-std::sqrt(2.0)*cfh_Transform(CoordFrame3D::Y_AXIS,
                                                          CoordFrame3D::X_AXIS),
                            cfh_Transform(CoordFrame3D::Y_AXIS,
                                          CoordFrame3D::Y_AXIS) -
@@ -668,10 +615,7 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
                                          CoordFrame3D::Z_AXIS));
         }
     }
-    const float HYP = tempHYP;
-#ifdef DEBUG_ANA
-    cout<< "Calculated HYP: "<<HYP<<endl;
-#endif
+    const double HYP = tempHYP;
 
     //Now we are left only to find the HipRoll and HipPitch
 
@@ -689,20 +633,13 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
 
 
     //Finding the hip Roll easy in the d frame:
-    const float HR = std::atan2(anklePosition_d(CoordFrame4D::Y_AXIS),
+    const double HR = std::atan2(anklePosition_d(CoordFrame4D::Y_AXIS),
                                 -anklePosition_d(CoordFrame4D::Z_AXIS));
-#ifdef DEBUG_ANA
-    cout<< "Calculated HR: "<<HR<<endl;
-#endif
 
     //Again, using the law of sines, we can find the angle accross from
     //TIBIA_LENGTH in the triangle TTL:
-    const float pitch1 = std::asin(TIBIA_LENGTH*std::sin(KP)/legLength);
-    const float HP = std::asin(-anklePosition_d(CoordFrame4D::X_AXIS)
-                               /legLength) - pitch1;
-#ifdef DEBUG_ANA
-    cout<< "Calculated HP: "<<HP<<endl;
-#endif
+    const double pitch1 = std::asin(TIBIA_LENGTH*std::sin(KP) / legLength);
+    const double HP = std::asin(-anklePosition_d(CoordFrame4D::X_AXIS) / legLength) - pitch1;
 
     //Setup the return value:
     IKLegResult result;
@@ -717,47 +654,47 @@ const Kinematics::IKLegResult Kinematics::analyticLegIK(const ChainID chainID,
     return result;
 }
 
-ufmatrix4 Kinematics::rotationHYPLeftInv(const float HYP){
+ufmatrix4 Kinematics::rotationHYPLeftInv(const double HYP){
     float sinHYP, cosHYP;
     sincosf(HYP,&sinHYP,&cosHYP);
-    const float sqrt2 = std::sqrt(2.0f);
+    const double sqrt2 = std::sqrt(2.0);
 
-    ufmatrix4 r  = ublas::identity_matrix<float>(4);
+    ufmatrix4 r  = ublas::identity_matrix<double>(4);
 
     r(0,0) = cosHYP;
     r(0,1) = -sinHYP/sqrt2;
     r(0,2) = -sinHYP/sqrt2;
 
     r(1,0) = sinHYP/sqrt2;
-    r(1,1) = 0.5f+cosHYP/2;
-    r(1,2) = -0.5f+cosHYP/2;
+    r(1,1) = 0.5+cosHYP/2;
+    r(1,2) = -0.5+cosHYP/2;
 
     r(2,0) = sinHYP/sqrt2;
-    r(2,1) = -0.5f+cosHYP/2;
-    r(2,2) = 0.5f+cosHYP/2;
+    r(2,1) = -0.5+cosHYP/2;
+    r(2,2) = 0.5+cosHYP/2;
 
     return r;
 }
 
 
-ufmatrix4 Kinematics::rotationHYPRightInv(const float HYP){
+ufmatrix4 Kinematics::rotationHYPRightInv(const double HYP){
     float sinHYP, cosHYP;
     sincosf(HYP,&sinHYP,&cosHYP);
-    const float sqrt2 = std::sqrt(2.0f);
+    const double sqrt2 = std::sqrt(2.0);
 
-    ufmatrix4 r  = ublas::identity_matrix<float>(4);
+    ufmatrix4 r  = ublas::identity_matrix<double>(4);
 
     r(0,0) = cosHYP;
     r(0,1) = sinHYP/sqrt2;
     r(0,2) = -sinHYP/sqrt2;
 
     r(1,0) = -sinHYP/sqrt2;
-    r(1,1) = 0.5f+cosHYP/2;
-    r(1,2) = 0.5f-cosHYP/2;
+    r(1,1) = 0.5+cosHYP/2;
+    r(1,2) = 0.5-cosHYP/2;
 
     r(2,0) = sinHYP/sqrt2;
-    r(2,1) = 0.5f-cosHYP/2;
-    r(2,2) = 0.5f+cosHYP/2;
+    r(2,1) = 0.5-cosHYP/2;
+    r(2,2) = 0.5+cosHYP/2;
 
     return r;
 }

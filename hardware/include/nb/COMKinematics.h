@@ -5,12 +5,9 @@
 
 namespace Kinematics{
 
-  const NBMath::ufvector4
-    getCOMc(const std::vector<float> bodyAngles);
+  const NBMath::ufvector4 getCOMc(const std::vector<double>& bodyAngles);
 
-  const NBMath::ufvector4
-    slowCalculateChainCom(const ChainID id,
-			  const float angles[]);
+  const NBMath::ufvector4 slowCalculateChainCom(const ChainID id, const double angles[]);
  
 };
 

@@ -11,23 +11,23 @@ AbstractGait::~AbstractGait() { }
 
 
 void AbstractGait::setGaitFromArrays(
-        const float _stance[WP::LEN_STANCE_CONFIG],
-        const float _step[WP::LEN_STEP_CONFIG],
-        const float _zmp[WP::LEN_ZMP_CONFIG],
-        const float _hack[WP::LEN_HACK_CONFIG],
-        const float _sensor[WP::LEN_SENSOR_CONFIG],
-        const float _stiffness[WP::LEN_STIFF_CONFIG],
-        const float _odo[WP::LEN_ODO_CONFIG],
-        const float _arm[WP::LEN_ARM_CONFIG]) {
-    memcpy(stance, _stance, WP::LEN_STANCE_CONFIG * sizeof(float));
-    memcpy(step, _step, WP::LEN_STEP_CONFIG * sizeof(float));
-    memcpy(zmp, _zmp, WP::LEN_ZMP_CONFIG * sizeof(float));
-    memcpy(hack, _hack, WP::LEN_HACK_CONFIG * sizeof(float));
+        const double _stance[WP::LEN_STANCE_CONFIG],
+        const double _step[WP::LEN_STEP_CONFIG],
+        const double _zmp[WP::LEN_ZMP_CONFIG],
+        const double _hack[WP::LEN_HACK_CONFIG],
+        const double _sensor[WP::LEN_SENSOR_CONFIG],
+        const double _stiffness[WP::LEN_STIFF_CONFIG],
+        const double _odo[WP::LEN_ODO_CONFIG],
+        const double _arm[WP::LEN_ARM_CONFIG]) {
+    memcpy(stance, _stance, WP::LEN_STANCE_CONFIG * sizeof(double));
+    memcpy(step, _step, WP::LEN_STEP_CONFIG * sizeof(double));
+    memcpy(zmp, _zmp, WP::LEN_ZMP_CONFIG * sizeof(double));
+    memcpy(hack, _hack, WP::LEN_HACK_CONFIG * sizeof(double));
 
-    memcpy(sensor, _sensor, WP::LEN_SENSOR_CONFIG * sizeof(float));
-    memcpy(stiffness, _stiffness, WP::LEN_STIFF_CONFIG * sizeof(float));
-    memcpy(odo, _odo, WP::LEN_ODO_CONFIG * sizeof(float));
-    memcpy(arm, _arm, WP::LEN_ARM_CONFIG * sizeof(float));
+    memcpy(sensor, _sensor, WP::LEN_SENSOR_CONFIG * sizeof(double));
+    memcpy(stiffness, _stiffness, WP::LEN_STIFF_CONFIG * sizeof(double));
+    memcpy(odo, _odo, WP::LEN_ODO_CONFIG * sizeof(double));
+    memcpy(arm, _arm, WP::LEN_ARM_CONFIG * sizeof(double));
 
 }
 
@@ -44,18 +44,18 @@ void AbstractGait::setGaitFromGait(const AbstractGait& other) {
 }
 
 template<const unsigned int length>
-void AbstractGait::addSubComponent(float target[length],
-                                   const float array1[length],
-                                   const float array2[length]) {
+void AbstractGait::addSubComponent(double target[length],
+                                   const double array1[length],
+                                   const double array2[length]) {
     for (unsigned int i = 0; i < length; i++) {
         target[i] = array1[i] + array2[i];
     }
 }
 
 template<const unsigned int length>
-void AbstractGait::multiplySubComponent(float target[length],
-                                        const float source[length],
-                                        const float scalar) {
+void AbstractGait::multiplySubComponent(double target[length],
+                                        const double source[length],
+                                        const double scalar) {
     for (unsigned int i = 0; i < length; i++) {
         target[i] = source[i] * scalar;
     }
@@ -65,13 +65,13 @@ void AbstractGait::multiplySubComponent(float target[length],
 void AbstractGait::interpolateGaits(AbstractGait& targetGait,
                                     const AbstractGait& startGait,
                                     const AbstractGait& endGait,
-                                    const float percentComplete) {
+                                    const double percentComplete) {
 
-    if (percentComplete == 0.0f) {
+    if (percentComplete == 0.0) {
         targetGait = startGait;
         return;
     }
-    if (percentComplete == 1.0f) {
+    if (percentComplete == 1.0) {
         targetGait = endGait;
         return;
     }
@@ -79,7 +79,7 @@ void AbstractGait::interpolateGaits(AbstractGait& targetGait,
     // also stored as an attribute of the step when it is created
     // from a gait.
 
-    const float COMPLETE = 1.0f;
+    const double COMPLETE = 1.0;
     //For each component of the gait, make a new combination depending
     //on how far in the switching process we are.
     //Some gait components are associated with steps,
@@ -105,16 +105,16 @@ void AbstractGait::interpolateGaits(AbstractGait& targetGait,
 
 
 template<const unsigned int length>
-void AbstractGait::combineSubComponents(float target[length],
-                                        const float source1[length],
-                                        const float source2[length],
-                                        const float percentSwitched) {
-    float temp1[length];
-    float temp2[length];
+void AbstractGait::combineSubComponents(double target[length],
+                                        const double source1[length],
+                                        const double source2[length],
+                                        const double percentSwitched) {
+    double temp1[length];
+    double temp2[length];
 
 
-    const float source1Contribution = 1.0f - percentSwitched;
-    const float source2Contribution = percentSwitched;
+    const double source1Contribution = 1.0 - percentSwitched;
+    const double source2Contribution = percentSwitched;
 
     // cout << " *** New recombination ** sC1,sC2 ="<<source1Contribution
     //      <<","<<source2Contribution<<endl;
@@ -127,12 +127,12 @@ void AbstractGait::combineSubComponents(float target[length],
     //     cout << source2[i]<<",";
     // }cout<<"]"<<endl;
 
-    if (percentSwitched == 0.0f) {
-        memcpy(target, source1, sizeof(float) * length);
+    if (percentSwitched == 0.0) {
+        memcpy(target, source1, sizeof(double) * length);
         return;
     }
-    if (percentSwitched == 1.0f) {
-        memcpy(target, source2, sizeof(float) * length);
+    if (percentSwitched == 1.0) {
+        memcpy(target, source2, sizeof(double) * length);
         return;
     }
     multiplySubComponent<length>(temp1, source1, source1Contribution);
@@ -147,7 +147,6 @@ void AbstractGait::combineSubComponents(float target[length],
 using namespace WP;
 
 std::string AbstractGait::toString() const {
-
     string out;
     char temp[200];
 

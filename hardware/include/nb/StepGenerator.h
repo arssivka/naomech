@@ -54,7 +54,7 @@
  *  There are four important coordinate frames:
  *     - initial (i) is the coordinate frame centered where we begin walking
  *         Since we expect not to walk a net distance of more than .5-1.0km in
- *         one go, we don't need to worry about float overflow.
+ *         one go, we don't need to worry about double overflow.
  *     - foot (f) is the coord. frame centered on the supporting leg.
  *         During walking, this frame changes frequently. It is switched
  *         the instant when the swinging leg enters DOUBLE_PERSISTANT
@@ -98,17 +98,17 @@ enum SupportFoot {
     RIGHT_SUPPORT
 };
 
-typedef boost::tuple<const std::list<float>*,
-        const std::list<float>*> zmp_xy_tuple;
-typedef boost::tuple<LegJointStiffTuple,
-        LegJointStiffTuple> WalkLegsTuple;
-typedef boost::tuple<ArmJointStiffTuple,
-        ArmJointStiffTuple> WalkArmsTuple;
+typedef boost::tuple<const std::list<double>*, const std::list<double>*> zmp_xy_tuple;
+typedef boost::tuple<LegJointStiffTuple, LegJointStiffTuple> WalkLegsTuple;
+typedef boost::tuple<ArmJointStiffTuple, ArmJointStiffTuple> WalkArmsTuple;
 
 static unsigned int MIN_NUM_ENQUEUED_STEPS = 3; //At any given time, we need at least 3
 //steps stored in future, current lists
 
 class StepGenerator {
+public:
+    static int NB_WALKING_JOINTS[20];
+
 public:
     StepGenerator(boost::shared_ptr<rd::Robot> robot, const MetaGait* _gait);
 
@@ -122,16 +122,16 @@ public:
 
     bool isDone() { return m_done; }
 
-    void setSpeed(const float _x, const float _y, const float _theta);
+    void setSpeed(const double _x, const double _y, const double _theta);
 
-    void takeSteps(const float _x, const float _y, const float _theta,
+    void takeSteps(const double _x, const double _y, const double _theta,
                    const int _numSteps);
 
-    std::vector<float> getOdometryUpdate();
+    std::vector<double> getOdometryUpdate();
 
     void resetHard();
 
-    static std::vector<float>*
+    static boost::shared_ptr<std::vector<double> >
             getDefaultStance(const Gait& wp);
 
     const SupportFoot getSupportFoot() const {
@@ -141,16 +141,12 @@ public:
 private: // Helper methods
     zmp_xy_tuple generate_zmp_ref();
 
-    void generate_steps();
-
-    void findSensorZMP();
-
-    float scaleSensors(const float sensorZMP, const float perfectZMP);
+    double scaleSensors(const double sensorZMP, const double perfectZMP);
 
     void swapSupportLegs();
 
-    void generateStep(float _x, float _y,
-                      float _theta);
+    void generateStep(double _x, double _y,
+                      double _theta);
 
     void fillZMP(const boost::shared_ptr<Step> newStep);
 
@@ -168,16 +164,16 @@ private: // Helper methods
 
     static const NBMath::ufmatrix3 get_s_sprime(const boost::shared_ptr<Step> step);
 
-    const bool decideStartLeft(const float lateralVelocity,
-                               const float radialVelocity);
+    const bool decideStartLeft(const double lateralVelocity,
+                               const double radialVelocity);
 
     void clearFutureSteps();
 
     void resetQueues();
 
-    void resetOdometry(const float initX, const float initY);
+    void resetOdometry(const double initX, const double initY);
 
-    void updateOdometry(const std::vector<float>& deltaOdo);
+    void updateOdometry(const std::vector<double>& deltaOdo);
 
 private:
     // Walk vector:
@@ -185,18 +181,18 @@ private:
     //  * y - lateral (left is positive)
     //  * theta - angular (counter-clockwise is positive)
     // NOTE/TODO: the units of these are not well-defined yet
-    float x;
-    float y;
-    float theta;
+    double m_x;
+    double m_y;
+    double m_theta;
 
     bool m_done;
 
     //SensorAngles sensorAngles;
 
-    NBMath::ufvector3 com_i, last_com_c, com_f, est_zmp_i;
-    //boost::numeric::ublas::vector<float> com_f;
+    NBMath::ufvector3 m_com_i, last_com_c, m_com_f, m_est_zmp_i;
+    //boost::numeric::ublas::vector<double> com_f;
     // need to store future zmp_ref values (points in xy)
-    std::list<float> zmp_ref_x, zmp_ref_y;
+    std::list<double> m_zmp_ref_x, m_zmp_ref_y;
     std::list<boost::shared_ptr<Step> > futureSteps; //stores steps not yet zmpd
     //Stores currently relevant steps that are zmpd but not yet completed.
     //A step is consider completed (obsolete/irrelevant) as soon as the foot
@@ -207,28 +203,28 @@ private:
     //Reference Frames for ZMPing steps
     //These are updated when we ZMP a step - they are the 'future', if you will
     NBMath::ufmatrix3 si_Transform;
-    NBMath::ufvector3 last_zmp_end_s;
+    NBMath::ufvector3 m_last_zmp_end_s;
 
     //Steps for the Walking Leg
     boost::shared_ptr<Step> lastStep_s;
     boost::shared_ptr<Step> supportStep_s;
     boost::shared_ptr<Step> swingingStep_s;
-    boost::shared_ptr<Step> supportStep_f;
-    boost::shared_ptr<Step> swingingStep_f;
-    boost::shared_ptr<Step> swingingStepSource_f;
+    boost::shared_ptr<Step> m_support_step_f;
+    boost::shared_ptr<Step> m_swinging_step_f;
+    boost::shared_ptr<Step> m_swinging_step_source_f;
 
     //Reference frames for the Walking Leg
     //These are updated in real time, as we are processing steps
     //that are being sent to the WalkingLegs
     //Translation matrix to transfer points in the non-changing 'i'
     //coord. frame into points in the 'f' coord frame
-    NBMath::ufmatrix3 if_Transform;
-    NBMath::ufmatrix3 fc_Transform;
+    NBMath::ufmatrix3 m_if_transform;
+    NBMath::ufmatrix3 m_fc_transform;
     NBMath::ufmatrix3 cc_Transform; //odometry
 
     boost::shared_ptr<rd::Robot> m_robot;
-    const MetaGait* gait;
-    bool nextStepIsLeft;
+    const MetaGait* m_gait;
+    bool m_next_step_is_feft;
     // HACK: this variable holds the number of frames we have to wait before
     //       we can start walking (NUM_PREVIEW_FRAMES).
     int waitForController;

@@ -50,15 +50,15 @@ public:
 
     virtual ~Observer() { };
 
-    virtual const float tick(const std::list<float>* zmp_ref,
-                             const float cur_zmp_ref,
-                             const float sensor_zmp);
+    virtual const double tick(const std::list<double>* zmp_ref,
+                             const double cur_zmp_ref,
+                             const double sensor_zmp);
 
-    virtual const float getPosition() const { return stateVector(0); }
+    virtual const double getPosition() const { return stateVector(0); }
 
-    virtual const float getZMP() const { return stateVector(2); }
+    virtual const double getZMP() const { return stateVector(2); }
 
-    virtual void initState(float x, float v, float p);
+    virtual void initState(double x, double v, double p);
 
 private:
     NBMath::ufvector3 stateVector;
@@ -67,19 +67,19 @@ public: //Constants
     static const unsigned int NUM_PREVIEW_FRAMES = 70;
     static const unsigned int NUM_AVAIL_PREVIEW_FRAMES = 120;
 private:
-    static const float weights[NUM_AVAIL_PREVIEW_FRAMES];
-    static const float A_values[9];
-    static const float b_values[3];
-    static const float c_values[3];
-    static const float L_values[3];
-    static const float Gi;
+    static const double weights[NUM_AVAIL_PREVIEW_FRAMES];
+    static const double A_values[9];
+    static const double b_values[3];
+    static const double c_values[3];
+    static const double L_values[3];
+    static const double Gi;
 
     NBMath::ufmatrix3 A;
     NBMath::ufvector3 b;
     NBMath::ufrowVector3 c;
     NBMath::ufvector3 L;
 
-    float trackingError;
+    double trackingError;
 };
 
 #endif

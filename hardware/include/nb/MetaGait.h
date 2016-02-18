@@ -29,7 +29,7 @@ public:
 private:
     bool updateGaits();
 
-    float getPercentComplete();
+    double getPercentComplete();
 
     void resetTransitioning();
 

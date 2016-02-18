@@ -125,13 +125,13 @@ struct segmentBlob {
 
 struct estimate {
     // Distance in cm from point to robot's center
-    float dist;
-    float elevation;
-    float bearing;
+    double dist;
+    double elevation;
+    double bearing;
     // Field coordinate X, relative to robot's body
-    float x;
+    double x;
     // Field coordinate Y, relative to robot's body
-    float y;
+    double y;
 
     friend std::ostream& operator<<(std::ostream& o, const estimate& e) {
         return o << "Distance: " << e.dist << ", Elevation: " << e.elevation
@@ -144,9 +144,9 @@ struct fieldOpening {
     int hard;
     int horizonDiffSoft;
     int horizonDiffHard;
-    float dist;
-    float elevation;
-    float bearing;
+    double dist;
+    double elevation;
+    double bearing;
 };
 #endif // Structs_h_DEFINED
 

@@ -70,8 +70,8 @@ namespace WP {
         LEN_STEP_CONFIG
     };
 
-    static const float NON_WALKING_GAIT = 0.0f;
-    static const float WALKING_GAIT = 1.0f;
+    static const double NON_WALKING_GAIT = 0.0;
+    static const double WALKING_GAIT = 1.0;
 
 /**
  * ZMP CONFIG holds the following parameters:
@@ -165,18 +165,18 @@ namespace WP {
      * CONVERSION CONSTANTS
      *   - How to convert from Python (deg/cm) to C++ (rad/mm)
      */
-    static const float NONE = 1.0f;
-    static const float LENGTH = CM_TO_MM;
-    static const float ANGLE = TO_RAD;
+    static const double NONE = 1.0;
+    static const double LENGTH = CM_TO_MM;
+    static const double ANGLE = TO_RAD;
 
-    static const float STANCE_CONVERSION[LEN_STANCE_CONFIG] =
+    static const double STANCE_CONVERSION[LEN_STANCE_CONFIG] =
             {LENGTH,//com height
              LENGTH,//x off
              LENGTH,//Y separation
              ANGLE,//angleY
              ANGLE,//foot angle
              NONE}; //Time to transition to/from new stance
-    static const float STEP_CONVERSION[LEN_STEP_CONFIG] =
+    static const double STEP_CONVERSION[LEN_STEP_CONFIG] =
             {NONE,//step time
              NONE,//dblSupFrac
              LENGTH,//step height
@@ -190,7 +190,7 @@ namespace WP {
              ANGLE,//max acc t
              NONE};
     //Walking or not
-    static const float ZMP_CONVERSION[LEN_ZMP_CONFIG] =
+    static const double ZMP_CONVERSION[LEN_ZMP_CONFIG] =
             {LENGTH,//foot center
              NONE,//zmp static perc
              LENGTH,//l zmp off
@@ -198,11 +198,11 @@ namespace WP {
              NONE,//strafe zmp off
              NONE,};
     //turn zmp off
-    static const float HACK_CONVERSION[LEN_HACK_CONFIG] =
+    static const double HACK_CONVERSION[LEN_HACK_CONFIG] =
             {ANGLE,//hip hack l
              ANGLE};
     //hip hack r
-    static const float SENSOR_CONVERSION[LEN_SENSOR_CONFIG] =
+    static const double SENSOR_CONVERSION[LEN_SENSOR_CONFIG] =
             {NONE,//Observer scale
              NONE,//gX
              NONE,//gy
@@ -212,7 +212,7 @@ namespace WP {
              ANGLE,
              ANGLE};
     //angle vel
-    static const float STIFF_CONVERSION[LEN_STIFF_CONFIG] =
+    static const double STIFF_CONVERSION[LEN_STIFF_CONFIG] =
             {NONE,//hip
              NONE,//knee
              NONE,//ap
@@ -220,12 +220,12 @@ namespace WP {
              NONE,//arms
              NONE};
     //arm pitch
-    static const float ODO_CONVERSION[LEN_ODO_CONFIG] =
+    static const double ODO_CONVERSION[LEN_ODO_CONFIG] =
             {NONE,//xodoscale
              NONE,//yodoscale
              NONE};
     //thetaodoscale
-    static const float ARM_CONVERSION[LEN_ARM_CONFIG] =
+    static const double ARM_CONVERSION[LEN_ARM_CONFIG] =
             {ANGLE};//arm amplitude
 
 
@@ -233,65 +233,65 @@ namespace WP {
  * GAIT DEFAULTS. These should normally be sent from Python, but just in case
  * they are defined here in order to avoid breaking any robots.
  */
-    static const float STANCE_DEFAULT[LEN_STANCE_CONFIG] =
-            {310.0f,//com height
-             14.5f,//x off
-             100.0f,//Y separation
-             0.05f,//angleY
-             0.0f,//foot angle
-             0.1f};
+    static const double STANCE_DEFAULT[LEN_STANCE_CONFIG] =
+            {310.0,//com height
+             14.5,//x off
+             100.0,//Y separation
+             0.05,//angleY
+             0.0,//foot angle
+             0.1};
     //transition time
-    static const float STEP_DEFAULT[LEN_STEP_CONFIG] =
-            {0.4f,//step time
-             0.25f,//dblSupFrac
-             9.0f,//step height
-             0.0f,//lift angle
-             70.0f,//max forward vel x
-             -50.0f,//max backward vel x
-             70.0f,//max vel y
-             0.35f,//max vel t
-             70.0f,//max acc x
-             70.0f,//max acc y
-             0.35f,//max acc t
+    static const double STEP_DEFAULT[LEN_STEP_CONFIG] =
+            {0.4,//step time
+             0.25,//dblSupFrac
+             9.0,//step height
+             0.0,//lift angle
+             70.0,//max forward vel x
+             -50.0,//max backward vel x
+             70.0,//max vel y
+             0.35,//max vel t
+             70.0,//max acc x
+             70.0,//max acc y
+             0.35,//max acc t
              WALKING_GAIT};
     //Walking or not
-    static const float ZMP_DEFAULT[LEN_ZMP_CONFIG] =
-            {0.0f,//foot center
-             0.4f,//zmp static perc
-             4.0f,//l zmp off
-             4.0f,//r zmp off
-             0.01f,//strafe zmp off
-             6.6f,};
+    static const double ZMP_DEFAULT[LEN_ZMP_CONFIG] =
+            {0.0,//foot center
+             0.4,//zmp static perc
+             4.0,//l zmp off
+             4.0,//r zmp off
+             0.01,//strafe zmp off
+             6.6,};
     //turn zmp off
-    static const float HACK_DEFAULT[LEN_HACK_CONFIG] =
-            {0.1f,//hip hack l
-             0.1f};
+    static const double HACK_DEFAULT[LEN_HACK_CONFIG] =
+            {0.1,//hip hack l
+             0.1};
     //hip hack r
-    static const float SENSOR_DEFAULT[LEN_SENSOR_CONFIG] =
-            {0.0f,//Observer scale
-             0.0f,//GX
-             0.0f,//GY
-             0.0f,//KX
-             0.0f,//KY
-             0.0f,//MAXVELX
-             0.0f,//MAXVELY
-             0.0f};
+    static const double SENSOR_DEFAULT[LEN_SENSOR_CONFIG] =
+            {0.0,//Observer scale
+             0.0,//GX
+             0.0,//GY
+             0.0,//KX
+             0.0,//KY
+             0.0,//MAXVELX
+             0.0,//MAXVELY
+             0.0};
     //angle xy scale
-    static const float STIFF_DEFAULT[LEN_STIFF_CONFIG] =
-            {0.85f,//hip
-             0.3f,//knee
-             0.4f,//ap
-             0.3f,//ar
-             0.2f,//arm
-             0.2f};
+    static const double STIFF_DEFAULT[LEN_STIFF_CONFIG] =
+            {0.85,//hip
+             0.3,//knee
+             0.4,//ap
+             0.3,//ar
+             0.2,//arm
+             0.2};
     //arm pitch
-    static const float ODO_DEFAULT[LEN_ODO_CONFIG] =
-            {1.0f,//xodoscale
-             1.0f,//yodoscale
-             1.0f};
+    static const double ODO_DEFAULT[LEN_ODO_CONFIG] =
+            {1.0,//xodoscale
+             1.0,//yodoscale
+             1.0};
     //thetaodoscale
-    static const float ARM_DEFAULT[LEN_ARM_CONFIG] =
-            {0.0f};//arm amplitude
+    static const double ARM_DEFAULT[LEN_ARM_CONFIG] =
+            {0.0};//arm amplitude
 
 };//End namespace WP
 #endif

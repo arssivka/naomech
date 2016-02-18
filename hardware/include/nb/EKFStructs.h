@@ -8,13 +8,13 @@
 class MotionModel
 {
 public:
-    MotionModel(float f = 0.0f, float l = 0.0f, float r = 0.0f)
+    MotionModel(double f = 0.0, double l = 0.0, double r = 0.0)
         : deltaF(f), deltaL(l), deltaR(r) { }
     MotionModel(const MotionModel& other)
         : deltaF(other.deltaF), deltaL(other.deltaL), deltaR(other.deltaR) { }
-    float deltaF;
-    float deltaL;
-    float deltaR;
+    double deltaF;
+    double deltaL;
+    double deltaR;
 
     friend std::ostream& operator<< (std::ostream &o, const MotionModel &u) {
         return o << "(" << u.deltaF << ", " << u.deltaL << ", " << u.deltaR
@@ -30,8 +30,8 @@ public:
  */
 /*struct RangeBearingMeasurement
 {
-    RangeBearingMeasurement(float _dist = 0.0f, float _bearing = 0.0f,
-                            float _distSD = 0.0f, float _bearingSD = 0.0f) :
+    RangeBearingMeasurement(double _dist = 0.0, double _bearing = 0.0,
+                            double _distSD = 0.0, double _bearingSD = 0.0) :
         distance(_dist), bearing(_bearing), distanceSD(_distSD),
         bearingSD(_bearingSD) {}
     RangeBearingMeasurement(const RangeBearingMeasurement& other) :
@@ -47,10 +47,10 @@ public:
                  << m.distanceSD << ", " << m.bearingSD << ")";
     }
 
-    float distance;
-    float bearing;
-    float distanceSD;
-    float bearingSD;
+    double distance;
+    double bearing;
+    double distanceSD;
+    double bearingSD;
 };*/
 
 
@@ -59,9 +59,9 @@ public:
  *                    required (by motion) for filtering accel sensor values.
  */
 struct AccelMeasurement {
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 };
 
 /**
@@ -69,8 +69,8 @@ struct AccelMeasurement {
  */
 
 struct AngleMeasurement{
-  float angleX;
-  float angleY;
+  double angleX;
+  double angleY;
 };
 
 
@@ -81,8 +81,8 @@ struct AngleMeasurement{
  */
 
 struct ZmpTimeUpdate{
-    float cur_zmp_x;
-    float cur_zmp_y;
+    double cur_zmp_x;
+    double cur_zmp_y;
 };
 
 /**
@@ -90,10 +90,10 @@ struct ZmpTimeUpdate{
  *                    required (by motion) for filtering accel sensor values.
  */
 struct ZmpMeasurement {
-    float comX;
-    float comY;
-    float accX;
-    float accY;
+    double comX;
+    double comY;
+    double accX;
+    double accY;
 };
 
 #endif

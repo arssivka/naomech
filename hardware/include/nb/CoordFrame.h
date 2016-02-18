@@ -35,17 +35,17 @@ namespace CoordFrame3D{
 
     // -------------------- Helper matrix methods --------------------
     const NBMath::ufmatrix3 rotation3D(const Axis axis,
-                                              const float angle);
+                                              const double angle);
 
-    const NBMath::ufmatrix3 translation3D(const float dx,
-                                                 const float dy);
+    const NBMath::ufmatrix3 translation3D(const double dx,
+                                                 const double dy);
 
-    const NBMath::ufvector3 vector3D(const float x, const float y,
-                                            const float z = 1.0f);
+    const NBMath::ufvector3 vector3D(const double x, const double y,
+                                            const double z = 1.0);
 
-    const NBMath::ufrowVector3 rowVector3D(const float x,
-                                           const float y,
-                                           const float z = 1.0f);
+    const NBMath::ufrowVector3 rowVector3D(const double x,
+                                           const double y,
+                                           const double z = 1.0);
 
     const NBMath::ufmatrix3 identity3D();
 };
@@ -63,26 +63,26 @@ namespace CoordFrame4D{
 
     const NBMath::ufmatrix4
     rotation4D(const Axis axis,
-               const float angle);
+               const double angle);
 
-    const NBMath::ufmatrix4 translation4D(const float dx,
-                                          const float dy,
-                                          const float dz);
+    const NBMath::ufmatrix4 translation4D(const double dx,
+                                          const double dy,
+                                          const double dz);
 
-    const NBMath::ufvector4 vector4D(const float x, const float y,
-                                     const float z,
-                                     const float w = 1.0f);
+    const NBMath::ufvector4 vector4D(const double x, const double y,
+                                     const double z,
+                                     const double w = 1.0);
 
 
     /**
      * Returns precalculated Trans[x,y,z].Rotz[wz].Roty[wy].Rotx[wx]
      */
-    const NBMath::ufmatrix4 get6DTransform(const float x,
-                                           const float y,
-                                           const float z,
-                                           const float wx,
-                                           const float wy,
-                                           const float wz);
+    const NBMath::ufmatrix4 get6DTransform(const double x,
+                                           const double y,
+                                           const double z,
+                                           const double wx,
+                                           const double wy,
+                                           const double wz);
 
     const NBMath::ufmatrix4
     invertHomogenous(const NBMath::ufmatrix4 source);
