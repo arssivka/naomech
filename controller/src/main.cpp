@@ -136,6 +136,11 @@ int main(int argc, const char* const argv[]) {
             std::copy(rleg_joints.begin(), rleg_joints.end(), joints_data->begin() + 10);
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
+            /*std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
+            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
+            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
+            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
+            joints->setHardness(keys, *joints_data);*/
             usleep(500);
         }
     } catch (...) {
@@ -143,6 +148,10 @@ int main(int argc, const char* const argv[]) {
     }
     robot->getJoints()->setHardness(0.0);
     std::cout << "legs ticked" << std::endl;
+    std::vector<double> ods = sg.getOdometryUpdate();
+    for (int i = 0; i < ods.size(); ++i) {
+        std::cout << "odo " << i << " " << ods[i] << std::endl;
+    }
     //testing
     boost::shared_ptr<rd::Kinematics> kinematics(
             make_shared<rd::Kinematics>(robot->getClock(), robot->getJoints(), robot->getConfig()));
