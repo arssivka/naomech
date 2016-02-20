@@ -69,12 +69,12 @@ void RemoteJoints::HardnessMethod::execute(paramList const &paramList, value *co
         vector<double> data;
         for (int i = 0; i < values.size(); ++i) data.push_back((double) value_double(values[i]));
         if (integer_keys) {
-            vector<string> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((string) value_string(keys[i]));
+            vector<int> joint_names;
+            for (int i = 0; i < keys.size(); ++i) joint_names.push_back(value_int(keys[i]));
             m_joints->setHardness(joint_names, data);
         } else {
-            vector<int> joint_names;
-            for (int i = 0; i < keys.size(); ++i) joint_names.push_back((int) value_int(keys[i]));
+            vector<string> joint_names;
+            for (int i = 0; i < keys.size(); ++i) joint_names.push_back(value_string(keys[i]));
             m_joints->setHardness(joint_names, data);
         }
         *resultP = value_nil();
