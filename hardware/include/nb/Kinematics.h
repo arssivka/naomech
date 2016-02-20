@@ -142,15 +142,15 @@ namespace Kinematics {
     /**********    Bodily dimensions     ***********/
 
     static const double SHOULDER_OFFSET_Y = 98.0;
-    static const double UPPER_ARM_LENGTH = 90.0;
-    static const double LOWER_ARM_LENGTH = 145.0;
-    static const double SHOULDER_OFFSET_Z = 100.0;
+    static const double UPPER_ARM_LENGTH = 105.0;
+    static const double LOWER_ARM_LENGTH = 55.95;
+    static const double SHOULDER_OFFSET_Z = 100;
     static const double THIGH_LENGTH = 100.0;
-    static const double TIBIA_LENGTH = 100.0;
+    static const double TIBIA_LENGTH = 102.9;
     static const double NECK_OFFSET_Z = 126.5;
     static const double HIP_OFFSET_Y = 50.0;
     static const double HIP_OFFSET_Z = 85.0;
-    static const double FOOT_HEIGHT = 46.0;
+    static const double FOOT_HEIGHT = 45.19;
 
     // Camera
     static const double CAMERA_OFF_X = 48.80; // in millimeters
@@ -370,26 +370,26 @@ namespace Kinematics {
     //locally expressed constants (with respect to an individual joint
     //and the GLOBAL coordinate frame)
 
-    static const double CHEST_MASS_Z = 46.466;
-    static const double CHEST_MASS_X = -7.8;
+    static const double CHEST_MASS_Z = 43.42;
+    static const double CHEST_MASS_X = -4.13;
 
-    static const double HEAD_MASS_Z = 170.9 - NECK_OFFSET_Z;
-    static const double UPPER_ARM_MASS_X = 59.5;
+    static const double HEAD_MASS_Z = 53.58;// - NECK_OFFSET_Z;
+    static const double UPPER_ARM_MASS_X = 24.55;
     static const double LOWER_ARM_MASS_X = 166.15 - UPPER_ARM_LENGTH;
-    static const double THIGH_MASS_Z = 123.0 - HIP_OFFSET_Z;
-    static const double TIBIA_MASS_Z = 251.1 - HIP_OFFSET_Z - THIGH_LENGTH;
-    static const double FOOT_MASS_Z = 315.0 - HIP_OFFSET_Z -
-        THIGH_LENGTH - TIBIA_LENGTH;
-    static const double FOOT_MASS_X = 18.015;
+    static const double THIGH_MASS_Z = 53.73; //123.0 - HIP_OFFSET_Z;
+    static const double TIBIA_MASS_Z = 0.053; //251.1 - HIP_OFFSET_Z - THIGH_LENGTH;
+    static const double FOOT_MASS_Z = 32.39;//315.0 - HIP_OFFSET_Z -
+        //THIGH_LENGTH - TIBIA_LENGTH;
+    static const double FOOT_MASS_X = 25.42;
 
     //Weight constants
-    static const double CHEST_MASS_g = 1217.1;
-    static const double HEAD_MASS_g = 401.0;
-    static const double UPPER_ARM_MASS_g = 87.0;
-    static const double LOWER_ARM_MASS_g = 163.0;
-    static const double THIGH_MASS_g  = 533.0;
-    static const double TIBIA_MASS_g  = 423.0;
-    static const double FOOT_MASS_g  = 158.0;
+    static const double CHEST_MASS_g = 1049.6;
+    static const double HEAD_MASS_g = 683.75;
+    static const double UPPER_ARM_MASS_g = 250.81;
+    static const double LOWER_ARM_MASS_g = 142.44;
+    static const double THIGH_MASS_g  = 600.02;
+    static const double TIBIA_MASS_g  = 435.58;
+    static const double FOOT_MASS_g  = 171.84;
     static const double TOTAL_MASS  =
         CHEST_MASS_g + HEAD_MASS_g +
         2.0*(UPPER_ARM_MASS_g + LOWER_ARM_MASS_g + THIGH_MASS_g +

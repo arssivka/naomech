@@ -131,12 +131,17 @@ int main(int argc, const char* const argv[]) {
             const std::vector<double>& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
             const std::vector<double>& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
             const std::vector<double>& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
+            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
+            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
+            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
+            joints->setHardness(keys, *joints_data);
             std::copy(larm_joints.begin(), larm_joints.end(), joints_data->begin() + 0);
             std::copy(lleg_joints.begin(), lleg_joints.end(), joints_data->begin() + 4);
             std::copy(rleg_joints.begin(), rleg_joints.end(), joints_data->begin() + 10);
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
-            usleep(500);
+            usleep(100);
         }
     } catch (...) {
         robot->getJoints()->setHardness(0.0);
