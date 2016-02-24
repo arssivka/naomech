@@ -203,96 +203,73 @@ bool Joints::setHardness(double value) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Joints::setHardness(const std::vector<std::string> &keys, const std::vector<double> &values) {
-    bool success = true;
-    int index;
-    int time = m_dcm->getTime(0);
-    lock_guard<mutex> lock(m_synch);
-    m_dcm_cmd[0] = Joints::DCM_HARDNESS_ALIAS;
-    // Update time
-    m_dcm_cmd[4][0] = time;
-    // Read data from sensors
-    ALValue data = m_mem->getListData(m_hardness_list);
-    for (int i = 0; i < JOINTS_COUNT; ++i) m_dcm_cmd[5][i][0] = data[i];
-    // Update positions
-    for (int i = 0; i < JOINTS_COUNT; ++i) {
-        try {
-            index = m_out_map[keys[i]];
-            m_dcm_cmd[5][index][0] = values[i];
-        } catch (out_of_range &e) {
-            success = false;
-            continue;
-        }
+    vector<int> keys_i(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        map<string, int>::const_iterator key_num;
+        key_num = m_out_map.find(keys[i]);
+        if (key_num == m_out_map.end())
+            return make_shared<SensorData<double> >();
+        keys_i[i] = key_num->second;
     }
-    // Send cmd
-
-    m_dcm->setAlias(m_dcm_cmd);
-    return success;
+    return setHardness(keys_i, values);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(const std::vector<int> &keys,
-                         const std::vector<double> &values) {
-    bool success = true;
-    int index;
+bool Joints::setHardness(const std::vector<int> &keys, const std::vector<double> &values) {
+    if (keys.size() != values.size() || keys.empty())
+        return false;
     int time = m_dcm->getTime(0);
+    ALValue data = m_mem->getListData(m_hardness_list);
     lock_guard<mutex> lock(m_synch);
     m_dcm_cmd[0] = Joints::DCM_HARDNESS_ALIAS;
     // Update time
     m_dcm_cmd[4][0] = time;
     // Read data from sensors
-    m_dcm_cmd[5] = m_mem->getListData(m_hardness_list);
+    m_dcm_cmd[5].arraySetSize(JOINTS_COUNT);
     // Update positions
-    for (int i = 0; i < JOINTS_COUNT; ++i) {
-        try {
-            index = keys[i];
-            m_dcm_cmd[5][index][0] = values[i];
-        } catch (out_of_range &e) {
-            success = false;
-            continue;
-        }
+    for (int i = 0; i < JOINTS_COUNT; ++i)
+        m_dcm_cmd[5][i][0] = data[i];
+    for (int i = 0; i < keys.size(); ++i) {
+        int index = keys[i];
+        if (index < 0 || index >= JOINTS_COUNT)
+            return false;
+        m_dcm_cmd[5][index][0] = values[i];
     }
     // Send cmd
     m_dcm->setAlias(m_dcm_cmd);
-    return success;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<SensorData<double> > Joints::getHardness(const vector<int> &keys) {
     ALValue data;
-    data.arraySetSize(JOINTS_COUNT);
-    for (int i = 0; i < JOINTS_COUNT; ++i) {
-        try {
-            data[i] = m_hardness_list[keys.at(i)];
-        } catch (out_of_range &e) {
+    data.arraySetSize(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        int index = keys[i];
+        if (index < 0 || index >= JOINTS_COUNT)
             return make_shared<SensorData<double> >();
-        }
+        data[i] = m_hardness_list[index];
     }
-
     data = m_mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
-    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
+    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
+    for (unsigned int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 shared_ptr<SensorData<double> > Joints::getHardness(const vector<string> &keys) {
-    ALValue data;
-    data.arraySetSize(JOINTS_COUNT);
-    for (int i = 0; i < JOINTS_COUNT; ++i) {
-        try {
-            data[i] = m_hardness_map[keys.at(i)];
-        } catch (out_of_range &e) {
+    vector<int> keys_i(keys.size());
+    for (int i = 0; i < keys.size(); ++i) {
+        map<string, int>::const_iterator key_num;
+        key_num = m_out_map.find(keys[i]);
+        if (key_num == m_out_map.end())
             return make_shared<SensorData<double> >();
-        }
+        keys_i[i] = key_num->second;
     }
-
-    data = m_mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
-    for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
-    return res;
+    return getHardness(keys_i);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

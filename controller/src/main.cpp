@@ -56,55 +56,59 @@ int main(int argc, const char* const argv[]) {
     double FAST_STANCE[] = {31.00,
                             1.45,
                             10.0,
-                            3.0,
+                            5.0,
                             0.0,
                             0.1};
-    double FAST_STEP[] = {0.5,
-                          0.2,
-                          1.5,
+    double FAST_STEP[] = {0.4,
+                          0.25,
+                          1.1,
                           -5.0,
-                          15.0,
-                          -5.0,
-                          15.0,
-                          45.0,
-                          7.0,
-                          7.0,
-                          20.0,
+                          100.0,
+                          -50.0,
+                          100.0,
+                          0.30,
+                          70.0,
+                          70.0,
+                          0.20,
                           1.0};
 
     double FAST_ZMP[] = {0.0,
                          0.3,
-                         0.45,
-                         0.45,
+                         4.0,
+                         4.0,
                          0.01,
-                         6.6};
+                         7.6};
 
 
     double FAST_SENSOR[] = {1.0,
-                            0.06,
                             0.08,
-                            250.0,
+                            0.08,
+                            100.0,
                             100.0,
                             7.0,
                             7.0,
                             45.0};
 
-    double FAST_HACK[] = {6.5, 6.5};
+    double FAST_HACK[] = {5.5, 5.5};
 
     double FAST_STIFFNESS[] = {0.85,
                                0.3,
                                0.4,
                                0.3,
                                0.1,
-                               0.5};
+                               0.1};
 
     double FAST_ODO[] = {1.0, 1.0, 1.0};
-    double FAST_ARM[] = {10.0};
+    double FAST_ARM[] = {0.0};
 
-    //Gait nextGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
+    boost::shared_ptr<rd::Kinematics> kinematics(
+            make_shared<rd::Kinematics>(robot->getClock(), robot->getJoints(), robot->getConfig()));
+
+    Gait startGait(DEFAULT_GAIT);
+   // Gait nextGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
 
     Gait nextGait(DEFAULT_GAIT);
-    Gait startGait(DEFAULT_GAIT);
+
     test.setStartGait(startGait);
     test.setNewGaitTarget(nextGait);
     StepGenerator sg(robot, &test);
@@ -114,6 +118,7 @@ int main(int argc, const char* const argv[]) {
 //    robot->getJoints()->setPositions(keys, *joints_data);
     //sg.setSpeed(100.0, 100.0, 0.0);
     sg.takeSteps(100.0, 0.0, 0.0, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    kinematics->lookAt(200.0, 0.0, 0.0, false);
     boost::shared_ptr<rd::Joints> joints = robot->getJoints();
     sleep(2);
     std::cout << "legs ticked" << std::endl;
@@ -131,21 +136,94 @@ int main(int argc, const char* const argv[]) {
             const std::vector<double>& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
             const std::vector<double>& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
             const std::vector<double>& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
+            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
+            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
+            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
+            joints->setHardness(keys, *joints_data);
             std::copy(larm_joints.begin(), larm_joints.end(), joints_data->begin() + 0);
             std::copy(lleg_joints.begin(), lleg_joints.end(), joints_data->begin() + 4);
             std::copy(rleg_joints.begin(), rleg_joints.end(), joints_data->begin() + 10);
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
-            /*std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
-            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
-            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
-            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
-            joints->setHardness(keys, *joints_data);*/
-            usleep(500);
+
+            usleep(200);
         }
     } catch (...) {
         robot->getJoints()->setHardness(0.0);
     }
+
+
+    sg.takeSteps(0.0, 100.0, 0.0, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    //boost::shared_ptr<rd::Joints> joints = robot->getJoints();
+    sleep(2);
+    std::cout << "legs ticked" << std::endl;
+    test.tick_gait();
+    try {
+        while (!sg.isDone()) { // pocka vse shagi ne sdelani (ya tak predpolagayu)
+            sg.tick_controller(); // krutim frame ili tipa togo. koroche nuzhnaya shtuka
+            const WalkLegsTuple& legs = sg.tick_legs(); // generireum joints i stiffnesi dlya nog
+            const WalkArmsTuple& arms = sg.tick_arms(); //dlya ruk
+            const std::vector<double>& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
+            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
+            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
+            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
+            joints->setHardness(keys, *joints_data);
+            std::copy(larm_joints.begin(), larm_joints.end(), joints_data->begin() + 0);
+            std::copy(lleg_joints.begin(), lleg_joints.end(), joints_data->begin() + 4);
+            std::copy(rleg_joints.begin(), rleg_joints.end(), joints_data->begin() + 10);
+            std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
+            joints->setPositions(keys, *joints_data);
+
+            usleep(200);
+        }
+    } catch (...) {
+        robot->getJoints()->setHardness(0.0);
+    }
+
+    sg.takeSteps(0.0, 0.0, 0.2, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    //boost::shared_ptr<rd::Joints> joints = robot->getJoints();
+    sleep(2);
+    std::cout << "legs ticked" << std::endl;
+    test.tick_gait();
+    try {
+        while (!sg.isDone()) { // pocka vse shagi ne sdelani (ya tak predpolagayu)
+            sg.tick_controller(); // krutim frame ili tipa togo. koroche nuzhnaya shtuka
+            const WalkLegsTuple& legs = sg.tick_legs(); // generireum joints i stiffnesi dlya nog
+            const WalkArmsTuple& arms = sg.tick_arms(); //dlya ruk
+            const std::vector<double>& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+            const std::vector<double>& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
+            const std::vector<double>& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+            std::copy(larm_gains.begin(), larm_gains.end(), joints_data->begin() + 0);
+            std::copy(lleg_gains.begin(), lleg_gains.end(), joints_data->begin() + 4);
+            std::copy(rleg_gains.begin(), rleg_gains.end(), joints_data->begin() + 10);
+            std::copy(rarm_gains.begin(), rarm_gains.end(), joints_data->begin() + 16);
+            joints->setHardness(keys, *joints_data);
+            std::copy(larm_joints.begin(), larm_joints.end(), joints_data->begin() + 0);
+            std::copy(lleg_joints.begin(), lleg_joints.end(), joints_data->begin() + 4);
+            std::copy(rleg_joints.begin(), rleg_joints.end(), joints_data->begin() + 10);
+            std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
+            joints->setPositions(keys, *joints_data);
+
+            usleep(200);
+        }
+    } catch (...) {
+        robot->getJoints()->setHardness(0.0);
+    }
+
     robot->getJoints()->setHardness(0.0);
     std::cout << "legs ticked" << std::endl;
     std::vector<double> ods = sg.getOdometryUpdate();
@@ -153,8 +231,7 @@ int main(int argc, const char* const argv[]) {
         std::cout << "odo " << i << " " << ods[i] << std::endl;
     }
     //testing
-    boost::shared_ptr<rd::Kinematics> kinematics(
-            make_shared<rd::Kinematics>(robot->getClock(), robot->getJoints(), robot->getConfig()));
+
     rd::RPCServer srv(port);
     srv.addModule(make_shared<rd::RemoteJoints>(robot->getJoints()));
     srv.addModule(make_shared<rd::RemoteCamera>(robot->getTopCamera(), robot->getBotCamera()));
