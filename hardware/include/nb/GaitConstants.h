@@ -242,9 +242,9 @@ namespace WP {
              0.1};
     //transition time
     static const double STEP_DEFAULT[LEN_STEP_CONFIG] =
-            {0.4,//step time
-             0.25,//dblSupFrac
-             9.0,//step height
+            {0.8,//step time
+             0.45,//25,//dblSupFrac
+             15.0,//step height
              0.0,//lift angle
              70.0,//max forward vel x
              -50.0,//max backward vel x
@@ -257,15 +257,15 @@ namespace WP {
     //Walking or not
     static const double ZMP_DEFAULT[LEN_ZMP_CONFIG] =
             {0.0,//foot center
-             0.4,//zmp static perc
+             0.9,//zmp static perc// 0/4
              4.0,//l zmp off
              4.0,//r zmp off
              0.01,//strafe zmp off
              6.6,};
     //turn zmp off
     static const double HACK_DEFAULT[LEN_HACK_CONFIG] =
-            {0.1,//hip hack l
-             0.1};
+            {0.05,//hip hack l
+             0.05};
     //hip hack r
     static const double SENSOR_DEFAULT[LEN_SENSOR_CONFIG] =
             {0.0,//Observer scale

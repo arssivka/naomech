@@ -105,6 +105,7 @@ int main(int argc, const char* const argv[]) {
             make_shared<rd::Kinematics>(robot->getClock(), robot->getJoints(), robot->getConfig()));
 
     Gait startGait(DEFAULT_GAIT);
+   // Gait startGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
    // Gait nextGait(FAST_STANCE, FAST_STEP, FAST_ZMP, FAST_HACK, FAST_SENSOR, FAST_STIFFNESS, FAST_ODO, FAST_ARM);
 
     Gait nextGait(DEFAULT_GAIT);
@@ -147,14 +148,14 @@ int main(int argc, const char* const argv[]) {
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
 
-            usleep(200);
+            usleep(10000);
         }
     } catch (...) {
         robot->getJoints()->setHardness(0.0);
     }
 
 
-    sg.takeSteps(0.0, 100.0, 0.0, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
+    sg.takeSteps(-100.0, 0.0, 0.0, 20); // tut ustanavlivaem scolko shagov s kakimi skorostyami sdelat
     //boost::shared_ptr<rd::Joints> joints = robot->getJoints();
     sleep(2);
     std::cout << "legs ticked" << std::endl;
@@ -183,7 +184,7 @@ int main(int argc, const char* const argv[]) {
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
 
-            usleep(200);
+            usleep(10000);
         }
     } catch (...) {
         robot->getJoints()->setHardness(0.0);
@@ -218,7 +219,7 @@ int main(int argc, const char* const argv[]) {
             std::copy(rarm_joints.begin(), rarm_joints.end(), joints_data->begin() + 16);
             joints->setPositions(keys, *joints_data);
 
-            usleep(200);
+            usleep(10000);
         }
     } catch (...) {
         robot->getJoints()->setHardness(0.0);
