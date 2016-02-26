@@ -393,30 +393,36 @@ shared_ptr<SensorData<double> > Kinematics::getPosition() {
 
 shared_ptr<SensorData<double> > Kinematics::getHeadPosition(bool top_camera) {
         Pose3D cameramatrix;
-        cameramatrix.translate(0.0, 0.0, this->rd.zLegJoint1ToHeadPan);
-        cameramatrix.rotateZ(this->joints[RD::HEAD_YAW]);
-        cameramatrix.rotateY(-this->joints[RD::HEAD_PITCH]);
-        AL::ALValue head_pos;
-        head_pos.arraySetSize(6);
+        static vector<int> m_camera_keys;
+        if (m_camera_keys.size() == 0) {
+            m_camera_keys.resize(2);
+            m_camera_keys[0] = rd::Joints::HEAD_YAW;
+            m_camera_keys[1] = rd::Joints::HEAD_PITCH;
+        }
+        shared_ptr<SensorData<double> > data = m_joints->getPositions(m_camera_keys);
+        cameramatrix.translate(0.0, 0.0, m_robot_dimensions.zLegJoint1ToHeadPan);
+        cameramatrix.rotateZ(data->data[0]);
+        cameramatrix.rotateY(-data->data[1]);
+        shared_ptr<SensorData<double> > result = make_shared<SensorData<double> >(6, m_clock->getTime(0));
         if(top_camera) {
-            cameramatrix.translate(this->rd.xHeadTiltToUpperCamera, 0.f, this->rd.zHeadTiltToUpperCamera);
-            cameramatrix.rotateY(this->rd.headTiltToUpperCameraTilt + this->cc.upperCameraTiltCorrection);
-            cameramatrix.rotateX(this->cc.upperCameraRollCorrection);
-            cameramatrix.rotateZ(this->cc.upperCameraPanCorrection);
+            cameramatrix.translate(m_robot_dimensions.xHeadTiltToUpperCamera, 0.f, m_robot_dimensions.zHeadTiltToUpperCamera);
+            cameramatrix.rotateY(m_robot_dimensions.headTiltToUpperCameraTilt + m_camera_calibration.upperCameraTiltCorrection);
+            cameramatrix.rotateX(m_camera_calibration.upperCameraRollCorrection);
+            cameramatrix.rotateZ(m_camera_calibration.upperCameraPanCorrection);
 
         }
         else {
-            cameramatrix.translate(this->rd.xHeadTiltToCamera, 0.f, this->rd.zHeadTiltToCamera);
-            cameramatrix.rotateY(this->rd.headTiltToCameraTilt + this->cc.lowerCameraTiltCorrection);
-            cameramatrix.rotateX(this->cc.lowerCameraRollCorrection);
-            cameramatrix.rotateZ(this->cc.lowerCameraPanCorrection);
+            cameramatrix.translate(m_robot_dimensions.xHeadTiltToCamera, 0.f, m_robot_dimensions.zHeadTiltToCamera);
+            cameramatrix.rotateY(m_robot_dimensions.headTiltToCameraTilt + m_camera_calibration.lowerCameraTiltCorrection);
+            cameramatrix.rotateX(m_camera_calibration.lowerCameraRollCorrection);
+            cameramatrix.rotateZ(m_camera_calibration.lowerCameraPanCorrection);
         }
-        head_pos[0] = cameramatrix.translation.x;
-        head_pos[1] = cameramatrix.translation.y;
-        head_pos[2] = cameramatrix.translation.z;
-        head_pos[3] = cameramatrix.rotation.getXAngle();
-        head_pos[4] = cameramatrix.rotation.getYAngle();
-        head_pos[5] = cameramatrix.rotation.getZAngle();
-        return head_pos;
+        result->data[0] = cameramatrix.translation.x;
+        result->data[1] = cameramatrix.translation.y;
+        result->data[2] = cameramatrix.translation.z;
+        result->data[3] = cameramatrix.rotation.getXAngle();
+        result->data[4] = cameramatrix.rotation.getYAngle();
+        result->data[5] = cameramatrix.rotation.getZAngle();
+        return result;
 
 }
