@@ -55,6 +55,8 @@ namespace rd {
 
         boost::shared_ptr<SensorData<double> > getPosition();
 
+        boost::shared_ptr<SensorData<double> > getHeadPosition(bool top_camera);
+
     private:
         enum Limb {
             LEFT_ARM,
