@@ -16,6 +16,7 @@ RemoteKinematics::RemoteKinematics(shared_ptr<Kinematics> kinematics)
     this->addMethod(shared_ptr<RemoteMethod>(new KeysMethod(kinematics)));
     this->addMethod(shared_ptr<RemoteMethod>(new PositionMethod(kinematics)));
     this->addMethod(shared_ptr<RemoteMethod>(new LookAtMethod(kinematics)));
+    this->addMethod(shared_ptr<RemoteMethod>(new GetHeadMethod(kinematics)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,4 +137,45 @@ void RemoteKinematics::LookAtMethod::execute(xmlrpc_c::paramList const& paramLis
     bool top_camera = paramList.getBoolean(3);
     this->kinematics->lookAt(x, y, z, top_camera);
     *resultP = value_nil();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RemoteKinematics::GetHeadMethod::GetHeadMethod(boost::shared_ptr<Kinematics> kinematics)
+        : RemoteMethod("getHead", "S:b", "Looks at point in the world"), kinematics(kinematics) { }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void RemoteKinematics::GetHeadMethod::execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP) {
+    paramList.verifyEnd(1);
+    bool top_camera = paramList.getBoolean(0);
+    shared_ptr<SensorData<double> > data;
+    data = this->kinematics->getHeadPosition(top_camera);
+
+    xmlrpc_env env;
+    xmlrpc_env_init(&env);
+
+    xmlrpc_value* elem;
+    xmlrpc_value* values;
+    xmlrpc_value* result;
+
+    values = xmlrpc_array_new(&env);
+    for (int i = 0; i < data->data.size(); ++i) {
+        elem = xmlrpc_double_new(&env, data->data[i]);
+        xmlrpc_array_append_item(&env, values, elem);
+        xmlrpc_DECREF(elem);
+    }
+
+    elem = xmlrpc_double_new(&env, data->timestamp);
+    // Create result struct
+    result = xmlrpc_struct_new(&env);
+    xmlrpc_struct_set_value(&env, result, "data", values);
+    xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+    // Apply result
+    resultP->instantiate(result);
+    // Clean this shit!
+    xmlrpc_DECREF(elem);
+    xmlrpc_DECREF(values);
+    xmlrpc_DECREF(result);
+    xmlrpc_env_clean(&env);
 }

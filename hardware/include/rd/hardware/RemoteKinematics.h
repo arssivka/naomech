@@ -37,6 +37,16 @@ namespace rd {
             boost::shared_ptr<Kinematics> kinematics;
         };
 
+        class GetHeadMethod : public RemoteMethod {
+        public:
+            GetHeadMethod(boost::shared_ptr<Kinematics> kinematics);
+
+            virtual void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP);
+
+        private:
+            boost::shared_ptr<Kinematics> kinematics;
+        };
+
         class PositionMethod : public RemoteMethod {
         public:
             PositionMethod(boost::shared_ptr<Kinematics> kinematics);
