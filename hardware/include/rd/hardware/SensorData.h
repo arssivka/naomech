@@ -20,6 +20,9 @@ namespace rd {
      */
     class SensorData {
     public:
+        typedef boost::shared_ptr<SensorData<T> > Ptr;
+
+    public:
         /*!
            \brief Basic constructor
          */

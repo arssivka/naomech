@@ -110,6 +110,8 @@ class StepGenerator {
 public:
     static int NB_WALKING_JOINTS[20];
 
+    void resetSteps(const bool startLeft);
+
 public:
     StepGenerator(boost::shared_ptr<rd::Robot> robot, const MetaGait* _gait);
 
@@ -154,8 +156,6 @@ private: // Helper methods
     void fillZMPRegular(const boost::shared_ptr<Step> newStep);
 
     void fillZMPEnd(const boost::shared_ptr<Step> newStep);
-
-    void resetSteps(const bool startLeft);
 
     static const NBMath::ufmatrix3 get_f_fprime(const boost::shared_ptr<Step> step);
 

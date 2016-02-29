@@ -2,7 +2,7 @@
 #define MetaGait_h_DEFINED
 
 /**
- * The Meta Gait brokers between two gaits, the 'cur' and the 'next'.
+ * The Meta Locomotion brokers between two gaits, the 'cur' and the 'next'.
  * Every frame, it reinterpolates between the two gaits based on
  * a total transition time which is specified in the gaits.
  *

@@ -20,6 +20,7 @@ set(SRCS src/rd/hardware/Accelerometer.cpp
         src/rd/hardware/Camera.cpp
         src/rd/hardware/Kinematics.cpp
         src/rd/hardware/Angle.cpp
+        src/rd/hardware/Locomotion.cpp
         src/bhuman/CameraInfo.cpp
         src/bhuman/CameraMatrix.cpp
         src/bhuman/Matrix.cpp
@@ -55,6 +56,7 @@ set(HEADERS include/rd/hardware/Accelerometer.h
         include/rd/hardware/Robot.h
         include/rd/hardware/CvImage.h
         include/rd/hardware/Kinematics.h
+        include/rd/hardware/Locomotion.h
         include/bhuman/CameraCalibration.h
         include/bhuman/JointCalibration.h
         include/bhuman/MassCalibration.h
@@ -137,7 +139,8 @@ if (${BUILD_WRAPPER})
             src/rd/hardware/RemoteGyro.cpp
             src/rd/hardware/RemoteAccelerometer.cpp
             src/rd/hardware/RemoteKinematics.cpp
-            src/rd/hardware/RemoteAngle.cpp)
+            src/rd/hardware/RemoteAngle.cpp
+            src/rd/hardware/RemoteLocomotion.cpp)
     list(APPEND HEADERS
             include/rd/hardware/RemoteJoints.h
             include/rd/hardware/RemoteCamera.h
@@ -145,7 +148,8 @@ if (${BUILD_WRAPPER})
             include/rd/hardware/RemoteGyro.h
             include/rd/hardware/RemoteAccelerometer.h
             include/rd/hardware/RemoteKinematics.h
-            include/rd/hardware/RemoteAngle.h)
+            include/rd/hardware/RemoteAngle.h
+            include/rd/hardware/RemoteLocomotion.h)
     list(APPEND INCLUDE_DIRS ${RD_NETWORK_INCLUDE_DIRS})
     list(APPEND LIBS ${RD_NETWORK_LIBRARIES})
 endif ()
@@ -156,7 +160,10 @@ else ()
     set(LIBRARY_TYPE STATIC)
 endif ()
 
+
 add_library(hardware ${LIBRARY_TYPE} ${SRCS} ${HEADERS})
+
+#add_definitions(-DUSE_COM_CONTROL)
 
 target_include_directories(hardware PUBLIC ${INCLUDE_DIRS})
 

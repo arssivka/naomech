@@ -5,7 +5,7 @@ using namespace std;
 
 Gait::Gait(const Gait& other) {
     setGaitFromGait(other);
-    //cout << "from Gait: "<<endl<< toString() <<endl;
+    //cout << "from Locomotion: "<<endl<< toString() <<endl;
 
 }
 
