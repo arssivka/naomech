@@ -8,6 +8,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/atomic.hpp>
 #include <nb/MetaGait.h>
 #include <nb/StepGenerator.h>
 #include "Joints.h"
@@ -71,6 +72,19 @@ namespace rd {
 
         SensorData<double>::Ptr getStanceJointData();
 
+        void setAutoApplyUSleepTime(useconds_t us);
+
+        useconds_t getAutoApplyUSleepTime() const;
+
+        void setAutoApply(bool enable);
+
+        bool isAutoApplyEnabled() const;
+
+        virtual ~Locomotion();
+
+    private:
+        void autoUpdater();
+
     private:
         double m_x;
         double m_y;
@@ -94,6 +108,14 @@ namespace rd {
         StringKeyVector m_odometry_keys;
 
         std::map<std::string, int> m_parameters_key_map;
+
+        boost::mutex m_auto_apply_mut;
+        boost::atomic<bool> m_auto_apply_flag;
+        boost::condition_variable m_auto_apply_cv;
+        boost::thread m_auto_apply_worker;
+
+        boost::atomic<bool> m_destroy;
+        boost::atomic<useconds_t> m_auto_update_sleep_time;
     };
 }
 

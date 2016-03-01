@@ -134,6 +134,28 @@ namespace rd {
         private:
             boost::shared_ptr<Locomotion> m_locomotion;
         };
+
+        class AutoUpdateMethod : public RemoteMethod {
+        public:
+            AutoUpdateMethod(boost::shared_ptr<Locomotion> locomotion);
+
+            virtual void execute(xmlrpc_c::paramList const &paramList,
+                                 xmlrpc_c::value *const resultP);
+
+        private:
+            boost::shared_ptr<Locomotion> m_locomotion;
+        };
+
+        class AutoUpdateSleepMethod : public RemoteMethod {
+        public:
+            AutoUpdateSleepMethod(boost::shared_ptr<Locomotion> locomotion);
+
+            virtual void execute(xmlrpc_c::paramList const &paramList,
+                                 xmlrpc_c::value *const resultP);
+
+        private:
+            boost::shared_ptr<Locomotion> m_locomotion;
+        };
     };
 };
 

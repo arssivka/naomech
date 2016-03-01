@@ -10,7 +10,8 @@
 rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
         : m_meta_gait(new MetaGait), m_step_generator(new StepGenerator(robot, m_meta_gait.get())),
           m_joints(robot->getJoints()), m_clock(robot->getClock()), m_joint_keys(20), m_parameter_keys(PARAMETERS_COUNT),
-          m_odometry_keys(ODOMETRY_COUNT) {
+          m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
+          m_auto_apply_worker(boost::bind(&rd::Locomotion::autoUpdater, this)), m_auto_update_sleep_time(0) {
     Gait default_gait(DEFAULT_GAIT);
     m_meta_gait->setStartGait(default_gait);
     m_meta_gait->setNewGaitTarget(default_gait);
@@ -239,4 +240,54 @@ void rd::Locomotion::applyPositions() {
 rd::SensorData<double>::Ptr rd::Locomotion::getStanceJointData() {
     boost::lock_guard<boost::mutex> lock(m_access);
     return m_stance_joints_data;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::Locomotion::setAutoApply(bool enable) {
+    if (enable) {
+        m_auto_apply_flag.store(true);
+        m_auto_apply_cv.notify_one();
+    } else {
+        m_auto_apply_flag.store(false);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool rd::Locomotion::isAutoApplyEnabled() const {
+    return m_auto_apply_flag.load();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::Locomotion::~Locomotion() {
+    m_destroy.store(true);
+    m_auto_apply_flag.store(true);
+    m_auto_apply_cv.notify_one();
+    m_auto_apply_worker.join();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::Locomotion::autoUpdater() {
+    boost::mutex::scoped_lock lock(m_auto_apply_mut);
+    while (!m_destroy.load()) {
+        while (!m_auto_apply_flag.load()) m_auto_apply_cv.wait(lock);
+        this->generateStep();
+        this->applyPositions();
+        usleep(m_auto_update_sleep_time.load());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::Locomotion::setAutoApplyUSleepTime(useconds_t us) {
+    m_auto_update_sleep_time.store(us);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+useconds_t rd::Locomotion::getAutoApplyUSleepTime() const {
+    return m_auto_update_sleep_time.load();
 }

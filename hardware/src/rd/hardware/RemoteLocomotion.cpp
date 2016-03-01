@@ -21,7 +21,8 @@ rd::RemoteLocomotion::RemoteLocomotion(boost::shared_ptr<Locomotion> locomotion)
     this->addMethod(boost::shared_ptr<RemoteMethod>(new JointsHardnessMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new GenerateStepMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new IsDoneMethod(locomotion)));
-
+    this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateMethod(locomotion)));
+    this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateSleepMethod(locomotion)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,4 +380,44 @@ void rd::RemoteLocomotion::GenerateStepMethod::execute(xmlrpc_c::paramList const
     paramList.verifyEnd(0);
     m_locomotion->generateStep();
     *resultP = xmlrpc_c::value_nil();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::RemoteLocomotion::AutoUpdateSleepMethod::AutoUpdateSleepMethod(boost::shared_ptr<Locomotion> locomotion)
+        : RemoteMethod("autoapply.sleep", "d:,n:d", "Function works with sleep time parameters"),
+          m_locomotion(locomotion) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::RemoteLocomotion::AutoUpdateSleepMethod::execute(xmlrpc_c::paramList const& paramList,
+                                                          xmlrpc_c::value* const resultP) {
+    int param_size = paramList.size();
+    if (param_size == 1) {
+        m_locomotion->setAutoApplyUSleepTime((useconds_t) paramList.getDouble(0));
+        *resultP = xmlrpc_c::value_nil();
+    } else {
+        paramList.verifyEnd(0);
+        *resultP = xmlrpc_c::value_double(m_locomotion->getAutoApplyUSleepTime());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::RemoteLocomotion::AutoUpdateMethod::AutoUpdateMethod(boost::shared_ptr<Locomotion> locomotion)
+        : RemoteMethod("autoapply.enable", "b:,n:b", "Function works with auto apply method's status"),
+          m_locomotion(locomotion) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::RemoteLocomotion::AutoUpdateMethod::execute(xmlrpc_c::paramList const& paramList,
+                                                     xmlrpc_c::value* const resultP) {
+    int param_size = paramList.size();
+    if (param_size == 1) {
+        m_locomotion->setAutoApply(paramList.getBoolean(0));
+        *resultP = xmlrpc_c::value_nil();
+    } else {
+        paramList.verifyEnd(0);
+        *resultP = xmlrpc_c::value_boolean(m_locomotion->isAutoApplyEnabled());
+    }
 }
