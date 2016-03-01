@@ -32,19 +32,19 @@ namespace rd {
 
         Locomotion(boost::shared_ptr<Robot> robot);
 
-        const std::vector<std::string>& getParameterKeys() const;
+        const StringKeyVector& getParameterKeys() const;
 
-        const std::vector<std::string>& getOdometryKeys() const;
+        const StringKeyVector& getOdometryKeys() const;
         
-        const std::vector<std::string>& getJointKeys() const;
+        const StringKeyVector& getJointKeys() const;
 
-        SensorData<double>::Ptr getSpeedParameters(const std::vector<std::string>& keys);
+        SensorData<double>::Ptr getSpeedParameters(const StringKeyVector& keys);
 
-        SensorData<double>::Ptr getSpeedParameters(const std::vector<int>& keys);
+        SensorData<double>::Ptr getSpeedParameters(const IntegerKeyVector& keys);
 
-        void setSpeedParameters(const std::vector<std::string>& keys, const std::vector<double>& values);
+        void setSpeedParameters(const StringKeyVector& keys, const ValuesVector& values);
 
-        void setSpeedParameters(const std::vector<int>& keys, const std::vector<double>& values);
+        void setSpeedParameters(const IntegerKeyVector& keys, const ValuesVector& values);
 
         rd::SensorData<double>::Ptr getOdometry();
 
@@ -89,9 +89,9 @@ namespace rd {
         boost::shared_ptr<Joints> m_joints;
         boost::shared_ptr<Clock> m_clock;
         
-        std::vector<std::string> m_joint_keys;
-        std::vector<std::string> m_parameter_keys;
-        std::vector<std::string> m_odometry_keys;
+        StringKeyVector m_joint_keys;
+        StringKeyVector m_parameter_keys;
+        StringKeyVector m_odometry_keys;
 
         std::map<std::string, int> m_parameters_key_map;
     };

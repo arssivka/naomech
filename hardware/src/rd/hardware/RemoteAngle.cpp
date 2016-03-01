@@ -47,7 +47,7 @@ RemoteAngle::AngleMethod::AngleMethod(shared_ptr<Angle> angle)
 void RemoteAngle::AngleMethod::execute(xmlrpc_c::paramList const& paramList,
                                        xmlrpc_c::value* const resultP) {
     paramList.verifyEnd(0);
-    shared_ptr<SensorData<double> > data = m_angle->getAngle();
+    SensorData<double>::Ptr data = m_angle->getAngle();
 
     // TODO Check for memory leaks
     // Some optimisation by using C library of xmlrpc-c

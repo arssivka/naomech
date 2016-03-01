@@ -93,8 +93,8 @@ const vector<string>& Kinematics::getKeys() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Kinematics::lookAt(double x, double y, double z, bool top_camera) {
-    std::vector<double> request_data(2);
-    std::vector<int> request_keys(2);
+    ValuesVector request_data(2);
+    IntegerKeyVector request_keys(2);
     request_keys[0] = Joints::HEAD_YAW;
     request_keys[1] = Joints::HEAD_PITCH;
     Vector3<> position(x, y, z);
@@ -106,7 +106,7 @@ void Kinematics::lookAt(double x, double y, double z, bool top_camera) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Kinematics::setPosition(const vector<string>& keys, const vector<double>& values) {
-    std::vector<int> k(keys.size());
+    IntegerKeyVector k(keys.size());
     try {
         for (int i = 0; i < keys.size(); ++i)
             k[i] = m_keys_map.find(keys[i])->second;
@@ -134,7 +134,7 @@ void Kinematics::setPosition(const vector<int>& keys, const vector<double>& valu
     required_limbs[LEFT_LEG] = mask & LEFT_LEG_MASK;
     required_limbs[RIGHT_LEG] = mask & RIGHT_LEG_MASK;
     // Get joint data
-    shared_ptr<SensorData<double> > data = m_joints->getPositions();
+    SensorData<double>::Ptr data = m_joints->getPositions();
     // Calculate forward kinematics
     int request_size = 0;
     if (required_limbs[LEFT_ARM]) {
@@ -226,8 +226,8 @@ void Kinematics::setPosition(const vector<int>& keys, const vector<double>& valu
     cout << "Positions Ok" << endl;
 
     // Prepare request
-    std::vector<int> request_keys(request_size);
-    std::vector<double> request_values(request_size);
+    IntegerKeyVector request_keys(request_size);
+    ValuesVector request_values(request_size);
     cout << "Request size" << request_size << endl;
 
     int index = 0;
@@ -280,8 +280,8 @@ void Kinematics::setPosition(const vector<int>& keys, const vector<double>& valu
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<string>& keys) {
-    std::vector<int> k(keys.size());
+SensorData<double>::Ptr Kinematics::getPosition(const vector<string>& keys) {
+    IntegerKeyVector k(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         const map<string, int>::iterator& found = m_keys_map.find(keys[i]);
         if (found == m_keys_map.end())
@@ -293,7 +293,7 @@ shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<string>& ke
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<int>& keys) {
+SensorData<double>::Ptr Kinematics::getPosition(const vector<int>& keys) {
     // Null checking
     if (keys.empty())
         return make_shared<SensorData<double> >(0, m_clock->getTime(0));
@@ -309,7 +309,7 @@ shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<int>& keys)
     required_limbs[LEFT_LEG] = mask & LEFT_LEG_MASK;
     required_limbs[RIGHT_LEG] = mask & RIGHT_LEG_MASK;
     // Get joint data
-    shared_ptr<SensorData<double> > data = m_joints->getPositions();
+    SensorData<double>::Ptr data = m_joints->getPositions();
     // Calculate forward kinematics
     if (required_limbs[LEFT_ARM])
         ForwardKinematic::calculateArmChain(true, data->data, m_robot_dimensions, m_mass_calibration, limbs);
@@ -319,7 +319,7 @@ shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<int>& keys)
         ForwardKinematic::calculateLegChain(true, data->data, m_robot_dimensions, m_mass_calibration, limbs);
     if (required_limbs[RIGHT_LEG])
         ForwardKinematic::calculateLegChain(false, data->data, m_robot_dimensions, m_mass_calibration, limbs);
-    shared_ptr<SensorData<double> > result = make_shared<SensorData<double> >(keys.size(), m_clock->getTime(0));
+    SensorData<double>::Ptr result = make_shared<SensorData<double> >(keys.size(), m_clock->getTime(0));
     for (int i = 0; i < keys.size(); ++i) {
         switch (keys[i]) {
             case LEFT_ARM_X:
@@ -385,13 +385,13 @@ shared_ptr<SensorData<double> > Kinematics::getPosition(const vector<int>& keys)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Kinematics::getPosition() {
+SensorData<double>::Ptr Kinematics::getPosition() {
     return this->getPosition(m_keys);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Kinematics::getHeadPosition(bool top_camera) {
+SensorData<double>::Ptr Kinematics::getHeadPosition(bool top_camera) {
         Pose3D cameramatrix;
         static vector<int> m_camera_keys;
         if (m_camera_keys.size() == 0) {
@@ -399,11 +399,11 @@ shared_ptr<SensorData<double> > Kinematics::getHeadPosition(bool top_camera) {
             m_camera_keys[0] = rd::Joints::HEAD_YAW;
             m_camera_keys[1] = rd::Joints::HEAD_PITCH;
         }
-        shared_ptr<SensorData<double> > data = m_joints->getPositions(m_camera_keys);
+        SensorData<double>::Ptr data = m_joints->getPositions(m_camera_keys);
         cameramatrix.translate(0.0, 0.0, m_robot_dimensions.zLegJoint1ToHeadPan);
         cameramatrix.rotateZ(data->data[0]);
         cameramatrix.rotateY(-data->data[1]);
-        shared_ptr<SensorData<double> > result = make_shared<SensorData<double> >(6, m_clock->getTime(0));
+        SensorData<double>::Ptr result = make_shared<SensorData<double> >(6, m_clock->getTime(0));
         if(top_camera) {
             cameramatrix.translate(m_robot_dimensions.xHeadTiltToUpperCamera, 0.f, m_robot_dimensions.zHeadTiltToUpperCamera);
             cameramatrix.rotateY(m_robot_dimensions.headTiltToUpperCameraTilt + m_camera_calibration.upperCameraTiltCorrection);

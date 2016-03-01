@@ -3,6 +3,7 @@
 //
 
 #include <xmlrpc-c/girerr.hpp>
+#include <rd/hardware/TypeDefinition.h>
 #include "rd/hardware/RemoteLocomotion.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,9 +28,9 @@ rd::RemoteLocomotion::RemoteLocomotion(boost::shared_ptr<Locomotion> locomotion)
 
 rd::RemoteLocomotion::ParameterKeysMethod::ParameterKeysMethod(boost::shared_ptr<Locomotion> locomotion)
         : RemoteMethod("parameters.keys", "A:", "Return array of locomotion parameter keys names") {
-    const std::vector<std::string> &keys = locomotion->getParameterKeys();
+    const StringKeyVector &keys = locomotion->getParameterKeys();
     std::vector<xmlrpc_c::value> values;
-    for (std::vector<std::string>::const_iterator it = keys.begin();
+    for (StringKeyVector::const_iterator it = keys.begin();
          it != keys.end(); ++it) {
         values.push_back(xmlrpc_c::value_string(*it));
     }
@@ -62,14 +63,14 @@ void rd::RemoteLocomotion::ParametersMethod::execute(xmlrpc_c::paramList const& 
         // Empty check
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
-        std::vector<double> data(values.size());
+        ValuesVector data(values.size());
         for (int i = 0; i < values.size(); ++i) data[i] = xmlrpc_c::value_double(values[i]);
         if (integer_keys) {
-            std::vector<int> parameter_names(keys.size());
+            IntegerKeyVector parameter_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) parameter_names[i] = xmlrpc_c::value_int(keys[i]);
             m_locomotion->setSpeedParameters(parameter_names, data);
         } else {
-            std::vector<std::string> parameter_names(keys.size());
+            StringKeyVector parameter_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) parameter_names[i] = xmlrpc_c::value_string(keys[i]);
             m_locomotion->setSpeedParameters(parameter_names, data);
         }
@@ -77,7 +78,7 @@ void rd::RemoteLocomotion::ParametersMethod::execute(xmlrpc_c::paramList const& 
         return;
     }
     // S:
-    boost::shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
         data = m_locomotion->getPositions();
     } else if (paramList.size() == 1) {
@@ -86,11 +87,11 @@ void rd::RemoteLocomotion::ParametersMethod::execute(xmlrpc_c::paramList const& 
         if (keys.empty()) return;
         bool integer_keys = keys[0].type() == xmlrpc_c::value::TYPE_INT;
         if (integer_keys) {
-            std::vector<int> parameter_names(keys.size());
+            IntegerKeyVector parameter_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) parameter_names[i] = xmlrpc_c::value_int(keys[i]);
             data = m_locomotion->getSpeedParameters(parameter_names);
         } else {
-            std::vector<std::string> parameter_names(keys.size());
+            StringKeyVector parameter_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) parameter_names[i] = xmlrpc_c::value_string(keys[i]);
             data = m_locomotion->getSpeedParameters(parameter_names);
         }
@@ -180,9 +181,9 @@ void rd::RemoteLocomotion::OdometryMethod::execute(xmlrpc_c::paramList const& pa
 
 rd::RemoteLocomotion::OdometryKeysMethod::OdometryKeysMethod(boost::shared_ptr<Locomotion> locomotion)
         : RemoteMethod("odometry.keys", "A:", "Return array of locomotion odometry key names") {
-    const std::vector<std::string> &keys = locomotion->getOdometryKeys();
+    const StringKeyVector &keys = locomotion->getOdometryKeys();
     std::vector<xmlrpc_c::value> values;
-    for (std::vector<std::string>::const_iterator it = keys.begin();
+    for (StringKeyVector::const_iterator it = keys.begin();
          it != keys.end(); ++it) {
         values.push_back(xmlrpc_c::value_string(*it));
     }
@@ -236,9 +237,9 @@ void rd::RemoteLocomotion::GaitParametersMethod::execute(xmlrpc_c::paramList con
 
 rd::RemoteLocomotion::JointKeysMethod::JointKeysMethod(boost::shared_ptr<Locomotion> locomotion)
         : RemoteMethod("joints.keys", "A:", "Return array of locomotion joint keys names") {
-    const std::vector<std::string> &keys = locomotion->getJointKeys();
+    const StringKeyVector &keys = locomotion->getJointKeys();
     std::vector<xmlrpc_c::value> values;
-    for (std::vector<std::string>::const_iterator it = keys.begin();
+    for (StringKeyVector::const_iterator it = keys.begin();
          it != keys.end(); ++it) {
         values.push_back(xmlrpc_c::value_string(*it));
     }

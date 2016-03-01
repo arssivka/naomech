@@ -16,6 +16,7 @@
 #include <vector>
 #include <alproxies/dcmproxy.h>
 #include <alproxies/almemoryproxy.h>
+#include "TypeDefinition.h"
 
 
 namespace rd {
@@ -135,7 +136,7 @@ namespace rd {
            \brief Returns the vector containing keys of the LEDs
            \return vector of strings representing LEDs keys
          */
-        const std::vector<std::string> &getKeys() const;
+        const StringKeyVector &getKeys() const;
 
         /*!
            \brief Method for setting the brightnesses of the LEDs
@@ -143,8 +144,8 @@ namespace rd {
            \param values Values to set to the LEDs
            \return Boolean true if succed otherwise false
          */
-        bool setBrightness(const std::vector<std::string> &keys,
-                           const std::vector<double> &values);
+        bool setBrightness(const StringKeyVector &keys,
+                           const ValuesVector &values);
 
         /*!
            \brief Method for setting the brightnesses of the LEDs
@@ -152,28 +153,28 @@ namespace rd {
            \param values Values to set to the LEDs
            \return Boolean true if succed otherwise false
          */
-        bool setBrightness(const std::vector<int> &keys,
-                           const std::vector<double> &values);
+        bool setBrightness(const IntegerKeyVector &keys,
+                           const ValuesVector &values);
 
         /*!
            \brief Method that returns values of the specified LEDs
            \param keys Keys of the LEDs represented via vector of strings
            \return shared pointer to the SensorData
          */
-        boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<int> &keys);
+        SensorData<double>::Ptr getBrightness(const IntegerKeyVector &keys);
 
         /*!
            \brief Method that returns values of the specified LEDs
            \param keys Keys of the LEDs represented via vector of strings
            \return shared pointer to the SensorData
          */
-        boost::shared_ptr<SensorData<double> > getBrightness(const std::vector<std::string> &keys);
+        SensorData<double>::Ptr getBrightness(const StringKeyVector &keys);
 
         /*!
            \brief Method that returns values of all the LEDs
            \return shared pointer to the SensorData
          */
-        boost::shared_ptr<SensorData<double> > getBrightness();
+        SensorData<double>::Ptr getBrightness();
          ///@}
 
     private:
@@ -182,13 +183,13 @@ namespace rd {
         boost::mutex m_synch;
         AL::ALValue m_cmd;
 
-        std::vector<std::string> m_keys;
-        std::vector<std::string> m_leds_list;
+        StringKeyVector m_keys;
+        StringKeyVector m_leds_list;
         std::map<std::string, std::string> m_leds_map;
 
         void initKeysMap(std::map<std::string, std::string> &container,
-                         const std::vector<std::string> &keys,
-                         const std::vector<std::string> &values);
+                         const StringKeyVector &keys,
+                         const StringKeyVector &values);
     };
 }
 

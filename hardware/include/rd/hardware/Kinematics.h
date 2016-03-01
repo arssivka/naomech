@@ -41,21 +41,21 @@ namespace rd {
         Kinematics(boost::shared_ptr<Clock> clock, boost::shared_ptr<Joints> joints,
                    boost::shared_ptr<boost::property_tree::ptree> config);
 
-        const std::vector<std::string>& getKeys() const;
+        const StringKeyVector& getKeys() const;
 
         void lookAt(double x, double y, double z, bool top_camera);
 
-        void setPosition(const std::vector<std::string>& keys, const std::vector<double>& values);
+        void setPosition(const StringKeyVector& keys, const ValuesVector& values);
 
-        void setPosition(const std::vector<int>& keys, const std::vector<double>& values);
+        void setPosition(const IntegerKeyVector& keys, const ValuesVector& values);
 
-        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<std::string>& keys);
+        SensorData<double>::Ptr getPosition(const StringKeyVector& keys);
 
-        boost::shared_ptr<SensorData<double> > getPosition(const std::vector<int>& keys);
+        SensorData<double>::Ptr getPosition(const IntegerKeyVector& keys);
 
-        boost::shared_ptr<SensorData<double> > getPosition();
+        SensorData<double>::Ptr getPosition();
 
-        boost::shared_ptr<SensorData<double> > getHeadPosition(bool top_camera);
+        SensorData<double>::Ptr getHeadPosition(bool top_camera);
 
     private:
         enum Limb {
@@ -88,7 +88,7 @@ namespace rd {
             MASKS_COUNT = 4
         };
 
-        std::vector<std::string> m_keys;
+        StringKeyVector m_keys;
         std::map<std::string, int> m_keys_map;
         boost::shared_ptr<Clock> m_clock;
         boost::shared_ptr<Joints> m_joints;

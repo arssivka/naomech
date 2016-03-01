@@ -45,7 +45,9 @@ set(SRCS src/rd/hardware/Accelerometer.cpp
         src/nb/SensorAngles.cpp
         src/nb/SpringSensor.cpp)
 
-set(HEADERS include/rd/hardware/Accelerometer.h
+set(HEADERS
+        include/rd/hardware/TypeDefinition.h
+        include/rd/hardware/Accelerometer.h
         include/rd/hardware/Angle.h
         include/rd/hardware/Camera.h
         include/rd/hardware/Clock.h

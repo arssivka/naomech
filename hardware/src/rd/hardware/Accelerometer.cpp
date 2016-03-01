@@ -35,9 +35,9 @@ const vector<string> &Accelerometer::getKeys() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Accelerometer::getAcceleration() {
+SensorData<double>::Ptr Accelerometer::getAcceleration() {
     ALValue data = m_mem->getListData(m_sensors);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(SENSOR_COUNT, m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(SENSOR_COUNT, m_dcm->getTime(0));
     for (unsigned int i = 0; i < SENSOR_COUNT; ++i) res->data[i] = data[i];
     return res;
 }

@@ -47,7 +47,7 @@ RemoteGyro::AngularVelocityMethod::AngularVelocityMethod(shared_ptr<Gyro> gyro)
 void RemoteGyro::AngularVelocityMethod::execute(xmlrpc_c::paramList const &paramList,
                                                 xmlrpc_c::value *const resultP) {
     paramList.verifyEnd(0);
-    shared_ptr<SensorData<double> > data = m_gyro->getAngularVelocity();
+    SensorData<double>::Ptr data = m_gyro->getAngularVelocity();
 
     // TODO Check for memory leaks
     // Some optimisation by using C library of xmlrpc-c

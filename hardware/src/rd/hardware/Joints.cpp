@@ -129,8 +129,8 @@ bool Joints::setPositions(const vector<string>& keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setPositions(const std::vector<int>& keys,
-                          const std::vector<double>& values) {
+bool Joints::setPositions(const IntegerKeyVector& keys,
+                          const ValuesVector& values) {
     bool success = true;
     // Read data from sensors
     ALValue data = m_hw->call<ALValue>("getJointData");
@@ -151,10 +151,10 @@ bool Joints::setPositions(const std::vector<int>& keys,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPositions(const vector<int>& keys) {
+SensorData<double>::Ptr Joints::getPositions(const vector<int>& keys) {
     ALValue data = m_hw->call<ALValue>("getJointData");
     unsigned int length = keys.size();
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(length, m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(length, m_dcm->getTime(0));
     for (int i = 0; i < length; ++i) {
         if (keys[i] > JOINTS_COUNT)
             return make_shared<SensorData<double> >(0, m_dcm->getTime(0));
@@ -165,7 +165,7 @@ shared_ptr<SensorData<double> > Joints::getPositions(const vector<int>& keys) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPositions(const vector<string>& keys) {
+SensorData<double>::Ptr Joints::getPositions(const vector<string>& keys) {
     vector<int> k(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         const map<string, int>::iterator& found = m_out_map.find(keys[i]);
@@ -178,9 +178,9 @@ shared_ptr<SensorData<double> > Joints::getPositions(const vector<string>& keys)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getPositions() {
+SensorData<double>::Ptr Joints::getPositions() {
     ALValue data = m_hw->call<ALValue>("getJointData");
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
     for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
     return res;
 }
@@ -202,7 +202,7 @@ bool Joints::setHardness(double value) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(const std::vector<std::string> &keys, const std::vector<double> &values) {
+bool Joints::setHardness(const StringKeyVector &keys, const ValuesVector &values) {
     vector<int> keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         map<string, int>::const_iterator key_num;
@@ -216,7 +216,7 @@ bool Joints::setHardness(const std::vector<std::string> &keys, const std::vector
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Joints::setHardness(const std::vector<int> &keys, const std::vector<double> &values) {
+bool Joints::setHardness(const IntegerKeyVector &keys, const ValuesVector &values) {
     if (keys.size() != values.size() || keys.empty())
         return false;
     int time = m_dcm->getTime(0);
@@ -243,7 +243,7 @@ bool Joints::setHardness(const std::vector<int> &keys, const std::vector<double>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getHardness(const vector<int> &keys) {
+SensorData<double>::Ptr Joints::getHardness(const vector<int> &keys) {
     ALValue data;
     data.arraySetSize(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
@@ -253,14 +253,14 @@ shared_ptr<SensorData<double> > Joints::getHardness(const vector<int> &keys) {
         data[i] = m_hardness_list[index];
     }
     data = m_mem->getListData(data);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
     for (unsigned int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getHardness(const vector<string> &keys) {
+SensorData<double>::Ptr Joints::getHardness(const vector<string> &keys) {
     vector<int> keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         map<string, int>::const_iterator key_num;
@@ -274,9 +274,9 @@ shared_ptr<SensorData<double> > Joints::getHardness(const vector<string> &keys) 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > Joints::getHardness() {
+SensorData<double>::Ptr Joints::getHardness() {
     ALValue data = m_mem->getListData(m_hardness_list);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(JOINTS_COUNT, m_dcm->getTime(0));
     for (unsigned int i = 0; i < JOINTS_COUNT; ++i) res->data[i] = data[i];
     return res;
 }

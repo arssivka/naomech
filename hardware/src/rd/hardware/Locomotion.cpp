@@ -2,6 +2,7 @@
 // Created by arssivka on 2/24/16.
 //
 
+#include <rd/hardware/TypeDefinition.h>
 #include "rd/hardware/Locomotion.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
     m_odometry_keys[ROTATION] = "ROTATION";
     
     for (int i = 0; i < 20; ++i) {
-        const std::vector<std::string>& keys = m_joints->getKeys();
+        const StringKeyVector& keys = m_joints->getKeys();
         m_joint_keys[i] = keys[StepGenerator::NB_WALKING_JOINTS[i]];
     }
 
@@ -42,14 +43,14 @@ rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::string>& rd::Locomotion::getParameterKeys() const {
+const StringKeyVector& rd::Locomotion::getParameterKeys() const {
     return m_parameter_keys;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const std::vector<std::string>& keys) {
-    std::vector<int> keys_i(keys.size());
+rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const StringKeyVector& keys) {
+    IntegerKeyVector keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         std::map<std::string, int>::const_iterator found = m_parameters_key_map.find(keys[i]);
         if (found == m_parameters_key_map.end())
@@ -61,7 +62,7 @@ rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const std::vector
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const std::vector<int>& keys) {
+rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const IntegerKeyVector& keys) {
     SensorData<double>::Ptr data = boost::make_shared<SensorData<double> >(keys.size(), m_clock->getTime());
     boost::lock_guard<boost::mutex> lock(m_access);
     for (int i = 0; i < keys.size(); ++i) {
@@ -88,8 +89,8 @@ rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const std::vector
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::Locomotion::setSpeedParameters(const std::vector<std::string>& keys, const std::vector<double>& values) {
-    std::vector<int> keys_i(keys.size());
+void rd::Locomotion::setSpeedParameters(const StringKeyVector& keys, const ValuesVector& values) {
+    IntegerKeyVector keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
         const std::map<std::string, int>::const_iterator found = m_parameters_key_map.find(keys[i]);
         if (found == m_parameters_key_map.end())
@@ -101,14 +102,14 @@ void rd::Locomotion::setSpeedParameters(const std::vector<std::string>& keys, co
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void rd::Locomotion::setSpeedParameters(const std::vector<int>& keys, const std::vector<double>& values) {
+void rd::Locomotion::setSpeedParameters(const IntegerKeyVector& keys, const ValuesVector& values) {
     if (keys.empty() || keys.size() != values.size())
         return;
-    bool count_changed = false;
+    boost::lock_guard<boost::mutex> lock(m_access);
     m_x = 0.0;
     m_y = 0.0;
     m_theta = 0.0;
-    boost::lock_guard<boost::mutex> lock(m_access);
+    m_step_count = 0;
     for (int i = 0; i < keys.size(); ++i) {
         switch (keys[i]) {
             case X_OFFSET:
@@ -121,15 +122,13 @@ void rd::Locomotion::setSpeedParameters(const std::vector<int>& keys, const std:
                 m_theta = values[i];
                 break;
             case STEP_COUNT:
-                count_changed = true;
                 m_step_count = (unsigned int) values[i];
                 break;
         }
     }
-    if (count_changed) {
+    if (m_step_count > 0) {
         m_step_generator->takeSteps(m_x, m_y, m_theta, m_step_count);
     } else {
-        m_step_count = 0;
         m_step_generator->setSpeed(m_x, m_y, m_theta);
     }
 }
@@ -168,7 +167,7 @@ void rd::Locomotion::setGaitParameters(const double stance_config[WP::LEN_STANCE
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::string>& rd::Locomotion::getJointKeys() const {
+const StringKeyVector& rd::Locomotion::getJointKeys() const {
     return m_joint_keys;
 }
 
@@ -182,14 +181,14 @@ void rd::Locomotion::generateStep() {
     m_step_generator->tick_controller();
     const WalkLegsTuple& legs = m_step_generator->tick_legs();
     const WalkArmsTuple& arms = m_step_generator->tick_arms();
-    const std::vector<double>& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
-    const std::vector<double>& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
-    const std::vector<double>& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
-    const std::vector<double>& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
-    const std::vector<double>& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
-    const std::vector<double>& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
-    const std::vector<double>& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
-    const std::vector<double>& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+    const ValuesVector& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
+    const ValuesVector& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+    const ValuesVector& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
+    const ValuesVector& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+    const ValuesVector& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
+    const ValuesVector& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+    const ValuesVector& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
+    const ValuesVector& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
     std::copy(larm_gains.begin(), larm_gains.end(), m_hardness_data->data.begin() + 0);
     std::copy(lleg_gains.begin(), lleg_gains.end(), m_hardness_data->data.begin() + 4);
     std::copy(rleg_gains.begin(), rleg_gains.end(), m_hardness_data->data.begin() + 10);
@@ -223,7 +222,7 @@ bool rd::Locomotion::isDone() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::string>& rd::Locomotion::getOdometryKeys() const {
+const StringKeyVector& rd::Locomotion::getOdometryKeys() const {
     return m_odometry_keys;
 }
 

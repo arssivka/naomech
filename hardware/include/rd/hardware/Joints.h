@@ -15,6 +15,7 @@
 
 #include <rd/hardware/SensorData.h>
 #include <rd/hardware/Clock.h>
+#include "TypeDefinition.h"
 
 
 namespace rd {
@@ -104,7 +105,7 @@ namespace rd {
            \brief Returns the vector of keys needed to control nao's hardware
            \return vector of keys.
          */
-        const std::vector<std::string> &getKeys() const;
+        const StringKeyVector &getKeys() const;
 
         /*!
            \brief Sets the position of motors
@@ -112,8 +113,8 @@ namespace rd {
            \param values values needed to be set to the motors
            \return true if succed, otherwise false
          */
-        bool setPositions(const std::vector<std::string>& keys,
-                          const std::vector<double>& values);
+        bool setPositions(const StringKeyVector& keys,
+                          const ValuesVector& values);
 
         /*!
            \brief Sets the position of motors
@@ -121,8 +122,8 @@ namespace rd {
            \param values values needed to be set to the motors
            \return true if succed, otherwise false.
          */
-        bool setPositions(const std::vector<int>& keys,
-                          const std::vector<double>& values);
+        bool setPositions(const IntegerKeyVector& keys,
+                          const ValuesVector& values);
 
         /*!
            \brief Returns the positions of motors
@@ -130,7 +131,7 @@ namespace rd {
            of this class.
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPositions(const std::vector<int>& keys);
+        SensorData<double>::Ptr getPositions(const IntegerKeyVector& keys);
 
 
         /*!
@@ -138,13 +139,13 @@ namespace rd {
            \param keys keys of motors, which positions needed to be returned. String keys in this case.
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPositions(const std::vector<std::string>& keys);
+        SensorData<double>::Ptr getPositions(const StringKeyVector& keys);
 
         /*!
            \brief Returns the positions of all motors
            \return Sensor data (positions of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getPositions();
+        SensorData<double>::Ptr getPositions();
 
         /*!
            \brief Sets hardness to all motors
@@ -159,8 +160,8 @@ namespace rd {
            \param values value of hardness to be set
            \return true if succed, otherwise false.
          */
-        bool setHardness(const std::vector<std::string> &keys,
-                         const std::vector<double> &values);
+        bool setHardness(const StringKeyVector &keys,
+                         const ValuesVector &values);
 
         /*!
            \brief Sets hardness to all motors
@@ -169,8 +170,8 @@ namespace rd {
            \param values value of hardness to be set
            \return true if succed, otherwise false.
          */
-        bool setHardness(const std::vector<int> &keys,
-                         const std::vector<double> &values);
+        bool setHardness(const IntegerKeyVector &keys,
+                         const ValuesVector &values);
 
         /*!
            \brief Returns hardness of motors
@@ -178,20 +179,20 @@ namespace rd {
            of this class
            \return Sensor data (hardness of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getHardness(const std::vector<int> &keys);
+        SensorData<double>::Ptr getHardness(const IntegerKeyVector &keys);
 
         /*!
            \brief Returns hardness of motors
            \param keys keys of motors, which hardness needed to be returned. String keys in this keys
            \return Sensor data (hardness of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getHardness(const std::vector<std::string> &keys);
+        SensorData<double>::Ptr getHardness(const StringKeyVector &keys);
 
         /*!
            \brief Returns hardness of all motors
            \return Sensor data (hardness of motors), vector of double values in this case.
          */
-        boost::shared_ptr<SensorData<double> > getHardness();
+        SensorData<double>::Ptr getHardness();
         ///@}
 
     private:
@@ -204,7 +205,7 @@ namespace rd {
         boost::mutex m_synch;
         AL::ALValue m_dcm_cmd;
 
-        std::vector<std::string> m_keys;
+        StringKeyVector m_keys;
 
 
         AL::ALValue m_hardness_list;

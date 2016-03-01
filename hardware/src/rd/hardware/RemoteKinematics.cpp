@@ -73,7 +73,7 @@ void RemoteKinematics::PositionMethod::execute(xmlrpc_c::paramList const& paramL
         return;
     }
     // S:
-    shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
         data = this->kinematics->getPosition();
         // S:A
@@ -149,7 +149,7 @@ RemoteKinematics::GetHeadMethod::GetHeadMethod(boost::shared_ptr<Kinematics> kin
 void RemoteKinematics::GetHeadMethod::execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP) {
     paramList.verifyEnd(1);
     bool top_camera = paramList.getBoolean(0);
-    shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     data = this->kinematics->getHeadPosition(top_camera);
 
     xmlrpc_env env;

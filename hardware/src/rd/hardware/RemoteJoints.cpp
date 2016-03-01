@@ -81,7 +81,7 @@ void RemoteJoints::HardnessMethod::execute(paramList const &paramList, value *co
         return;
     }
     // S:
-    shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
         data = m_joints->getHardness();
     } else if (paramList.size() == 1) {
@@ -166,7 +166,7 @@ void RemoteJoints::PositionMethod::execute(paramList const &paramList, value *co
         return;
     }
     // S:
-    shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
         data = this->joints->getPositions();
     } else if (paramList.size() == 1) {

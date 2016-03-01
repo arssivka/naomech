@@ -10,6 +10,7 @@
 #include <rd/hardware/SensorData.h>
 #include <alproxies/almemoryproxy.h>
 #include <alproxies/dcmproxy.h>
+#include "TypeDefinition.h"
 
 namespace rd {
 ///@{
@@ -42,17 +43,17 @@ namespace rd {
            \brief returns the keys of the angles.
            \return vector of strings representing the keys of the accelerometer
          */
-        const std::vector<std::string>& getKeys();
+        const StringKeyVector& getKeys();
 
         /*!
            \brief Returns the angle data
            \return shared pointer to the  SensorData
          */
-        boost::shared_ptr<SensorData<double> > getAngle();
+        SensorData<double>::Ptr getAngle();
 ///@}
 
     private:
-        std::vector<std::string> m_keys;
+        StringKeyVector m_keys;
         boost::shared_ptr<AL::ALMemoryProxy> m_mem;
         boost::shared_ptr<AL::DCMProxy> m_dcm;
         AL::ALValue m_sensors;

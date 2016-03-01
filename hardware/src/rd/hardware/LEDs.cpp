@@ -266,7 +266,7 @@ bool LEDs::setBrightness(const vector<int> &keys, const vector<double> &values) 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<int> &keys) {
+SensorData<double>::Ptr LEDs::getBrightness(const vector<int> &keys) {
     ALValue k;
     k.arraySetSize(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
@@ -277,14 +277,14 @@ shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<int> &keys) {
         }
     }
     ALValue data = m_mem->getListData(k);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
     for (int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<string> &keys) {
+SensorData<double>::Ptr LEDs::getBrightness(const vector<string> &keys) {
     ALValue k;
     k.arraySetSize(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
@@ -295,15 +295,15 @@ shared_ptr<SensorData<double> > LEDs::getBrightness(const vector<string> &keys) 
         }
     }
     ALValue data = m_mem->getListData(k);
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(keys.size(), m_dcm->getTime(0));
     for (int i = 0; i < keys.size(); ++i) res->data[i] = data[i];
     return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<SensorData<double> > LEDs::getBrightness() {
-    shared_ptr<SensorData<double> > res = make_shared<SensorData<double> >(LEDS_COUNT, m_dcm->getTime(0));
+SensorData<double>::Ptr LEDs::getBrightness() {
+    SensorData<double>::Ptr res = make_shared<SensorData<double> >(LEDS_COUNT, m_dcm->getTime(0));
     ALValue data = m_mem->getListData(m_leds_list);
     for (int i = 0; i < LEDS_COUNT; ++i) res->data[i] = data[i];
     return res;

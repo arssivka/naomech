@@ -8,7 +8,7 @@
 
 class ForwardKinematic {
 public:
-    static void calculateArmChain(bool left, std::vector<double>& jointData,
+    static void calculateArmChain(bool left, ValuesVector& jointData,
                                   const RobotDimensions &robotDimensions,
                                   const MassCalibration &massCalibration,
                                   Pose3D limbs[MassCalibration::numOfLimbs]) {
@@ -29,7 +29,7 @@ public:
                 .rotateZ(jointData[arm0 + 3] * -sign);
     }
 
-    static void calculateLegChain(bool left, std::vector<double>& jointData,
+    static void calculateLegChain(bool left, ValuesVector& jointData,
                                   const RobotDimensions &robotDimensions,
                                   const MassCalibration &massCalibration,
                                   Pose3D limbs[MassCalibration::numOfLimbs]) {
@@ -56,7 +56,7 @@ public:
                 .rotateX(jointData[leg0 + 5] * sign);
     }
 
-    static void calculateHeadChain(std::vector<double>& jointData,
+    static void calculateHeadChain(ValuesVector& jointData,
                                    const RobotDimensions &robotDimensions,
                                    const MassCalibration &massCalibration,
                                    Pose3D limbs[MassCalibration::numOfLimbs]) {

@@ -71,7 +71,7 @@ void RemoteLEDs::BrightnessMethod::execute(xmlrpc_c::paramList const &paramList,
         return;
     }
     // S:
-    shared_ptr<SensorData<double> > data;
+    SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
         data = m_leds->getBrightness();
     // S:A
