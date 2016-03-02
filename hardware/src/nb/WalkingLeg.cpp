@@ -215,8 +215,8 @@ const vector<double> WalkingLeg::finalizeJoints(const ufvector3& footGoal) {
     const boost::tuple <const float, const float > sensorCompensation =
             m_sensor_angles->getAngles(startStopSensorScale);
 
-    const float bodyAngleX = m_sensor_angle_x = sensorCompensation.get<SensorAngles::X>();
-    const float bodyAngleY = m_sensor_angle_y = sensorCompensation.get<SensorAngles::Y>();
+    const double bodyAngleX = m_sensor_angle_x = sensorCompensation.get<SensorAngles::X>();
+    const double bodyAngleY = m_sensor_angle_y = sensorCompensation.get<SensorAngles::Y>();
 
     //Hack
     const boost::tuple<const double, const double> ankleAngleCompensation = getAnkleAngles();

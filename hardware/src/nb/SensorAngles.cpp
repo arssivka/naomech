@@ -38,8 +38,9 @@ void SensorAngles::tick_sensors(){
 void SensorAngles::spring_sensor_feedback(){
     //const Inertial inertial = sensors->getInertial();
     //std::cout << "AngleX/Y  = ("<<inertial.angleX<<","<<inertial.angleY<<")"<<std::endl;
-    springX.tick_sensor(m_robot->getAngle()->getAngle()->data[rd::Angle::X]);
-    springY.tick_sensor(m_robot->getAngle()->getAngle()->data[rd::Angle::Y] - gait->stance[WP::BODY_ROT_Y]);
+    const rd::SensorData<double>::Ptr& angle = m_robot->getAngle()->getAngle();
+    springX.tick_sensor(angle->data[rd::Angle::X]);
+    springY.tick_sensor(angle->data[rd::Angle::Y] - gait->stance[WP::BODY_ROT_Y]);
 
     sensorAngleX = springX.getSensorAngle();
     sensorAngleY = springY.getSensorAngle();
@@ -55,11 +56,9 @@ void SensorAngles::basic_sensor_feedback(){
     //calculate the new angles, take into account gait angles already
     //Inertial inertial = sensors->getInertial();
 
-    const double desiredSensorAngleX =
-        m_robot->getAngle()->getAngle()->data[0]*gait->sensor[WP::GAMMA_X];
-    const double desiredSensorAngleY =
-        (m_robot->getAngle()->getAngle()->data[1]-gait->stance[WP::BODY_ROT_Y])
-        *gait->sensor[WP::GAMMA_X];
+    const rd::SensorData<double>::Ptr& angle = m_robot->getAngle()->getAngle();
+    const double desiredSensorAngleX = angle->data[rd::Angle::X] * gait->sensor[WP::GAMMA_X];
+    const double desiredSensorAngleY = (angle->data[rd::Angle::Y] - gait->stance[WP::BODY_ROT_Y]) * gait->sensor[WP::GAMMA_X];
 
     //Clip the velocities, and max. limits
     sensorAngleX =
