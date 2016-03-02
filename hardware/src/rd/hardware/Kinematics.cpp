@@ -402,20 +402,20 @@ SensorData<double>::Ptr Kinematics::getHeadPosition(bool top_camera) {
         SensorData<double>::Ptr data = m_joints->getPositions(m_camera_keys);
         cameramatrix.translate(0.0, 0.0, m_robot_dimensions.zLegJoint1ToHeadPan);
         cameramatrix.rotateZ(data->data[0]);
-        cameramatrix.rotateY(-data->data[1]);
+        cameramatrix.rotateY(data->data[1]);
         SensorData<double>::Ptr result = make_shared<SensorData<double> >(6, m_clock->getTime(0));
         if(top_camera) {
             cameramatrix.translate(m_robot_dimensions.xHeadTiltToUpperCamera, 0.f, m_robot_dimensions.zHeadTiltToUpperCamera);
-            cameramatrix.rotateY(m_robot_dimensions.headTiltToUpperCameraTilt + m_camera_calibration.upperCameraTiltCorrection);
-            cameramatrix.rotateX(m_camera_calibration.upperCameraRollCorrection);
-            cameramatrix.rotateZ(m_camera_calibration.upperCameraPanCorrection);
+            cameramatrix.rotateY(m_robot_dimensions.headTiltToUpperCameraTilt);// + m_camera_calibration.upperCameraTiltCorrection);
+           // cameramatrix.rotateX(m_camera_calibration.upperCameraRollCorrection);
+            //cameramatrix.rotateZ(m_camera_calibration.upperCameraPanCorrection);
 
         }
         else {
             cameramatrix.translate(m_robot_dimensions.xHeadTiltToCamera, 0.f, m_robot_dimensions.zHeadTiltToCamera);
-            cameramatrix.rotateY(m_robot_dimensions.headTiltToCameraTilt + m_camera_calibration.lowerCameraTiltCorrection);
-            cameramatrix.rotateX(m_camera_calibration.lowerCameraRollCorrection);
-            cameramatrix.rotateZ(m_camera_calibration.lowerCameraPanCorrection);
+            cameramatrix.rotateY(m_robot_dimensions.headTiltToCameraTilt);// + m_camera_calibration.lowerCameraTiltCorrection);
+            //cameramatrix.rotateX(m_camera_calibration.lowerCameraRollCorrection);
+           // cameramatrix.rotateZ(m_camera_calibration.lowerCameraPanCorrection);
         }
         result->data[0] = cameramatrix.translation.x;
         result->data[1] = cameramatrix.translation.y;
