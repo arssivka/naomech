@@ -57,9 +57,8 @@ void SensorAngles::basic_sensor_feedback(){
     //Inertial inertial = sensors->getInertial();
 
     const rd::SensorData<double>::Ptr& angle = m_robot->getAngle()->getAngle();
-    const double desiredSensorAngleX = angle->data[0] * gait->sensor[WP::GAMMA_X];
-    const double desiredSensorAngleY = (angle->data[1] - gait->stance[WP::BODY_ROT_Y])
-        *gait->sensor[WP::GAMMA_X];
+    const double desiredSensorAngleX = angle->data[rd::Angle::X] * gait->sensor[WP::GAMMA_X];
+    const double desiredSensorAngleY = (angle->data[rd::Angle::Y] - gait->stance[WP::BODY_ROT_Y]) * gait->sensor[WP::GAMMA_X];
 
     //Clip the velocities, and max. limits
     sensorAngleX =
