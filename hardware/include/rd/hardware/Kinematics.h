@@ -45,6 +45,8 @@ namespace rd {
 
         void lookAt(double x, double y, double z, bool top_camera);
 
+        ValuesVectorPtr jointsLookAt(double x, double y, double z, bool top_camera);
+
         void setPosition(const StringKeyVector& keys, const ValuesVector& values);
 
         void setPosition(const IntegerKeyVector& keys, const ValuesVector& values);

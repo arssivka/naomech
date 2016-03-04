@@ -80,12 +80,23 @@ namespace rd {
 
         bool isAutoApplyEnabled() const;
 
+        void setHeadPositions(double pitch, double yaw);
+
+        void setHeadHardness(double pitch, double yaw);
+
+        SensorData<double>::Ptr getHeadPositions();
+
+        SensorData<double>::Ptr getHeadHardness();
+
         virtual ~Locomotion();
 
     private:
         void autoUpdater();
 
     private:
+        //ValuesVector m_head_positions;
+        //ValuesVector m_head_hardness;
+
         double m_x;
         double m_y;
         double m_theta;
@@ -104,6 +115,7 @@ namespace rd {
         boost::shared_ptr<Clock> m_clock;
         
         StringKeyVector m_joint_keys;
+        StringKeyVector m_head_joint_keys;
         StringKeyVector m_parameter_keys;
         StringKeyVector m_odometry_keys;
 
@@ -116,6 +128,8 @@ namespace rd {
 
         boost::atomic<bool> m_destroy;
         boost::atomic<useconds_t> m_auto_update_sleep_time;
+
+
     };
 }
 

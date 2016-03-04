@@ -34,7 +34,17 @@ namespace rd {
             virtual void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP);
 
         private:
-            boost::shared_ptr<Kinematics> kinematics;
+            boost::shared_ptr<Kinematics> m_kinematics;
+        };
+
+        class JointsLookAtMethodLookAtMethod : public RemoteMethod {
+        public:
+            JointsLookAtMethodLookAtMethod(boost::shared_ptr<Kinematics> kinematics);
+
+            virtual void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP);
+
+        private:
+            boost::shared_ptr<Kinematics> m_kinematics;
         };
 
         class GetHeadMethod : public RemoteMethod {
@@ -44,7 +54,7 @@ namespace rd {
             virtual void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP);
 
         private:
-            boost::shared_ptr<Kinematics> kinematics;
+            boost::shared_ptr<Kinematics> m_kinematics;
         };
 
         class PositionMethod : public RemoteMethod {
@@ -54,7 +64,7 @@ namespace rd {
             virtual void execute(xmlrpc_c::paramList const& paramList, xmlrpc_c::value* const resultP);
 
         private:
-            boost::shared_ptr<Kinematics> kinematics;
+            boost::shared_ptr<Kinematics> m_kinematics;
         };
     };
 }

@@ -17,6 +17,7 @@ RemoteKinematics::RemoteKinematics(shared_ptr<Kinematics> kinematics)
     this->addMethod(shared_ptr<RemoteMethod>(new PositionMethod(kinematics)));
     this->addMethod(shared_ptr<RemoteMethod>(new LookAtMethod(kinematics)));
     this->addMethod(shared_ptr<RemoteMethod>(new GetHeadMethod(kinematics)));
+    this->addMethod(shared_ptr<RemoteMethod>(new JointsLookAtMethodLookAtMethod(kinematics)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +44,7 @@ void RemoteKinematics::KeysMethod::execute(xmlrpc_c::paramList const& paramList,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteKinematics::PositionMethod::PositionMethod(boost::shared_ptr<Kinematics> kinematics)
-        : RemoteMethod("positions", "S:,S:A,n:AA", "Position control method"), kinematics(kinematics) { }
+        : RemoteMethod("positions", "S:,S:A,n:AA", "Position control method"), m_kinematics(kinematics) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,11 +64,11 @@ void RemoteKinematics::PositionMethod::execute(xmlrpc_c::paramList const& paramL
         if (integer_keys) {
             vector<int> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_int(keys[i]);
-            this->kinematics->setPosition(joint_names, data);
+            this->m_kinematics->setPosition(joint_names, data);
         } else {
             vector<string> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = value_string(keys[i]);
-            this->kinematics->setPosition(joint_names, data);
+            this->m_kinematics->setPosition(joint_names, data);
         }
         *resultP = value_nil();
         return;
@@ -75,7 +76,7 @@ void RemoteKinematics::PositionMethod::execute(xmlrpc_c::paramList const& paramL
     // S:
     SensorData<double>::Ptr data;
     if (paramList.size() == 0) {
-        data = this->kinematics->getPosition();
+        data = this->m_kinematics->getPosition();
         // S:A
     } else if (paramList.size() == 1) {
         // Empty check
@@ -85,11 +86,11 @@ void RemoteKinematics::PositionMethod::execute(xmlrpc_c::paramList const& paramL
         if (integer_keys) {
             vector<int> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = (int) value_int(keys[i]);
-            data = this->kinematics->getPosition(joint_names);
+            data = this->m_kinematics->getPosition(joint_names);
         } else {
             vector<string> joint_names(keys.size());
             for (int i = 0; i < keys.size(); ++i) joint_names[i] = (string) value_string(keys[i]);
-            data = this->kinematics->getPosition(joint_names);
+            data = this->m_kinematics->getPosition(joint_names);
         }
     } else throw girerr::error("Unknown signature for hardness function");
     // TODO Check for memory leaks
@@ -125,7 +126,7 @@ void RemoteKinematics::PositionMethod::execute(xmlrpc_c::paramList const& paramL
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteKinematics::LookAtMethod::LookAtMethod(boost::shared_ptr<Kinematics> kinematics)
-        : RemoteMethod("lookAt", "n:dddb", "Looks at point in the world"), kinematics(kinematics) { }
+        : RemoteMethod("lookAt", "n:dddb", "Looks at point in the world"), m_kinematics(kinematics) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,14 +136,14 @@ void RemoteKinematics::LookAtMethod::execute(xmlrpc_c::paramList const& paramLis
     double y = paramList.getDouble(1);
     double z = paramList.getDouble(2);
     bool top_camera = paramList.getBoolean(3);
-    this->kinematics->lookAt(x, y, z, top_camera);
+    this->m_kinematics->lookAt(x, y, z, top_camera);
     *resultP = value_nil();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 RemoteKinematics::GetHeadMethod::GetHeadMethod(boost::shared_ptr<Kinematics> kinematics)
-        : RemoteMethod("getHead", "S:b", "Looks at point in the world"), kinematics(kinematics) { }
+        : RemoteMethod("getHead", "S:b", "Looks at point in the world"), m_kinematics(kinematics) { }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +151,7 @@ void RemoteKinematics::GetHeadMethod::execute(xmlrpc_c::paramList const& paramLi
     paramList.verifyEnd(1);
     bool top_camera = paramList.getBoolean(0);
     SensorData<double>::Ptr data;
-    data = this->kinematics->getHeadPosition(top_camera);
+    data = this->m_kinematics->getHeadPosition(top_camera);
 
     xmlrpc_env env;
     xmlrpc_env_init(&env);
@@ -177,5 +178,38 @@ void RemoteKinematics::GetHeadMethod::execute(xmlrpc_c::paramList const& paramLi
     xmlrpc_DECREF(elem);
     xmlrpc_DECREF(values);
     xmlrpc_DECREF(result);
+    xmlrpc_env_clean(&env);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RemoteKinematics::JointsLookAtMethodLookAtMethod::JointsLookAtMethodLookAtMethod(
+        boost::shared_ptr<Kinematics> kinematics)
+        : RemoteMethod("jointsLookAt", "A:dddb", "Looks at point in the world"), m_kinematics(kinematics) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void RemoteKinematics::JointsLookAtMethodLookAtMethod::execute(xmlrpc_c::paramList const& paramList,
+                                                               xmlrpc_c::value* const resultP) {
+    paramList.verifyEnd(4);
+    double x = paramList.getDouble(0);
+    double y = paramList.getDouble(1);
+    double z = paramList.getDouble(2);
+    bool top_camera = paramList.getBoolean(3);
+    ValuesVectorPtr data = this->m_kinematics->jointsLookAt(x, y, z, top_camera);
+
+    xmlrpc_env env;
+    xmlrpc_env_init(&env);
+    xmlrpc_value* elem;
+    xmlrpc_value* values;
+    values = xmlrpc_array_new(&env);
+    for (int i = 0; i < data->size(); ++i) {
+        elem = xmlrpc_double_new(&env, data->at(i));
+        xmlrpc_array_append_item(&env, values, elem);
+        xmlrpc_DECREF(elem);
+    }
+    resultP->instantiate(values);
+    // Clean this shit!
+    xmlrpc_DECREF(values);
     xmlrpc_env_clean(&env);
 }

@@ -9,8 +9,8 @@
 
 rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
         : m_meta_gait(new MetaGait), m_step_generator(new StepGenerator(robot, m_meta_gait.get())),
-          m_joints(robot->getJoints()), m_clock(robot->getClock()), m_joint_keys(20), m_parameter_keys(PARAMETERS_COUNT),
-          m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
+          m_joints(robot->getJoints()), m_clock(robot->getClock()), m_joint_keys(20), m_head_joint_keys(2),
+          m_parameter_keys(PARAMETERS_COUNT), m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
           m_auto_apply_worker(boost::bind(&rd::Locomotion::autoUpdater, this)), m_auto_update_sleep_time(0) {
     Gait default_gait(DEFAULT_GAIT);
     m_meta_gait->setStartGait(default_gait);
@@ -36,6 +36,9 @@ rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
         const StringKeyVector& keys = m_joints->getKeys();
         m_joint_keys[i] = keys[StepGenerator::NB_WALKING_JOINTS[i]];
     }
+
+    m_joint_keys.push_back("HEAD_PITCH");
+    m_joint_keys.push_back("HEAD_YAW");
 
     int now = m_clock->getTime();
     m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
@@ -177,6 +180,10 @@ const StringKeyVector& rd::Locomotion::getJointKeys() const {
 void rd::Locomotion::generateStep() {
     int now = m_clock->getTime();
     boost::lock_guard<boost::mutex> lock(m_access);
+    double pitch_p = m_positions_data->data[20];
+    double yaw_p = m_positions_data->data[21];
+    double pitch_h = m_hardness_data->data[20];
+    double yaw_h = m_hardness_data->data[21];
     m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
     m_hardness_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
     m_step_generator->tick_controller();
@@ -194,10 +201,14 @@ void rd::Locomotion::generateStep() {
     std::copy(lleg_gains.begin(), lleg_gains.end(), m_hardness_data->data.begin() + 4);
     std::copy(rleg_gains.begin(), rleg_gains.end(), m_hardness_data->data.begin() + 10);
     std::copy(rarm_gains.begin(), rarm_gains.end(), m_hardness_data->data.begin() + 16);
+    m_hardness_data->data[20] = pitch_h;
+    m_hardness_data->data[21] = yaw_h;
     std::copy(larm_joints.begin(), larm_joints.end(), m_positions_data->data.begin() + 0);
     std::copy(lleg_joints.begin(), lleg_joints.end(), m_positions_data->data.begin() + 4);
     std::copy(rleg_joints.begin(), rleg_joints.end(), m_positions_data->data.begin() + 10);
     std::copy(rarm_joints.begin(), rarm_joints.end(), m_positions_data->data.begin() + 16);
+    m_positions_data->data[20] = pitch_p;
+    m_positions_data->data[21] = yaw_p;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,9 +257,11 @@ rd::SensorData<double>::Ptr rd::Locomotion::getStanceJointData() {
 
 void rd::Locomotion::setAutoApply(bool enable) {
     if (enable) {
+        boost::lock_guard<boost::mutex> lock(m_access);
         m_auto_apply_flag.store(true);
         m_auto_apply_cv.notify_one();
     } else {
+        boost::lock_guard<boost::mutex> lock(m_access);
         m_auto_apply_flag.store(false);
     }
 }
@@ -262,6 +275,7 @@ bool rd::Locomotion::isAutoApplyEnabled() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 rd::Locomotion::~Locomotion() {
+    boost::lock_guard<boost::mutex> lock(m_access);
     m_destroy.store(true);
     m_auto_apply_flag.store(true);
     m_auto_apply_cv.notify_one();
@@ -290,4 +304,34 @@ void rd::Locomotion::setAutoApplyUSleepTime(useconds_t us) {
 
 useconds_t rd::Locomotion::getAutoApplyUSleepTime() const {
     return m_auto_update_sleep_time.load();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::Locomotion::setHeadPositions(double pitch, double yaw) {
+    boost::lock_guard<boost::mutex> lock(m_access);
+    m_positions_data->data[20] = pitch;
+    m_positions_data->data[21] = yaw;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::Locomotion::setHeadHardness(double pitch, double yaw) {
+    boost::lock_guard<boost::mutex> lock(m_access);
+    m_hardness_data->data[20] = pitch;
+    m_hardness_data->data[21] = yaw;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::SensorData<double>::Ptr rd::Locomotion::getHeadPositions() {
+    boost::lock_guard<boost::mutex> lock(m_access);
+    return m_positions_data;//boost::make_shared<SensorData<double> >(m_head_positions, m_clock->getTime());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::SensorData<double>::Ptr rd::Locomotion::getHeadHardness() {
+    boost::lock_guard<boost::mutex> lock(m_access);
+    return m_hardness_data;//boost::make_shared<SensorData<double> >(m_head_hardness, m_clock->getTime());
 }

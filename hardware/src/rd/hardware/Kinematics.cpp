@@ -139,27 +139,21 @@ void Kinematics::setPosition(const vector<int>& keys, const vector<double>& valu
     int request_size = 0;
     if (required_limbs[LEFT_ARM]) {
         if (required_limbs[LEFT_ARM] != LEFT_ARM_MASK)
-            ForwardKinematic::calculateArmChain(true, data->data, m_robot_dimensions, m_mass_calibration,
-                                                limbs);
+            ForwardKinematic::calculateArmChain(true, data->data, m_robot_dimensions, m_mass_calibration, limbs);
         request_size += Joints::ARM_JOINTS_COUNT;
     }
     if (required_limbs[RIGHT_ARM]) {
         if (required_limbs[RIGHT_ARM] != RIGHT_ARM_MASK)
-            ForwardKinematic::calculateArmChain(false, data->data, m_robot_dimensions, m_mass_calibration,
-                                                limbs);
+            ForwardKinematic::calculateArmChain(false, data->data, m_robot_dimensions, m_mass_calibration, limbs);
         request_size += Joints::ARM_JOINTS_COUNT;
     }
     if (required_limbs[LEFT_LEG] || required_limbs[RIGHT_LEG]) {
         if (required_limbs[LEFT_LEG] != LEFT_LEG_MASK)
-            ForwardKinematic::calculateLegChain(true, data->data, m_robot_dimensions, m_mass_calibration,
-                                                limbs);
+            ForwardKinematic::calculateLegChain(true, data->data, m_robot_dimensions, m_mass_calibration, limbs);
         if (required_limbs[RIGHT_LEG] != RIGHT_LEG_MASK)
-            ForwardKinematic::calculateLegChain(false, data->data, m_robot_dimensions, m_mass_calibration,
-                                                limbs);
+            ForwardKinematic::calculateLegChain(false, data->data, m_robot_dimensions, m_mass_calibration, limbs);
         request_size += 2 * Joints::LEG_JOINTS_COUNT;
     }
-
-    cout << "Forward Ok" << endl;
 
     // Change variables
     for (int i = 0; i < keys.size(); ++i) {
@@ -223,57 +217,44 @@ void Kinematics::setPosition(const vector<int>& keys, const vector<double>& valu
         }
     }
 
-    cout << "Positions Ok" << endl;
-
     // Prepare request
     IntegerKeyVector request_keys(request_size);
     ValuesVector request_values(request_size);
-    cout << "Request size" << request_size << endl;
 
     int index = 0;
     if (required_limbs[LEFT_ARM] || required_limbs[RIGHT_ARM])
         InverseKinematic::calcArmJoints(limbs[MassCalibration::foreArmLeft], limbs[MassCalibration::foreArmRight],
                                         data->data, m_robot_dimensions, m_joint_calibration);
-    cout << "Inverce Arms ok" << endl;
     if (required_limbs[LEFT_ARM]) {
         for (int i = 0; i < Joints::ARM_JOINTS_COUNT; ++i) {
             int servo = first_servo[LEFT_ARM] + i;
             request_keys[index + i] = servo;
             request_values[index + i] = data->data[servo];
-            cout << servo << endl;
         }
         index += Joints::ARM_JOINTS_COUNT;
     }
-    cout << "Insert left arm ok" << endl;
     if (required_limbs[RIGHT_ARM]) {
         for (int i = 0; i < Joints::ARM_JOINTS_COUNT; ++i) {
             int servo = first_servo[RIGHT_ARM] + i;
             request_keys[index + i] = servo;
             request_values[index + i] = data->data[servo];
-            cout << servo << endl;
         }
         index += Joints::ARM_JOINTS_COUNT;
     }
-    cout << "Insert right arm ok" << endl;
     if (required_limbs[LEFT_LEG] || required_limbs[RIGHT_LEG]) {
         InverseKinematic::calcLegJoints(limbs[MassCalibration::ankleLeft], data->data, true, m_robot_dimensions);
         InverseKinematic::calcLegJoints(limbs[MassCalibration::ankleRight], data->data, false, m_robot_dimensions);
-        cout << "Inverce legs ok" << endl;
         for (int i = 0; i < Joints::LEG_JOINTS_COUNT; ++i) {
             int servo = first_servo[LEFT_LEG] + i;
             request_keys[index + i] = servo;
             request_values[index + i] = data->data[servo];
-            cout << servo << endl;
         }
-        cout << "Insert left leg ok" << endl;
         index += Joints::ARM_JOINTS_COUNT;
         for (int i = 0; i < Joints::LEG_JOINTS_COUNT; ++i) {
             int servo = first_servo[RIGHT_LEG] + i;
             request_keys[index + i] = servo;
             request_values[index + i] = data->data[servo];
-            cout << servo << endl;
         }
-        cout << "Insert right leg ok" << endl;
     }
     m_joints->setPositions(request_keys, request_values);
 }
@@ -389,7 +370,7 @@ SensorData<double>::Ptr Kinematics::getPosition() {
     return this->getPosition(m_keys);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SensorData<double>::Ptr Kinematics::getHeadPosition(bool top_camera) {
         Pose3D cameramatrix;
@@ -425,4 +406,13 @@ SensorData<double>::Ptr Kinematics::getHeadPosition(bool top_camera) {
         result->data[5] = cameramatrix.rotation.getZAngle();
         return result;
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ValuesVectorPtr Kinematics::jointsLookAt(double x, double y, double z, bool top_camera) {
+    ValuesVectorPtr data = boost::make_shared<ValuesVector>(2);
+    Vector3<> position(x, y, z);
+    InverseKinematic::calcHeadJoints(position, pi / 2, m_robot_dimensions, top_camera, *data, m_camera_calibration);
+    return data;
 }

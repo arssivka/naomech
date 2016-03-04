@@ -23,6 +23,8 @@ rd::RemoteLocomotion::RemoteLocomotion(boost::shared_ptr<Locomotion> locomotion)
     this->addMethod(boost::shared_ptr<RemoteMethod>(new IsDoneMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateSleepMethod(locomotion)));
+    this->addMethod(boost::shared_ptr<RemoteMethod>(new HeadPositionsMethos(locomotion)));
+    this->addMethod(boost::shared_ptr<RemoteMethod>(new HeadHardnessMethos(locomotion)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -419,5 +421,104 @@ void rd::RemoteLocomotion::AutoUpdateMethod::execute(xmlrpc_c::paramList const& 
     } else {
         paramList.verifyEnd(0);
         *resultP = xmlrpc_c::value_boolean(m_locomotion->isAutoApplyEnabled());
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::RemoteLocomotion::HeadPositionsMethos::HeadPositionsMethos(boost::shared_ptr<Locomotion> locomotion)
+        : RemoteMethod("head.positions", "S:,n:dd", "Accessor to head positions"),
+          m_locomotion(locomotion) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::RemoteLocomotion::HeadPositionsMethos::execute(xmlrpc_c::paramList const& paramList,
+                                                        xmlrpc_c::value* const resultP) {
+    if (paramList.size() == 2) {
+        double pitch = paramList.getDouble(0);
+        double yaw = paramList.getDouble(1);
+        m_locomotion->setHeadPositions(pitch, yaw);
+        *resultP = xmlrpc_c::value_nil();
+    } else {
+        paramList.verifyEnd(0);
+        const SensorData<double>::Ptr& data = m_locomotion->getHeadPositions();
+        // TODO Check for memory leaks
+        // Some optimisation by using C library of xmlrpc-c
+        xmlrpc_env env;
+        xmlrpc_env_init(&env);
+
+        xmlrpc_value* elem;
+        xmlrpc_value* values;
+        xmlrpc_value* result;
+
+        // Init result array
+        values = xmlrpc_array_new(&env);
+        for (int i = 0; i < data->data.size(); ++i) {
+            elem = xmlrpc_double_new(&env, data->data[i]);
+            xmlrpc_array_append_item(&env, values, elem);
+            xmlrpc_DECREF(elem);
+        }
+        // XMLRPC-C timestamp
+        elem = xmlrpc_double_new(&env, data->timestamp);
+        // Create result struct
+        result = xmlrpc_struct_new(&env);
+        xmlrpc_struct_set_value(&env, result, "data", values);
+        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+        // Apply result
+        resultP->instantiate(result);
+        // Clean this shit!
+        xmlrpc_DECREF(elem);
+        xmlrpc_DECREF(values);
+        xmlrpc_DECREF(result);
+        xmlrpc_env_clean(&env);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::RemoteLocomotion::HeadHardnessMethos::HeadHardnessMethos(boost::shared_ptr<Locomotion> locomotion)
+        : RemoteMethod("head.hardness", "S:,n:dd", "Accessor to head hardness"), m_locomotion(locomotion) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void rd::RemoteLocomotion::HeadHardnessMethos::execute(xmlrpc_c::paramList const& paramList,
+                                                       xmlrpc_c::value* const resultP) {
+    if (paramList.size() == 2) {
+        double pitch = paramList.getDouble(0);
+        double yaw = paramList.getDouble(1);
+        m_locomotion->setHeadHardness(pitch, yaw);
+        *resultP = xmlrpc_c::value_nil();
+    } else {
+        paramList.verifyEnd(0);
+        const SensorData<double>::Ptr& data = m_locomotion->getHeadHardness();
+        // TODO Check for memory leaks
+        // Some optimisation by using C library of xmlrpc-c
+        xmlrpc_env env;
+        xmlrpc_env_init(&env);
+
+        xmlrpc_value* elem;
+        xmlrpc_value* values;
+        xmlrpc_value* result;
+
+        // Init result array
+        values = xmlrpc_array_new(&env);
+        for (int i = 0; i < data->data.size(); ++i) {
+            elem = xmlrpc_double_new(&env, data->data[i]);
+            xmlrpc_array_append_item(&env, values, elem);
+            xmlrpc_DECREF(elem);
+        }
+        // XMLRPC-C timestamp
+        elem = xmlrpc_double_new(&env, data->timestamp);
+        // Create result struct
+        result = xmlrpc_struct_new(&env);
+        xmlrpc_struct_set_value(&env, result, "data", values);
+        xmlrpc_struct_set_value(&env, result, "timestamp", elem);
+        // Apply result
+        resultP->instantiate(result);
+        // Clean this shit!
+        xmlrpc_DECREF(elem);
+        xmlrpc_DECREF(values);
+        xmlrpc_DECREF(result);
+        xmlrpc_env_clean(&env);
     }
 }
