@@ -599,7 +599,8 @@ void StepGenerator::resetSteps(const bool startLeft) {
     //When we start out again, we need to let odometry know to store
     //the distance covered so far. This needs to happen before
     //we reset any coordinate frames
-    resetOdometry(m_gait->stance[WP::BODY_OFF_X], -supportSign * HIP_OFFSET_Y);
+    //resetOdometry(m_gait->stance[WP::BODY_OFF_X], -supportSign * HIP_OFFSET_Y);
+    resetOdometry(0.0, 0.0);
 
     //Support step is END Type, but the first swing step, generated
     //in generateStep, is REGULAR type.

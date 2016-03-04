@@ -140,7 +140,7 @@ void rd::RemoteLocomotion::OdometryMethod::execute(xmlrpc_c::paramList const& pa
         const SensorData<double>::Ptr& data = m_locomotion->getOdometry();
 
         if (paramList.size() == 1) {
-            bool reset = paramList.getBoolean(1);
+            bool reset = paramList.getBoolean(0);
             if (reset) {
                 m_locomotion->resetOdometry();
             }
