@@ -144,11 +144,12 @@ rd::SensorData<double>::Ptr rd::Locomotion::getOdometry() {
     return boost::make_shared<SensorData<double> >(m_step_generator->getOdometryUpdate(), m_clock->getTime());
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void rd::Locomotion::resetOdometry() {
     boost::lock_guard<boost::mutex> lock(m_access);
-    m_step_generator->resetSteps(true);
+    m_step_generator->resetOdometry(0.0, 0.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

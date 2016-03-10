@@ -112,6 +112,8 @@ public:
 
     void resetSteps(const bool startLeft);
 
+    void resetOdometry(const double initX, const double initY);
+
 public:
     StepGenerator(boost::shared_ptr<rd::Robot> robot, const MetaGait* _gait);
 
@@ -171,8 +173,6 @@ private: // Helper methods
     void clearFutureSteps();
 
     void resetQueues();
-
-    void resetOdometry(const double initX, const double initY);
 
     void updateOdometry(const std::vector<double>& deltaOdo);
 
