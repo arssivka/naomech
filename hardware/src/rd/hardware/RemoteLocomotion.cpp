@@ -212,7 +212,7 @@ void rd::RemoteLocomotion::GaitParametersMethod::execute(xmlrpc_c::paramList con
                                                          xmlrpc_c::value* const resultP) {
     const int config_len[] = {
         WP::LEN_STANCE_CONFIG, WP::LEN_STEP_CONFIG, WP::LEN_ZMP_CONFIG,
-                WP::LEN_HACK_CONFIG, WP::LEN_STEP_CONFIG, WP::LEN_STIFF_CONFIG,
+                WP::LEN_HACK_CONFIG, WP::LEN_SENSOR_CONFIG, WP::LEN_STIFF_CONFIG,
                 WP::LEN_ODO_CONFIG, WP::LEN_ARM_CONFIG };
     paramList.verifyEnd(8);
     xmlrpc_c::carray config_vector[8];

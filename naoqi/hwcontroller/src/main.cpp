@@ -5,7 +5,7 @@
 #include <alcommon/albroker.h>
 #include <alcommon/albrokermanager.h>
 #include <alcommon/altoolsmain.h>
-#include "rd/naoqi/hwcontroller/HWController.h"
+#include <rd/naoqi/hwcontroller/HWController.h>
 
 using namespace rd;
 using namespace boost;
