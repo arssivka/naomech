@@ -141,7 +141,10 @@ void rd::Locomotion::setSpeedParameters(const IntegerKeyVector& keys, const Valu
 
 rd::SensorData<double>::Ptr rd::Locomotion::getOdometry() {
     boost::lock_guard<boost::mutex> lock(m_access);
-    return boost::make_shared<SensorData<double> >(m_step_generator->getOdometryUpdate(), m_clock->getTime());
+
+    boost::detail::sp_if_not_array<rd::SensorData<double> >::type data = boost::make_shared<SensorData<double> >(m_step_generator->getOdometryUpdate(), m_clock->getTime());
+    data->data[1] *= -1.0; // hack
+    return data;
 }
 
 
@@ -187,6 +190,7 @@ void rd::Locomotion::generateStep() {
     double yaw_h = m_hardness_data->data[21];
     m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
     m_hardness_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
+    m_meta_gait->tick_gait();
     m_step_generator->tick_controller();
     const WalkLegsTuple& legs = m_step_generator->tick_legs();
     const WalkArmsTuple& arms = m_step_generator->tick_arms();
