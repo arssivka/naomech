@@ -48,8 +48,6 @@ class Walker:
             else:
                 self.odo = self.robot.locomotion.odometry()['data']
             a = angle - self.odo[2]
-            print 'state', state, 'a', math.degrees(a)
-            print 'odo', self.odo
             # a = min(a, 2 * math.pi - a, key=abs)
             dist_left = (target[0] - self.odo[0],
                          target[1] - self.odo[1])
@@ -60,7 +58,6 @@ class Walker:
                 angle_to_p = tuple(self.odo[2] - math.pi / 2.0 * s for s in sign)
                 p = tuple((q_origin[0] + r * math.cos(angle),
                            (q_origin[1] + r * math.sin(angle))) for angle in angle_to_p)
-                print 'p', p
                 d = tuple((q_target[0] - point[0], q_target[1] - point[1]) for point in p)
                 h = tuple(math.hypot(d_i[0], d_i[1]) for d_i in d)
                 index, _ = min(enumerate(h), key=itemgetter(1))
@@ -72,7 +69,6 @@ class Walker:
                     q_theta = math.acos(r / h[index])
                     q = (p[index][0] + r * math.cos(phi + q_theta * sign[index]),
                          (p[index][1] + r * math.sin(phi + q_theta * sign[index])))
-                    print 'theta', math.degrees(q_theta), 'phi', math.degrees(phi), r
                     theta = -sign[index] * self.max_angular_speed
                     update_q = False
             if any(state == s for s in (WalkState.SO_MUCH_ROTATE, WalkState.MUCH_ROTATE)):
@@ -106,7 +102,6 @@ class Walker:
                     0.0,
                     math.copysign(self.max_angular_speed, a)])
             elif state == WalkState.GO_CURVE:
-                print 'q', q, 'odo', self.odo
                 if math.hypot(dist_left[0], dist_left[1]) < self.position_inaccuracy:
                     self.robot.locomotion.parameters(self.keys, [0.0, 0.0, 0.0])
                     break
@@ -145,7 +140,6 @@ class Walker:
         self.robot.locomotion.autoapply.enable(True)
 
     def get_speed(self):
-
         return tuple(self.robot.locomotion.parameters(self.keys)['data'])
 
     def stop(self):
