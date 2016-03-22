@@ -8,41 +8,38 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
-        : m_meta_gait(new MetaGait), m_step_generator(new StepGenerator(robot, m_meta_gait.get())),
-          m_joints(robot->getJoints()), m_clock(robot->getClock()), m_joint_keys(20), m_head_joint_keys(2),
-          m_parameter_keys(PARAMETERS_COUNT), m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
+        : m_x(0.0), m_y(0.0), m_theta(0.0), m_step_count(0), m_meta_gait(new MetaGait),
+          m_step_generator(new StepGenerator(robot, m_meta_gait.get())), m_joints(robot->getJoints()),
+          m_clock(robot->getClock()), m_joint_keys(20), m_head_joint_keys(2), m_parameter_keys(PARAMETERS_COUNT),
+          m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
           m_auto_apply_worker(boost::bind(&rd::Locomotion::autoUpdater, this)), m_auto_update_sleep_time(0) {
     Gait default_gait(DEFAULT_GAIT);
     m_meta_gait->setStartGait(default_gait);
     m_meta_gait->setNewGaitTarget(default_gait);
-
     m_stance_joints_data = boost::make_shared<SensorData<double> >(*m_step_generator->getDefaultStance(DEFAULT_GAIT),
                                                                    m_clock->getTime());
-
     m_parameter_keys[X] = "X";
     m_parameter_keys[Y] = "Y";
     m_parameter_keys[THETA] = "THETA";
     m_parameter_keys[STEP_COUNT] = "STEP_COUNT";
 
     for (int i = 0; i < PARAMETERS_COUNT; ++i) {
-        m_parameters_key_map.insert(std::make_pair(m_parameter_keys[i], i));
+        m_parameter_keys_map.insert(std::make_pair(m_parameter_keys[i], i));
     }
 
     m_odometry_keys[X_OFFSET] = "X_OFFSET";
     m_odometry_keys[Y_OFFSET] = "Y_OFFSET";
     m_odometry_keys[ROTATION] = "ROTATION";
-    
-    for (int i = 0; i < 20; ++i) {
-        const StringKeyVector& keys = m_joints->getKeys();
-        m_joint_keys[i] = keys[StepGenerator::NB_WALKING_JOINTS[i]];
-    }
 
-    m_joint_keys.push_back("HEAD_PITCH");
-    m_joint_keys.push_back("HEAD_YAW");
+    const StringKeyVector& keys = m_joints->getKeys();
+    for (int i = 0; i < 20; ++i) m_joint_keys[i] = keys[StepGenerator::NB_WALKING_JOINTS[i]];
+    m_joint_keys.push_back(keys[rd::Joints::HEAD_PITCH]);
+    m_joint_keys.push_back(keys[rd::Joints::HEAD_YAW]);
 
     int now = m_clock->getTime();
-    m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
-    m_hardness_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
+    m_positions_data = boost::make_shared<SensorData<double> >(ValuesVector(m_joint_keys.size(), 0.0), now);
+    m_hardness_data = boost::make_shared<SensorData<double> >(ValuesVector(m_joint_keys.size(), 0.0), now);
+    m_step_generator->setSpeed(m_x, m_y, m_theta);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,11 +50,11 @@ const StringKeyVector& rd::Locomotion::getParameterKeys() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const StringKeyVector& keys) {
+rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const StringKeyVector& keys) const {
     IntegerKeyVector keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
-        std::map<std::string, int>::const_iterator found = m_parameters_key_map.find(keys[i]);
-        if (found == m_parameters_key_map.end())
+        std::map<std::string, int>::const_iterator found = m_parameter_keys_map.find(keys[i]);
+        if (found == m_parameter_keys_map.end())
             return boost::make_shared<SensorData<double> >();
         keys_i[i] = found->second;
     }
@@ -66,7 +63,7 @@ rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const StringKeyVe
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const IntegerKeyVector& keys) {
+rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const IntegerKeyVector& keys) const {
     SensorData<double>::Ptr data = boost::make_shared<SensorData<double> >(keys.size(), m_clock->getTime());
     boost::lock_guard<boost::mutex> lock(m_access);
     for (int i = 0; i < keys.size(); ++i) {
@@ -96,8 +93,8 @@ rd::SensorData<double>::Ptr rd::Locomotion::getSpeedParameters(const IntegerKeyV
 void rd::Locomotion::setSpeedParameters(const StringKeyVector& keys, const ValuesVector& values) {
     IntegerKeyVector keys_i(keys.size());
     for (int i = 0; i < keys.size(); ++i) {
-        const std::map<std::string, int>::const_iterator found = m_parameters_key_map.find(keys[i]);
-        if (found == m_parameters_key_map.end())
+        const std::map<std::string, int>::const_iterator found = m_parameter_keys_map.find(keys[i]);
+        if (found == m_parameter_keys_map.end())
             return;
         keys_i[i] = found->second;
     }
@@ -128,6 +125,8 @@ void rd::Locomotion::setSpeedParameters(const IntegerKeyVector& keys, const Valu
             case STEP_COUNT:
                 m_step_count = (unsigned int) values[i];
                 break;
+            default:
+                continue;
         }
     }
     if (m_step_count > 0) {
@@ -141,9 +140,8 @@ void rd::Locomotion::setSpeedParameters(const IntegerKeyVector& keys, const Valu
 
 rd::SensorData<double>::Ptr rd::Locomotion::getOdometry() {
     boost::lock_guard<boost::mutex> lock(m_access);
-
-    boost::detail::sp_if_not_array<rd::SensorData<double> >::type data = boost::make_shared<SensorData<double> >(m_step_generator->getOdometryUpdate(), m_clock->getTime());
-    data->data[1] *= -1.0; // hack
+    rd::SensorData<double>::Ptr data = boost::make_shared<SensorData<double> >(m_step_generator->getOdometryUpdate(), m_clock->getTime());
+    data->data[1] *= -1.0; // hack!!!!!
     return data;
 }
 
@@ -262,11 +260,11 @@ rd::SensorData<double>::Ptr rd::Locomotion::getStanceJointData() {
 
 void rd::Locomotion::setAutoApply(bool enable) {
     if (enable) {
-        boost::lock_guard<boost::mutex> lock(m_access);
+        boost::lock_guard<boost::mutex> lock(m_auto_apply_mut);
         m_auto_apply_flag.store(true);
         m_auto_apply_cv.notify_one();
     } else {
-        boost::lock_guard<boost::mutex> lock(m_access);
+        boost::lock_guard<boost::mutex> lock(m_auto_apply_mut);
         m_auto_apply_flag.store(false);
     }
 }
@@ -290,8 +288,8 @@ rd::Locomotion::~Locomotion() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void rd::Locomotion::autoUpdater() {
-    boost::mutex::scoped_lock lock(m_auto_apply_mut);
     while (!m_destroy.load()) {
+        boost::unique_lock<boost::mutex> lock(m_auto_apply_mut);
         while (!m_auto_apply_flag.load()) m_auto_apply_cv.wait(lock);
         this->generateStep();
         this->applyPositions();
@@ -329,14 +327,14 @@ void rd::Locomotion::setHeadHardness(double pitch, double yaw) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getHeadPositions() {
+rd::SensorData<double>::Ptr rd::Locomotion::getHeadPositions() const {
     boost::lock_guard<boost::mutex> lock(m_access);
     return m_positions_data;//boost::make_shared<SensorData<double> >(m_head_positions, m_clock->getTime());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rd::SensorData<double>::Ptr rd::Locomotion::getHeadHardness() {
+rd::SensorData<double>::Ptr rd::Locomotion::getHeadHardness() const {
     boost::lock_guard<boost::mutex> lock(m_access);
     return m_hardness_data;//boost::make_shared<SensorData<double> >(m_head_hardness, m_clock->getTime());
 }

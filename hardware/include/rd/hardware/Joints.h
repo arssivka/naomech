@@ -33,7 +33,7 @@ namespace rd {
            \brief The Key enumeration. Represents the keys for managing the joints
          */
         enum Key {
-            HEAD_YAW, HEAD_PITCH,
+            HEAD_PITCH, HEAD_YAW,
             L_SHOULDER_PITCH,
             L_SHOULDER_ROLL,
             L_ELBOW_YAW,
@@ -64,7 +64,7 @@ namespace rd {
         /*!
            \brief HEAD_JOINTS_COUNT constant that stores quantiy of head joints
          */
-        static const int HEAD_JOINTS_COUNT = HEAD_PITCH - HEAD_YAW + 1;
+        static const int HEAD_JOINTS_COUNT = HEAD_YAW - HEAD_PITCH + 1;
         /*!
            \brief ARM_JOINTS_COUNT constant that stores quantity if arm joints
          */
@@ -77,7 +77,7 @@ namespace rd {
         /*!
            \brief HEAD_FIRST_JOINT constant that stores number of the first head joint
          */
-        static const int HEAD_FIRST_JOINT = HEAD_YAW;
+        static const int HEAD_FIRST_JOINT = HEAD_PITCH;
         /*!
            \brief LEFT_ARM_FIRST_JOINT constatnt that stores number of the first left arm joint
          */

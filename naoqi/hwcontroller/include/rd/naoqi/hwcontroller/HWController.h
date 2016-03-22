@@ -30,7 +30,7 @@ namespace rd {
        \brief Enumeration for managing the hardware parts
      */
     enum SensorType {
-        HEAD_YAW, HEAD_PITCH,
+        HEAD_PITCH, HEAD_YAW,
         L_SHOULDER_PITCH,
         L_SHOULDER_ROLL,
         L_ELBOW_YAW,

@@ -467,13 +467,5 @@ public:
         const double tilt = std::atan2(headJoint2Target.x, headJoint2Target.y) - headJointAngle - headJoint2CameraAngle;
         targetJointData[rd::Joints::HEAD_PITCH] = tilt;
         targetJointData[rd::Joints::HEAD_YAW] = std::atan2(position.y, position.x);
-        /*   if (topCamera) {
-               targetJointData[rd::Joints::HEAD_PITCH] += cameraCalibration.lowerCameraTiltCorrection; // headTilt joint angle is flipped for some reason
-               targetJointData[rd::Joints::HEAD_YAW] -= cameraCalibration.lowerCameraPanCorrection;
-           }
-           else {
-               targetJointData[rd::Joints::HEAD_PITCH] += cameraCalibration.upperCameraTiltCorrection; // headTilt joint angle is flipped for some reason
-               targetJointData[rd::Joints::HEAD_YAW] -= cameraCalibration.upperCameraPanCorrection;
-           }*/
     }
 };

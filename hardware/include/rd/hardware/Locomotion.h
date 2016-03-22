@@ -39,9 +39,9 @@ namespace rd {
         
         const StringKeyVector& getJointKeys() const;
 
-        SensorData<double>::Ptr getSpeedParameters(const StringKeyVector& keys);
+        SensorData<double>::Ptr getSpeedParameters(const StringKeyVector& keys) const;
 
-        SensorData<double>::Ptr getSpeedParameters(const IntegerKeyVector& keys);
+        SensorData<double>::Ptr getSpeedParameters(const IntegerKeyVector& keys) const;
 
         void setSpeedParameters(const StringKeyVector& keys, const ValuesVector& values);
 
@@ -84,9 +84,9 @@ namespace rd {
 
         void setHeadHardness(double pitch, double yaw);
 
-        SensorData<double>::Ptr getHeadPositions();
+        SensorData<double>::Ptr getHeadPositions() const;
 
-        SensorData<double>::Ptr getHeadHardness();
+        SensorData<double>::Ptr getHeadHardness() const;
 
         virtual ~Locomotion();
 
@@ -94,41 +94,29 @@ namespace rd {
         void autoUpdater();
 
     private:
-        //ValuesVector m_head_positions;
-        //ValuesVector m_head_hardness;
-
         double m_x;
         double m_y;
         double m_theta;
         unsigned int m_step_count;
-
-        boost::mutex m_access;
-
+        mutable boost::mutex m_access;
+        mutable boost::mutex m_auto_apply_mut;
         SensorData<double>::Ptr m_stance_joints_data;
         SensorData<double>::Ptr m_hardness_data;
         SensorData<double>::Ptr m_positions_data;
-        
         boost::scoped_ptr<MetaGait> m_meta_gait;
         boost::scoped_ptr<StepGenerator> m_step_generator;
-
         boost::shared_ptr<Joints> m_joints;
         boost::shared_ptr<Clock> m_clock;
-        
         StringKeyVector m_joint_keys;
         StringKeyVector m_head_joint_keys;
         StringKeyVector m_parameter_keys;
         StringKeyVector m_odometry_keys;
-
-        std::map<std::string, int> m_parameters_key_map;
-
-        boost::mutex m_auto_apply_mut;
+        std::map<std::string, int> m_parameter_keys_map;
         boost::atomic<bool> m_auto_apply_flag;
-        boost::condition_variable m_auto_apply_cv;
-        boost::thread m_auto_apply_worker;
-
         boost::atomic<bool> m_destroy;
         boost::atomic<useconds_t> m_auto_update_sleep_time;
-
+        boost::thread m_auto_apply_worker;
+        boost::condition_variable m_auto_apply_cv;
 
     };
 }

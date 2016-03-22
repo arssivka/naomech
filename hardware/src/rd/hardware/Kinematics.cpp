@@ -95,8 +95,8 @@ const vector<string>& Kinematics::getKeys() const {
 void Kinematics::lookAt(double x, double y, double z, bool top_camera) {
     ValuesVector request_data(2);
     IntegerKeyVector request_keys(2);
-    request_keys[0] = Joints::HEAD_YAW;
-    request_keys[1] = Joints::HEAD_PITCH;
+    request_keys[0] = Joints::HEAD_PITCH;
+    request_keys[1] = Joints::HEAD_YAW;
     Vector3<> position(x, y, z);
     InverseKinematic::calcHeadJoints(position, pi / 2, m_robot_dimensions, top_camera, request_data,
                                      m_camera_calibration);
@@ -377,13 +377,13 @@ SensorData<double>::Ptr Kinematics::getHeadPosition(bool top_camera) {
         static vector<int> m_camera_keys;
         if (m_camera_keys.size() == 0) {
             m_camera_keys.resize(2);
-            m_camera_keys[0] = rd::Joints::HEAD_YAW;
-            m_camera_keys[1] = rd::Joints::HEAD_PITCH;
+            m_camera_keys[0] = rd::Joints::HEAD_PITCH;
+            m_camera_keys[1] = rd::Joints::HEAD_YAW;
         }
         SensorData<double>::Ptr data = m_joints->getPositions(m_camera_keys);
         cameramatrix.translate(0.0, 0.0, m_robot_dimensions.zLegJoint1ToHeadPan);
-        cameramatrix.rotateZ(data->data[0]);
-        cameramatrix.rotateY(data->data[1]);
+        cameramatrix.rotateZ(data->data[1]);
+        cameramatrix.rotateY(data->data[0]);
         SensorData<double>::Ptr result = make_shared<SensorData<double> >(6, m_clock->getTime(0));
         if(top_camera) {
             cameramatrix.translate(m_robot_dimensions.xHeadTiltToUpperCamera, 0.f, m_robot_dimensions.zHeadTiltToUpperCamera);
