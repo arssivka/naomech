@@ -64,7 +64,7 @@ class PoseHandler:
 def load_switches(switcher, filename):
     with open(filename) as config:
         p = json.load(config)
-        for motion in p:
+        for key, motion in p.items():
             current = motion[0][0]
             for target, time in islice(motion, 1, None):
                 switcher.addTransition(current, target, time)
@@ -94,18 +94,19 @@ class PoseSwitcher:
         current = self.graph.getVertex(start)
         self.complete = 0.0
         total = self.switch_time
-        for dest in islice(path, None):
-            time = current.getWeight[dest]
+        for dest in islice(path, 1, None):
+            time = current.getWeight(dest)
             total += time
-            current = dest
+            current = self.graph.getVertex(dest)
         current = self.graph.getVertex(start)
-        self.pose_handler.set_pose(current, self.switch_time)
+        poses = self.pose_handler.poses
+        self.pose_handler.set_pose(poses[start], self.switch_time)
         self.complete = self.switch_time / total
-        for dest in islice(path, None):
-            time = current.getWeight[dest]
-            self.pose_handler.set_pose(dest, time)
+        for dest in islice(path, 1, None):
+            time = current.getWeight(dest)
+            self.pose_handler.set_pose(poses[dest], time)
             self.complete += time / total
-            current = dest
+            current = self.graph.getVertex(dest)
         
 
 class Pose:
