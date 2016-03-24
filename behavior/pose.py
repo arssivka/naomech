@@ -60,12 +60,24 @@ class PoseHandler:
     def get_poses(self):
         return self.poses.keys()
 
+
+def load_switches(switcher, filename):
+    with open(filename) as config:
+        p = json.load(config)
+        for motion in p:
+            current = motion[0][0]
+            for target, time in islice(motion, 1, None):
+                switcher.addTransition(current, target, time)
+                current = target
+
+
 class PoseSwitcher:
     def __init__(self, pose_handler):
         self.pose_handler = pose_handler
         self.graph = Graph()
         self.update()
         self.switch_time = 0.3
+        self.complete = 1.0
 
     def update(self):
         poses = set(self.pose_handler.get_poses())
@@ -80,10 +92,19 @@ class PoseSwitcher:
     def switchTo(self, start, destination):
         path = self.graph.shortestPathDijkstra(start, destination)
         current = self.graph.getVertex(start)
+        self.complete = 0.0
+        total = self.switch_time
+        for dest in islice(path, None):
+            time = current.getWeight[dest]
+            total += time
+            current = dest
+        current = self.graph.getVertex(start)
         self.pose_handler.set_pose(current, self.switch_time)
+        self.complete = self.switch_time / total
         for dest in islice(path, None):
             time = current.getWeight[dest]
             self.pose_handler.set_pose(dest, time)
+            self.complete += time / total
             current = dest
         
 
