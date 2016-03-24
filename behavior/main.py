@@ -4,6 +4,7 @@ import math
 
 import pose
 from pose import PoseHandler
+from pose import PoseSwitcher
 from robot import Robot
 from walker import Walker
 from camera_calibator import CamCalib
@@ -15,7 +16,9 @@ print robot.system.listMethods()
 print len(robot.joints.keys())
 
 pose_handler = PoseHandler(robot, 30)
+pose_switcher = PoseSwitcher(pose_handler)
 pose.load_poses(pose_handler.poses, "config/poses.json")
+pose.load_switches(pose_switcher, "config/switches.json")
 print robot.joints.keys()
 robot.joints.hardness(0.8)
 rleg_keys = ['R_HIP_YAW_PITCH', 'R_HIP_ROLL', 'R_HIP_PITCH', 'R_KNEE_PITCH', 'R_ANKLE_PITCH', 'R_ANKLE_ROLL']
@@ -24,6 +27,7 @@ lleg_keys = ['L_HIP_YAW_PITCH', 'L_HIP_ROLL', 'L_HIP_PITCH', 'L_KNEE_PITCH', 'L_
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
 
 try:
+    pass
     # for pose in [ "face_floor", "drunken_sea_star", "arm_spin_1", "arm_spin_2", "koryaka_razebaka",
     #               "koryaka_sobiraka", "crabe", "monkey", "after_monkey_1", "after_monkey_2", "after_monkey_3", "after_monkey_4", "after_monkey_5", "sit"]:
     #      pose_handler.set_pose(pose, 2.0)
@@ -67,15 +71,15 @@ try:
     #
     #
     #
-    pose_handler.set_pose("walking_pose", 0.5)
-    pose_handler.set_pose("prepare_left_kick", 0.5)
-    pose_handler.set_pose("prepare_left_kick_2", 0.5)
-    pose_handler.set_pose("prepare_left_kick_3", 0.5)
-    pose_handler.set_pose("left_leg_up", 0.3)
-    pose_handler.set_pose("left_kick", 0.1)
-    # pose_handler.set_pose("after_left_kick", 0.3)
-    pose_handler.set_pose("after_left_kick_2", 0.3)
-    pose_handler.set_pose("walking_pose", 0.5)
+    # pose_handler.set_pose("walking_pose", 0.5)
+    # pose_handler.set_pose("prepare_left_kick", 0.5)
+    # pose_handler.set_pose("prepare_left_kick_2", 0.5)
+    # pose_handler.set_pose("prepare_left_kick_3", 0.5)
+    # pose_handler.set_pose("left_leg_up", 0.3)
+    # pose_handler.set_pose("left_kick", 0.1)
+    # # pose_handler.set_pose("after_left_kick", 0.3)
+    # pose_handler.set_pose("after_left_kick_2", 0.3)
+    # pose_handler.set_pose("walking_pose", 0.5)
 
     # pose_handler.set_pose("left_leg_back", 1.0)
     # pose_handler.set_pose("walking_pose", 1.0)
@@ -143,15 +147,15 @@ try:
     # time.sleep(10.0)
     # print robot.locomotion.odometry()['data']
 
-    iters = 100
-    keys = robot.joints.keys()
-    pose_data = [0.0] * len(keys)
-    for i in range(iters):
-        joints =  robot.joints.positions()['data']
-        pose_data = [a + b for a, b in zip(pose_data, joints)]
-        time.sleep(1.0 / iters)
-    pose_data = [joint / iters for joint in pose_data]
-    print pose_data
+    # iters = 100
+    # keys = robot.joints.keys()
+    # pose_data = [0.0] * len(keys)
+    # for i in range(iters):
+    #     joints =  robot.joints.positions()['data']
+    #     pose_data = [a + b for a, b in zip(pose_data, joints)]
+    #     time.sleep(1.0 / iters)
+    # pose_data = [joint / iters for joint in pose_data]
+    # print pose_data
 finally:
     pass
     # robot.joints.hardness(0.0)

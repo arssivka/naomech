@@ -1,5 +1,5 @@
-[
-  // Face floor
+{
+  "face_floor":
   [
     [
       "face_floor",
@@ -58,7 +58,7 @@
       0.5
     ]
   ],
-  // Face up
+  "face_up":
   [
     [
       "face_up_init",
@@ -117,7 +117,7 @@
       0.3
     ]
   ],
-  //Left Kick
+  "left_kick":
   [
     [
       "walking_pose",
@@ -152,4 +152,4 @@
       0.5
     ]
   ]
-]
+}
