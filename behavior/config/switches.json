@@ -116,5 +116,40 @@
       "sit",
       0.3
     ]
+  ],
+  //Left Kick
+  [
+    [
+      "walking_pose",
+      0.5
+    ],
+    [
+      "prepare_left_kick",
+      0.5
+    ],
+    [
+      "prepare_left_kick_2",
+      0.5
+    ],
+    [
+      "prepare_left_kick_3",
+      0.5
+    ],
+    [
+      "left_leg_up",
+      0.3
+    ],
+    [
+      "left_kick",
+      0.1
+    ],
+    [
+      "after_left_kick_2",
+      0.3
+    ],
+    [
+      "walking_pose",
+      0.5
+    ]
   ]
 ]
