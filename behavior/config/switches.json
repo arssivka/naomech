@@ -1,6 +1,5 @@
 {
-  "face_floor":
-  [
+  "face_floor": [
     [
       "face_floor",
       0.3
@@ -58,8 +57,7 @@
       0.5
     ]
   ],
-  "face_up":
-  [
+  "face_up": [
     [
       "face_up_init",
       0.3
@@ -117,8 +115,7 @@
       0.3
     ]
   ],
-  "left_kick":
-  [
+  "left_kick": [
     [
       "walking_pose",
       0.5
@@ -145,11 +142,45 @@
     ],
     [
       "after_left_kick_2",
-      0.3
+      1.0
     ],
     [
       "walking_pose",
+      0.7
+    ]
+  ],
+  "right_kick": [
+    [
+      "walking_pose",
       0.5
+    ],
+    [
+      "prepare_right_kick",
+      0.5
+    ],
+    [
+      "prepare_right_kick_2",
+      0.5
+    ],
+    [
+      "prepare_right_kick_3",
+      0.5
+    ],
+    [
+      "right_leg_up",
+      0.3
+    ],
+    [
+      "right_kick",
+      0.1
+    ],
+    [
+      "after_right_kick_2",
+      1.0
+    ],
+    [
+      "walking_pose",
+      0.7
     ]
   ]
 }
