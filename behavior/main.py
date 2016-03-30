@@ -3,6 +3,7 @@ import time
 import math
 
 import pose
+from behavior import BehaviorHandler
 from pose import PoseHandler
 from pose import PoseSwitcher
 from robot import Robot
@@ -11,7 +12,7 @@ from camera_calibator import CamCalib
 from camera_geometry import CamGeom
 
 
-robot = Robot("192.168.0.51", "5469")
+robot = Robot("192.168.0.14", "5469")
 print robot.system.listMethods()
 print len(robot.joints.keys())
 
@@ -19,15 +20,24 @@ pose_handler = PoseHandler(robot, 30)
 pose_switcher = PoseSwitcher(pose_handler)
 pose.load_poses(pose_handler.poses, "config/poses.json")
 pose.load_switches(pose_switcher, "config/switches.json")
-print robot.joints.keys()
+walk = Walker(robot)
 robot.joints.hardness(0.8)
-rleg_keys = ['R_HIP_YAW_PITCH', 'R_HIP_ROLL', 'R_HIP_PITCH', 'R_KNEE_PITCH', 'R_ANKLE_PITCH', 'R_ANKLE_ROLL']
-lleg_keys = ['L_HIP_YAW_PITCH', 'L_HIP_ROLL', 'L_HIP_PITCH', 'L_KNEE_PITCH', 'L_ANKLE_PITCH', 'L_ANKLE_ROLL']
+# print robot.joints.keys()
+# rleg_keys = ['R_HIP_YAW_PITCH', 'R_HIP_ROLL', 'R_HIP_PITCH', 'R_KNEE_PITCH', 'R_ANKLE_PITCH', 'R_ANKLE_ROLL']
+# lleg_keys = ['L_HIP_YAW_PITCH', 'L_HIP_ROLL', 'L_HIP_PITCH', 'L_KNEE_PITCH', 'L_ANKLE_PITCH', 'L_ANKLE_ROLL']
 # robot.joints.hardness(lleg_keys, [0.1 for i in lleg_keys])
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
 
+behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
+
 try:
-    pass
+    # behavior.run()
+    # while True:
+    #     pass
+    pose_switcher.switch_to("prepare_left_kick", "walking_pose")
+    # for pose in [ "face_floor", "drunken_sea_star", "arm_spin_1", "arm_spin_2", "koryaka_razebaka",
+    #               "koryaka_sobiraka", "crabe", "monkey", "after_monkey_1", "after_monkey_2", "after_monkey_3", "after_monkey_4", "after_monkey_5", "sit"]:
+    #      pose_handler.set_pose(pose, 2.0)
     # #TODO: Make the seperate function for this stand up
     # ###here goes  the stand_up
     # start = time.time()
@@ -65,12 +75,22 @@ try:
     # pose_handler.set_pose("trying_to_sit", 0.3)
     # pose_handler.set_pose("pre_sit", 0.3)
     # pose_handler.set_pose("sit", 0.3)
+    #
+    #
+    #
+    # pose_handler.set_pose("walking_pose", 0.5)
+    # pose_handler.set_pose("prepare_left_kick", 0.5)
+    # pose_handler.set_pose("prepare_left_kick_2", 0.5)
+    # pose_handler.set_pose("prepare_left_kick_3", 0.5)
+    # pose_handler.set_pose("left_leg_up", 0.3)
+    # pose_handler.set_pose("left_kick", 0.1)
+    # # pose_handler.set_pose("after_left_kick", 0.3)
+    # pose_handler.set_pose("after_left_kick_2", 0.3)
+    # pose_handler.set_pose("walking_pose", 0.5)
 
-    #TODO: Try ta add "prepare_..._kick"(left to right etc) to the end of each kick motion for the smoothing
-    for i in range(10):
-        pose_switcher.switchTo("prepare_left_kick", "walking_pose")
-        time.sleep(1)
-        pose_switcher.switchTo("prepare_right_kick", "walking_pose")
+    # pose_handler.set_pose("left_leg_back", 1.0)
+    # pose_handler.set_pose("walking_pose", 1.0)
+
     # robot.kinematics.lookAt(100.0, 0.0, 0.0, False)
     # iters = 100
     # keys = robot.joints.keys()
@@ -112,7 +132,14 @@ try:
     # robot.locomotion.odometry(True)
     # print robot.locomotion.odometry()
     #
-
+    # #
+    # y = 1000.0
+    # while True:
+    #     robot.kinematics.lookAt(y, 0.0, 100.0, False)
+    #     # print robot.kinematics.getHead(True)
+    #     # y -= 100.0
+    #     y = -y
+    #     time.sleep(2)
     # camc = CamCalib(robot)
     # camc.calibrateCamera(True)
     # cam = CamGeom("config/cameras.json", robot)
@@ -137,5 +164,4 @@ try:
     # pose_data = [joint / iters for joint in pose_data]
     # print pose_data
 finally:
-    pass
-    # robot.joints.hardness(0.0)
+    behavior.stop()

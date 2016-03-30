@@ -67,7 +67,7 @@ def load_switches(switcher, filename):
         for key, motion in p.items():
             current = motion[0][0]
             for target, time in islice(motion, 1, None):
-                switcher.addTransition(current, target, time)
+                switcher.add_transition(current, target, time)
                 current = target
 
 
@@ -86,10 +86,10 @@ class PoseSwitcher:
         for pose in to_append:
             self.graph.addVertex(pose)
 
-    def addTransition(self, begin, destination, time):
+    def add_transition(self, begin, destination, time):
         self.graph.addEdge(begin, destination, time)
 
-    def switchTo(self, start, destination):
+    def switch_to(self, start, destination):
         path = self.graph.shortestPathDijkstra(start, destination)
         current = self.graph.getVertex(start)
         self.complete = 0.0
