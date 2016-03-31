@@ -33,7 +33,7 @@ robot.joints.hardness(0.8)
 
 try:
     pass
-    pose_switcher.switch_to("prepare_left_kick", "walking pose")
+    pose_switcher.switch_to("prepare_left_kick", "walking_pose")
     # walk.go_to((1000.0, 500.0), 100.0)
     # while walk.get_speed() != 0.0:
     #     pass

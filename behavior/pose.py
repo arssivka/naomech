@@ -57,7 +57,7 @@ class PoseHandler:
         return nearest
 
     def set_pose(self, target, move_time=0.0):
-        if type(target) is str:
+        if not isinstance(target, Pose):
             self._lock.acquire()
             try:
                 target = self.poses[target]
