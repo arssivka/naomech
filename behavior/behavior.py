@@ -76,10 +76,6 @@ class StandingUpBehavior(UnknownBehavior):
 
 
 class BehaviorHandler:
-    class State(Enum):
-        UNKNOWN = 0,
-        STANDING_UP = 1
-
     def __init__(self, robot, walker, pose_handler, pose_switcher):
         self.robot = robot
         self.walker = walker
@@ -91,23 +87,17 @@ class BehaviorHandler:
         self.fall_indicator_count = 10
 
     def _worker(self):
-        State = BehaviorHandler.State
         counter = 0
-        state = State.UNKNOWN
         behavior = UnknownBehavior()
         while not self.iterrupt:
             stance = self.stance_determinator.determinate()
             counter = counter + 1 if stance != Stance.STAND else 0
             if counter >= self.fall_indicator_count:
-                state = State.STANDING_UP
-            # Try to stand up
-            if state == State.STANDING_UP:
                 if not isinstance(behavior, StandingUpBehavior):
                     behavior.wait()
                     behavior = StandingUpBehavior(self.robot, self.pose_handler,
                                                   self.pose_switcher, self.stance_determinator)
                 elif behavior.is_done():
-                    state = State.UNKNOWN
                     behavior = UnknownBehavior()
                     continue
             behavior.tick_state()
