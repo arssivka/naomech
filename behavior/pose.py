@@ -89,24 +89,25 @@ class PoseHandler:
 
 
 def load_switches(switcher, filename):
+    switcher.update()
     with open(filename) as config:
         p = json.load(config)
-        for key, motion in p.items():
-            current = motion[0][0]
-            for target, time in islice(motion, 1, None):
-                switcher.add_transition(current, target, time)
-                current = target
+    for key, motion in p.items():
+        current = motion[0][0]
+        for target, time in islice(motion, 1, None):
+            switcher.add_transition(current, target, time)
+            current = target
 
 
 class PoseSwitcher:
     def __init__(self, pose_handler):
         self.pose_handler = pose_handler
         self.graph = Graph()
+        self._lock = Lock()
         self.update()
         self.switch_time = 0.3
         self._complete = 1.0
         self._stop = False
-        self._lock = Lock()
 
     def is_done(self):
         self._lock.acquire()
@@ -124,7 +125,7 @@ class PoseSwitcher:
             self._lock.release()
 
     def update(self):
-        poses = set(self.pose_handler.get_poses())
+        poses = set(self.pose_handler.get_pose_keys())
         vertices = set(self.graph.getVertices())
         to_append = poses - vertices
         for pose in to_append:

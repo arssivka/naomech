@@ -64,12 +64,12 @@ class StandingUpBehavior(UnknownBehavior):
         time.sleep(1.0)
         while all(state != st for st in (Stance.FACE_DOWN, Stance.FACE_UP)):
             time.sleep(1.0)
-        self.robot.joints.hardness(1.0)
+        self.robot.joints.hardness(0.0)
         if state == Stance.FACE_DOWN:
             self.pose_switcher.switch_to("face_floor", "walking_pose")
         elif state == Stance.FACE_UP:
             self.pose_switcher.switch_to("face_up_init", "walking_pose")
-        self.robot.joints.hardness(0.8)
+        self.robot.joints.hardness(0.0)
 
     def is_done(self):
         return self.pose_switcher.complete >= 1.0

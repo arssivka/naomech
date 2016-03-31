@@ -6,8 +6,8 @@ import time
 import numpy as np
 
 top_camera = False
-not_walking_look = True
-robot = Robot("192.168.0.51", "5469")
+not_walking_look = False
+robot = Robot("192.168.0.14", "5469")
 cam = CamGeom("config/cameras.json", robot)
 
 def rotateImage(img, angle):

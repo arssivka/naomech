@@ -14,6 +14,13 @@ class RobotPose:
         self.point = g.Point(x, y)
         self.direction = direct
 
+    #TODO: test this function
+    def odoTranslate(self, x, y, theta):
+        tmp_x = (x - self.point.x) * math.cos(self.direction) + (y - self.point.y) * math.sin(self.direction)
+        tmp_y = -(x - self.point.x) * math.sin(self.direction) + (y - self.point.y) * math.cos(self.direction)
+        self.point.x = tmp_x
+        self.point.y = tmp_y
+
     def printPose(self):
         circle1 = plt.Circle((self.point.x, self.point.y), 100, color = 'r')
         plt.gcf().gca().add_artist(circle1)
@@ -85,7 +92,10 @@ class LocalizationModule:
     print_once = True
 
     def __init__(self):
-        self.particles = [self.get_random_particle() for i in range(self.particles_number)]
+        self.particles = [self.get_random_particle() for i in range(self.particles_number / 2)]
+        self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
+                                                        max_y = 3000, min_dir = math.radians(250),
+                                                        max_dir = math.radians(290)) for i in range(self.particles_number / 2)])
 
     def get_random_particle(self, min_x = 0, min_y = -3200, max_x = 4500, max_y = -3000, min_dir = math.radians(70), max_dir = math.radians(110)):
         return RobotPose(random.uniform(min_x, max_x), random.uniform(min_y, max_y), random.uniform(min_dir, max_dir))
