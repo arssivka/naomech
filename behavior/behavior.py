@@ -84,7 +84,7 @@ class BehaviorHandler:
         self._behavior = UnknownBehavior()
         self._lock = Lock()
         self._worker = Thread(target=BehaviorHandler.__worker, args=(self,))
-        self._worker.run()
+        self._worker.start()
 
     def __worker(self):
         self._lock.acquire()
