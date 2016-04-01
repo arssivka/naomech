@@ -29,11 +29,12 @@ robot.joints.hardness(0.8)
 # robot.joints.hardness(lleg_keys, [0.1 for i in lleg_keys])
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
 
-# behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
+behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
 
 try:
     pass
-    pose_switcher.switch_to("prepare_left_kick", "walking_pose")
+    behavior.run()
+    # pose_switcher.switch_to("prepare_left_kick", "walking_pose")
     # walk.go_to((1000.0, 500.0), 100.0)
     # while walk.get_speed() != 0.0:
     #     pass
