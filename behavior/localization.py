@@ -14,12 +14,13 @@ class RobotPose:
         self.point = g.Point(x, y)
         self.direction = direct
 
-    #TODO: test this function
+    #TODO: this is not working
     def odoTranslate(self, x, y, theta):
-        tmp_x = (x - self.point.x) * math.cos(self.direction) + (y - self.point.y) * math.sin(self.direction)
-        tmp_y = -(x - self.point.x) * math.sin(self.direction) + (y - self.point.y) * math.cos(self.direction)
-        self.point.x = tmp_x
-        self.point.y = tmp_y
+        dist = math.hypot(x, y)
+        angle = math.atan2(y, x)
+        self.point.translate(math.cos(self.direction - angle) * dist, math.sin(self.direction - angle) * dist)
+        # self.point.translate(math.cos(self.direction) * , math.sin(self.direction  - math.pi / 2) * y)
+
 
     def printPose(self):
         circle1 = plt.Circle((self.point.x, self.point.y), 100, color = 'r')
@@ -150,6 +151,10 @@ class LocalizationModule:
         for i in self.particles:
             print ('x: ', i.point.x, 'y: ', i.point.y, 'weight: ', i.weight)
 
+    def testing_shit(self):
+        for rp in self.particles:
+            rp.odoTranslate(2000.0, 1000.0, 0.0)
+
 
 def main():
      # m = Map()
@@ -170,10 +175,17 @@ def main():
     # plt.show()
      start = time.time()
      lm = LocalizationModule()
-     lm.sort_particles()
-     print lm.count_deviations()
-     print time.time() - start
      lm.print_plot(True)
+     lm.testing_shit()
+     lm.print_plot(True)
+     # for i in range(10):
+     #     lm.testing_shit()
+     #     lm.print_plot(False)
+     #     time.sleep(2)
+     # lm.sort_particles()
+     # print lm.count_deviations()
+     # print time.time() - start
+     # lm.print_plot(True)
     # while True:
     #     lm.printAll()
 
