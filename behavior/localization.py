@@ -14,6 +14,14 @@ class RobotPose:
         self.point = g.Point(x, y)
         self.direction = direct
 
+    #TODO: this is not working
+    def odoTranslate(self, x, y, theta):
+        dist = math.hypot(x, y)
+        angle = math.atan2(y, x)
+        self.point.translate(math.cos(self.direction - angle) * dist, math.sin(self.direction - angle) * dist)
+        # self.point.translate(math.cos(self.direction) * , math.sin(self.direction  - math.pi / 2) * y)
+
+
     def printPose(self):
         circle1 = plt.Circle((self.point.x, self.point.y), 100, color = 'r')
         plt.gcf().gca().add_artist(circle1)
@@ -85,7 +93,10 @@ class LocalizationModule:
     print_once = True
 
     def __init__(self):
-        self.particles = [self.get_random_particle() for i in range(self.particles_number)]
+        self.particles = [self.get_random_particle() for i in range(self.particles_number / 2)]
+        self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
+                                                        max_y = 3000, min_dir = math.radians(250),
+                                                        max_dir = math.radians(290)) for i in range(self.particles_number / 2)])
 
     def get_random_particle(self, min_x = 0, min_y = -3200, max_x = 4500, max_y = -3000, min_dir = math.radians(70), max_dir = math.radians(110)):
         return RobotPose(random.uniform(min_x, max_x), random.uniform(min_y, max_y), random.uniform(min_dir, max_dir))
@@ -140,6 +151,10 @@ class LocalizationModule:
         for i in self.particles:
             print ('x: ', i.point.x, 'y: ', i.point.y, 'weight: ', i.weight)
 
+    def testing_shit(self):
+        for rp in self.particles:
+            rp.odoTranslate(2000.0, 1000.0, 0.0)
+
 
 def main():
      # m = Map()
@@ -160,10 +175,17 @@ def main():
     # plt.show()
      start = time.time()
      lm = LocalizationModule()
-     lm.sort_particles()
-     print lm.count_deviations()
-     print time.time() - start
      lm.print_plot(True)
+     lm.testing_shit()
+     lm.print_plot(True)
+     # for i in range(10):
+     #     lm.testing_shit()
+     #     lm.print_plot(False)
+     #     time.sleep(2)
+     # lm.sort_particles()
+     # print lm.count_deviations()
+     # print time.time() - start
+     # lm.print_plot(True)
     # while True:
     #     lm.printAll()
 
