@@ -2,22 +2,20 @@
 // Created by nikitas on 26.03.16.
 //
 
-#include <fstream>
-
-#include "utils/Logger.h"
-#include "utils/CoreFuntions.h"
 #include "detectors/LineDetector.h"
+#include "utils/CoreFuntions.h"
 
-namespace detector {
+namespace rd {
 
     LineDetector::LineDetector() : BaseDetector("LineDetector") { }
 
-    LineDetector::LineDetector(const configuration &conf) : m_conf(conf) { }
+    LineDetector::LineDetector(const configuration &conf) :
+            BaseDetector("LineDetector"), m_conf(conf) { }
 
-    std::vector<cv::Vec4i> LineDetector::detect(const cv::Mat &binaryImage) {
+    std::vector<cv::Vec4i> LineDetector::detect(const cv::Mat &preprocImage) {
         cv::Mat skeleton;
 
-        __get_skeleton(binaryImage, skeleton); // O(n) n = h*w of img
+        __get_skeleton(preprocImage, skeleton); // O(n) n = h*w of img
 
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(skeleton, lines,
@@ -140,10 +138,7 @@ namespace detector {
 
     void LineDetector::configuration::save(const std::string &path) {
         std::ofstream file(path.c_str());
-
-        if (!file.is_open())
-            utils::Logger("configuration::save") << "bad file" << path;
-        else {
+        if (file.is_open())
             file << HoughLines.max_line_gap << ' '
             << HoughLines.min_line_length << ' '
             << HoughLines.rho << ' '
@@ -153,28 +148,21 @@ namespace detector {
             << LineEqualPredicate.error_px << std::endl
             << Preproc.kernel_size << ' '
             << Preproc.min_thresh << std::endl;
-        }
     }
 
     LineDetector::configuration LineDetector::configuration::load(const std::string &path) {
+        configuration conf;
         std::ifstream file(path.c_str());
-
-        configuration c;
-
-        if (!file.is_open())
-            utils::Logger("configuration::save") << "bad file" << path;
-        else {
-            file >> c.HoughLines.max_line_gap >>
-            c.HoughLines.min_line_length >>
-            c.HoughLines.rho >>
-            c.HoughLines.theta >>
-            c.HoughLines.threshold >>
-            c.LineEqualPredicate.angle_eps >>
-            c.LineEqualPredicate.error_px >>
-            c.Preproc.kernel_size >>
-            c.Preproc.min_thresh;
-        }
-        return c;
+        if (file.is_open())
+            file >> conf.HoughLines.max_line_gap >>
+            conf.HoughLines.min_line_length >>
+            conf.HoughLines.rho >>
+            conf.HoughLines.theta >>
+            conf.HoughLines.threshold >>
+            conf.LineEqualPredicate.angle_eps >>
+            conf.LineEqualPredicate.error_px >>
+            conf.Preproc.kernel_size >>
+            conf.Preproc.min_thresh;
+        return conf;
     }
-
 }

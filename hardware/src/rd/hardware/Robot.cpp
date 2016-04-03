@@ -99,6 +99,10 @@ boost::shared_ptr<Angle> Robot::getAngle() {
     return m_angle;
 }
 
+boost::shared_ptr<Vision> Robot::getVision() {
+    return m_vision;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Robot::~Robot() {

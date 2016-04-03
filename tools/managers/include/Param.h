@@ -31,6 +31,7 @@ namespace utils {
 
         int *pval() { return &val; }
 
+
         std::string tbname;
         int max;
     private:

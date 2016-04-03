@@ -4,7 +4,7 @@
 
 #include "detectors/BaseDetector.h"
 
-namespace detector {
+namespace rd {
 
     BaseDetector::BaseDetector(const std::string &detector_name) :
             m_detector_name(detector_name) { }
@@ -13,7 +13,6 @@ namespace detector {
     const std::string &BaseDetector::detectorName() {
         return m_detector_name;
     }
-
 
 }
 

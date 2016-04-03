@@ -5,9 +5,17 @@
 #ifndef LINEDETECTOR_BASEDETECTOR_H
 #define LINEDETECTOR_BASEDETECTOR_H
 
-#include <string>
+#include <fstream>
 
-namespace detector {
+#include "opencv2/opencv.hpp"
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+#include "utils/Logger.h"
+#include "utils/Stopwatch.h"
+
+namespace rd {
 
     class BaseDetector {
     public:

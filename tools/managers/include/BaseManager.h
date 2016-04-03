@@ -7,17 +7,15 @@
 
 #include <stdexcept>
 
-#include <opencv2/opencv.hpp>
-
 #include "utils/Logger.h"
-#include "utils/Param.h"
+#include "Param.h"
 
 namespace manager {
 
     class BaseManager {
     public:
 
-        BaseManager(const std::vector<std::string> &abs_paths, const std::string &logger_promt = "BaseManager::");
+        BaseManager(const std::vector<std::string> &abs_paths, const std::string &logger_promt = "BaseDetector::");
 
         enum Key {
             Next = '0',

@@ -3,7 +3,7 @@
 //
 
 
-#include "managers/LineDetectorManager.h"
+#include "LineDetectorManager.h"
 
 namespace manager {
 
@@ -16,8 +16,8 @@ namespace manager {
         m_params["max_line_gap"] = utils::Param("Maximum allowed gap(HL)");
         m_params["min_line_length"] = utils::Param("Minimum line length(HL)");
         m_params["threshold"] = utils::Param("Accumulator minThresh(HL)");
-        m_params["kernel_size"] = utils::Param("Moph Kernel Size(preproc)");
-        m_params["min_thresh"] = utils::Param("Threashold(preproc)");
+        m_params["kernel_size"] = utils::Param("Moph Kernel Size(preproccess)");
+        m_params["min_thresh"] = utils::Param("Threashold(preproccess)");
         m_params["angle_eps"] = utils::Param("Error parallel vector(joinLines)");
         m_params["error_px"] = utils::Param("Error in pixel(joinLines)");
 
@@ -54,7 +54,7 @@ namespace manager {
     void LineDetectorManager::__main(const cv::Mat &image) {
         __to_conf();
 
-        detector::LineDetector lineDetector(m_conf);
+        rd::LineDetector lineDetector(m_conf);
 
         m_stopwatch.start();
 

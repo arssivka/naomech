@@ -2,7 +2,9 @@
 // Created by nikitas on 27.03.16.
 //
 
-#include "managers/BaseManager.h"
+#include <opencv2/opencv.hpp>
+
+#include "BaseManager.h"
 
 namespace manager {
 

@@ -6,8 +6,9 @@
 #define NAOMECH_LINEDETECTORMANAGER_H
 
 #include "detectors/LineDetector.h"
-#include "BaseManager.h"
 #include "utils/Stopwatch.h"
+
+#include "BaseManager.h"
 
 namespace manager {
 
@@ -27,7 +28,7 @@ namespace manager {
 
         void __from_conf();
 
-        detector::LineDetector::configuration m_conf;
+        rd::LineDetector::configuration m_conf;
         utils::Logger m_logger;
         utils::Stopwatch m_stopwatch;
         static const std::string win_name;
