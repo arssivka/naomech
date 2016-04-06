@@ -12,7 +12,7 @@ namespace rd {
 
     class Vision {
     public:
-        Vision(const std::string &cfg_path = "vision.conf");
+        Vision(const std::string &cfg_path = "/home/nao/vision.conf");
 
         cv::Rect ballDetect();
 

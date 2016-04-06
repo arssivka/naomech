@@ -16,7 +16,7 @@ namespace rd {
 
 
     RemoteVision::ballDetect::ballDetect(boost::shared_ptr<Vision> vision) :
-            m_vision(vision), RemoteMethod("ballDetect", "", "detect ball") { }
+            m_vision(vision), RemoteMethod("ballDetect", "S:", "detect ball") { }
 
 
     void RemoteVision::ballDetect::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const resultP) {
@@ -57,7 +57,7 @@ namespace rd {
 
 
     RemoteVision::lineDetect::lineDetect(boost::shared_ptr<Vision> vision)
-            : m_vision(vision), RemoteMethod("lineDetect", "", "detect lines") { }
+            : m_vision(vision), RemoteMethod("lineDetect", "A:", "detect lines") { }
 
 
     void RemoteVision::lineDetect::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const resultP) {
@@ -94,6 +94,12 @@ namespace rd {
     void RemoteVision::updateFrame::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const resultP) {
         paramList.verifyEnd(0);
         m_vision->setFrame(m_camera->getCVImage());
+        xmlrpc_env env;
+        xmlrpc_env_init(&env);
+        xmlrpc_value *nil = xmlrpc_nil_new(&env);
+        resultP->instantiate(nil);
+        xmlrpc_DECREF(nil);
+        xmlrpc_env_clean(&env);
     }
 
 

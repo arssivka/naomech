@@ -20,6 +20,7 @@ int main(int argv, char **argc) {
 
     std::vector<cv::Vec3b> v;
 
+
     std::vector<std::string> paths(100);
     for (int i = 0; i < 100; i++)
         paths[i] = "/home/nikitas/bases/" + convertInt(i) + ".png";

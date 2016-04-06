@@ -23,6 +23,15 @@ namespace rd {
 
         const std::string &detectorName();
 
+        class BaseConf {
+        public:
+            void save(const std::string &path);
+
+            void load(const std::string &path);
+
+            boost::property_tree::ptree ptree;
+        };
+
     private:
         const std::string m_detector_name;
     };

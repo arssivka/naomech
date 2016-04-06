@@ -5,17 +5,24 @@ set(RD_VISION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 
 set(RD_VISION_LIBRARIES vision CACHE STRING "Vision module libs")
 
-set(LIBS_REQ
-        BOOST OPENCV2_IMGPROC OPENCV2_HIGHGUI OPENCV2_CORE
-        JPEG PNG TIFF GSTREAMER GOBJECT ALVALUE
-        ALCOMMON XML2 FFI TBB V4L GLIB2 GTHREAD
-        GSTREAMER GMODULE FFMPEG BZIP2)
 
-foreach (LIB ${LIBS_REQ})
+if (MANAGER_ON)
+    foreach (LIB Boost OpenCV)
+        find_package(${LIB} REQUIRED)
+        set(LIBS ${LIBS} ${${LIB}_LIBRARIES})
+        set(INCLUDE_DIRS ${INCLUDE_DIRS} ${${LIB}_INCLUDE_DIRS})
+    endforeach ()
+
+else ()
+    foreach (LIB
+            BOOST OPENCV2_CORE OPENCV2_HIGHGUI OPENCV2_IMGPROC
+            JPEG PNG TIFF GSTREAMER GOBJECT ALVALUE ALCOMMON XML2
+            FFI TBB V4L GLIB2 GTHREAD GSTREAMER GMODULE FFMPEG BZIP2)
     find_package(${LIB} REQUIRED)
     set(LIBS ${LIBS} ${${LIB}_LIBRARIES})
     set(INCLUDE_DIRS ${INCLUDE_DIRS} ${${LIB}_INCLUDE_DIRS})
 endforeach ()
+endif ()
 
 include_directories(
         include
@@ -24,7 +31,6 @@ include_directories(
 
 set(HEADERS
         include/Vision.h
-        include/RemoteVision.h
         include/utils/Logger.h
         include/utils/Stopwatch.h
         include/utils/CoreFuntions.h
@@ -34,21 +40,26 @@ set(HEADERS
 
 set(SOURCES
         src/Vision.cpp
-        src/RemoteVision.cpp
         src/utils/Logger.cpp
         src/utils/Stopwatch.cpp
         src/detectors/BaseDetector.cpp
         src/detectors/BallDetector.cpp
         src/detectors/LineDetector.cpp)
 
-add_library(vision ${HEADERS} ${SOURCES})
+set(RV_HEADERS include/RemoteVision.h)
+set(RV_SOURCES src/RemoteVision.cpp)
 
-target_include_directories(vision PUBLIC ${INCLUDE_DIRS}
+add_library(vision ${HEADERS} ${SOURCES})
+add_library(rvision ${RV_HEADERS} ${RV_SOURCES})
+
+target_include_directories(vision PUBLIC ${INCLUDE_DIRS})
+target_include_directories(rvision PUBLIC ${INCLUDE_DIRS}
         ${RD_NETWORK_INCLUDE_DIRS} ${RD_HARDWARE_INCLUDE_DIRS})
 
-target_link_libraries(vision ${LIBS} ${RD_NETWORK_LIBRARIES} ${RD_HARDWARE_LIBRARIES})
+target_link_libraries(vision ${LIBS})
+target_link_libraries(rvision vision ${RD_NETWORK_LIBRARIES} ${RD_HARDWARE_LIBRARIES})
 
-install(TARGETS vision
+install(TARGETS rvision
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib/static)
 
