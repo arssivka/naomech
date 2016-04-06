@@ -43,7 +43,7 @@ namespace rd {
                                   m_conf.ColorThresh.min_2,
                                   m_conf.ColorThresh.min_3);
 
-        const cv::Scalar maxColor(m_conf.ColorThresh.min_1,
+        const cv::Scalar maxColor(m_conf.ColorThresh.max_1,
                                   m_conf.ColorThresh.max_2,
                                   m_conf.ColorThresh.max_3);
 
@@ -59,7 +59,7 @@ namespace rd {
         ColorThresh.min_3 = 167;
         ColorThresh.max_1 = 86;
         ColorThresh.max_2 = 210;
-        ColorThresh.max_3 = 167;
+        ColorThresh.max_3 = 221;
     }
 
     void BallDetector::configuration::save(const std::string &path) {
@@ -70,9 +70,9 @@ namespace rd {
         conf.put("BallDetector.ColorThresh.min_2", ColorThresh.min_2);
         conf.put("BallDetector.ColorThresh.min_3", ColorThresh.min_3);
 
-        conf.put("BallDetector.ColorThresh.max_1", ColorThresh.min_1);
-        conf.put("BallDetector.ColorThresh.max_2", ColorThresh.min_2);
-        conf.put("BallDetector.ColorThresh.max_3", ColorThresh.min_3);
+        conf.put("BallDetector.ColorThresh.max_1", ColorThresh.max_1);
+        conf.put("BallDetector.ColorThresh.max_2", ColorThresh.max_2);
+        conf.put("BallDetector.ColorThresh.max_3", ColorThresh.max_3);
 
         boost::property_tree::write_xml(path, conf);
     }
@@ -83,12 +83,14 @@ namespace rd {
         configuration c;
 
         c.median_blur_size = conf.get<int>("BallDetector.median_blur_size");
+
         c.ColorThresh.min_1 = conf.get<uchar>("BallDetector.ColorThresh.min_1");
         c.ColorThresh.min_2 = conf.get<uchar>("BallDetector.ColorThresh.min_2");
         c.ColorThresh.min_3 = conf.get<uchar>("BallDetector.ColorThresh.min_3");
-        c.ColorThresh.max_1 = conf.get<uchar>("BallDetector.ColorThresh.min_1");
-        c.ColorThresh.max_2 = conf.get<uchar>("BallDetector.ColorThresh.min_2");
-        c.ColorThresh.max_3 = conf.get<uchar>("BallDetector.ColorThresh.min_3");
+
+        c.ColorThresh.max_1 = conf.get<uchar>("BallDetector.ColorThresh.max_1");
+        c.ColorThresh.max_2 = conf.get<uchar>("BallDetector.ColorThresh.max_2");
+        c.ColorThresh.max_3 = conf.get<uchar>("BallDetector.ColorThresh.max_3");
 
         return c;
     }

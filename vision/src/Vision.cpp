@@ -6,7 +6,7 @@
 
 namespace rd {
 
-    Vision::Vision(const std::string &cfg_path) : m_w(320), m_h(280),
+    Vision::Vision(const std::string &cfg_path) : m_w(320), m_h(280), m_image(),
                                                   m_ballDetector(
                                                           BallDetector::configuration::load("ball_detector.conf")),
                                                   m_lineDetector(

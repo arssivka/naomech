@@ -16,7 +16,8 @@ namespace rd {
         cv::Mat skeleton;
 
         __get_skeleton(preprocImage, skeleton); // O(n) n = h*w of img
-
+        std::cout << m_conf.HoughLines.rho << m_conf.HoughLines.theta << m_conf.HoughLines.threshold <<
+        m_conf.HoughLines.min_line_length << m_conf.HoughLines.max_line_gap;
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(skeleton, lines,
                         m_conf.HoughLines.rho, m_conf.HoughLines.theta, m_conf.HoughLines.threshold,
@@ -29,8 +30,10 @@ namespace rd {
 
 
     cv::Mat LineDetector::preproccess(const cv::Mat &image) {
-        cv::Mat preprocImage(image.rows, image.cols, CV_8UC1);
-        cv::cvtColor(image, preprocImage, CV_BGR2GRAY);
+        cv::Mat preprocImage(image.rows, image.cols, CV_8UC1), bgrImg;
+        cv::cvtColor(image, bgrImg, CV_YUV2BGR);
+        cv::cvtColor(bgrImg, preprocImage, CV_BGR2GRAY);
+
 
         cv::Mat threshImage;
         cv::threshold(preprocImage, threshImage,

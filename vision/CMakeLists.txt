@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.0.2)
 
 set(RD_VISION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
         CACHE STRING "Vision module include dir")
+set(RD_RVISION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+        CACHE STRING "Remoute Vision module include dir")
 
 set(RD_VISION_LIBRARIES vision CACHE STRING "Vision module libs")
+set(RD_RVISION_LIBRARIES rvision CACHE STRING "Vision module libs")
 
 
 if (MANAGER_ON)

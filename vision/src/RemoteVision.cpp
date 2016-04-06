@@ -49,9 +49,7 @@ namespace rd {
         xmlrpc_DECREF(elem);
 
         resultP->instantiate(result);
-
         xmlrpc_DECREF(result);
-
         xmlrpc_env_clean(&env);
     }
 
@@ -64,6 +62,7 @@ namespace rd {
         paramList.verifyEnd(0);
 
         std::vector<cv::Vec4i> lines = m_vision->lineDetect();
+        std::cout << lines.size();
 
         xmlrpc_env env;
         xmlrpc_env_init(&env);
@@ -79,7 +78,7 @@ namespace rd {
                 xmlrpc_struct_set_value(&env, vec4i, names[j], elem);
                 xmlrpc_DECREF(elem);
             }
-
+            xmlrpc_array_append_item(&env, array, vec4i);
             xmlrpc_DECREF(vec4i);
         }
         resultP->instantiate(array);
@@ -89,18 +88,13 @@ namespace rd {
 
 
     RemoteVision::updateFrame::updateFrame(boost::shared_ptr<Vision> vision, boost::shared_ptr<Camera> camera)
-            : m_vision(vision), m_camera(camera), RemoteMethod("updateFrame", "", "load next frame") { }
+            : m_vision(vision), m_camera(camera), RemoteMethod("updateFrame", "n:", "load next frame") { }
 
     void RemoteVision::updateFrame::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const resultP) {
         paramList.verifyEnd(0);
-        m_vision->setFrame(m_camera->getCVImage());
-        xmlrpc_env env;
-        xmlrpc_env_init(&env);
-        xmlrpc_value *nil = xmlrpc_nil_new(&env);
-        resultP->instantiate(nil);
-        xmlrpc_DECREF(nil);
-        xmlrpc_env_clean(&env);
-    }
 
+        m_vision->setFrame(m_camera->getCVImage());
+        *resultP = xmlrpc_c::value_nil();
+    }
 
 }
