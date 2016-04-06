@@ -19,6 +19,7 @@ class RobotPose:
         dist = math.hypot(x, y)
         angle = math.atan2(y, x)
         self.point.translate(math.cos(self.direction - angle) * dist, math.sin(self.direction - angle) * dist)
+        self.direction += theta
         # self.point.translate(math.cos(self.direction) * , math.sin(self.direction  - math.pi / 2) * y)
 
 
@@ -36,7 +37,7 @@ class Map:
     central_y = 0
     penalty_corners_y = 1100
     penalty_corner_x = 3900
-    max_distance = 3000
+    max_distance = 5000
 
     def __init__(self):
 
@@ -92,11 +93,13 @@ class LocalizationModule:
     particles_number = 50
     print_once = True
 
-    def __init__(self):
+    def __init__(self, robot, cam_geom):
         self.particles = [self.get_random_particle() for i in range(self.particles_number / 2)]
         self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
                                                         max_y = 3000, min_dir = math.radians(250),
                                                         max_dir = math.radians(290)) for i in range(self.particles_number / 2)])
+        self.robot = robot
+        self.cam_geom = cam_geom
 
     def get_random_particle(self, min_x = 0, min_y = -3200, max_x = 4500, max_y = -3000, min_dir = math.radians(70), max_dir = math.radians(110)):
         return RobotPose(random.uniform(min_x, max_x), random.uniform(min_y, max_y), random.uniform(min_dir, max_dir))
@@ -132,6 +135,36 @@ class LocalizationModule:
         d = (max(ds), min(ds))
         self.particles = [self.particles, (self.get_random_particle(x[1], y[1], x[0], y[0], d[1], d[0]) for i in range(particles_nedded))]
 
+    def update_sensors(self):
+        vision_lines = self.robot.lineDetect()
+        #TODO: make lines from robot like this:
+        parsed_lines = [((1, 2), (3, 4)), ((1, 2), (3, 4))]
+        distances = []
+        for i in parsed_lines:
+            i[0] = self.cam_geom.imagePixelToWorld(i[0][0], i[0][1], True)
+            i[1] = self.cam_geom.imagePixelToWorld(i[1][0], i[1][1], True)
+            distances.append((math.hypot(i[0][0], i[0][1]), math.hypot(i[1][0], i[1][1])))
+
+        for p in self.particles:
+            for i in range(parsed_lines):
+                point1 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][0][0], parsed_lines[i][0][1]))
+                point2 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][1][0], parsed_lines[i][1][1]))
+                if point1 != None:
+                    dist = p.point.distance_to(point1)
+                    w = abs(dist - distances[i][0])
+                    p.weight += (1 - w / self.map.max_distance) / 2
+                else:
+                    p.weight = 0.0
+                    continue
+                if point2 != None:
+                    dist = p.point.distance_to(point1)
+                    w = abs(dist - distances[i][1])
+                    p.weight += (1 - w / self.map.max_distance) / 2
+                else:
+                    p.weight = 0.0
+                    continue
+
+
 
     def print_plot(self, once = False):
         self.map.print_map()
@@ -153,42 +186,4 @@ class LocalizationModule:
 
     def testing_shit(self):
         for rp in self.particles:
-            rp.odoTranslate(2000.0, 1000.0, 0.0)
-
-
-def main():
-     # m = Map()
-     # x = 180
-     # m.print_map()
-     # plt.ion()
-     # while True:
-     #    x += 10
-     #    start = time.time()
-     #    m.getIntersectPoint(RobotPose(3700, -1100, math.radians(x)), g.Point(300, 300))
-     #    print time.time() - start
-     #    m.print_map()
-     #    plt.draw()
-     #    time.sleep(0.01)
-    # prtc = RobotPose(100, 100, 0.5)
-    # m.print_map()
-    # prtc.printPose()
-    # plt.show()
-     start = time.time()
-     lm = LocalizationModule()
-     lm.print_plot(True)
-     lm.testing_shit()
-     lm.print_plot(True)
-     # for i in range(10):
-     #     lm.testing_shit()
-     #     lm.print_plot(False)
-     #     time.sleep(2)
-     # lm.sort_particles()
-     # print lm.count_deviations()
-     # print time.time() - start
-     # lm.print_plot(True)
-    # while True:
-    #     lm.printAll()
-
-
-if __name__ == "__main__":
-    main()
+            rp.odoTranslate(2000.0, 1000.0, math.radians(45))
