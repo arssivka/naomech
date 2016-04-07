@@ -6,11 +6,11 @@
 
 namespace rd {
 
-    Vision::Vision(const std::string &cfg_path) : m_w(320), m_h(280), m_image(),
-                                                  m_ballDetector(
-                                                          BallDetector::configuration::load("ball_detector.conf")),
-                                                  m_lineDetector(
-                                                          LineDetector::configuration::load("line_detector.conf")) { }
+    Vision::Vision(const boost::property_tree::ptree &config) {
+        const boost::property_tree::ptree vision_config = config.get_child("Vision");
+        m_lineDetector.load(vision_config);
+        m_ballDetector.load(vision_config);
+    }
 
     cv::Rect Vision::ballDetect() {
         const cv::Mat preprocImage = m_ballDetector.preproccess(m_image);

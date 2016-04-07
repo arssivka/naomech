@@ -14,16 +14,5 @@ namespace rd {
         return m_detector_name;
     }
 
-
-    void BaseDetector::BaseConf::save(const std::string &path) {
-        boost::property_tree::write_xml(path, ptree);
-    }
-
-
-    void BaseDetector::BaseConf::load(const std::string &path) {
-        boost::property_tree::read_xml(path, ptree);
-    }
-
-
 }
 

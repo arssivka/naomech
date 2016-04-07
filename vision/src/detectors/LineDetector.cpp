@@ -9,15 +9,11 @@ namespace rd {
 
     LineDetector::LineDetector() : BaseDetector("LineDetector") { }
 
-    LineDetector::LineDetector(const configuration &conf) :
-            BaseDetector("LineDetector"), m_conf(conf) { }
-
     std::vector<cv::Vec4i> LineDetector::detect(const cv::Mat &preprocImage) {
         cv::Mat skeleton;
 
         __get_skeleton(preprocImage, skeleton); // O(n) n = h*w of img
-        std::cout << m_conf.HoughLines.rho << m_conf.HoughLines.theta << m_conf.HoughLines.threshold <<
-        m_conf.HoughLines.min_line_length << m_conf.HoughLines.max_line_gap;
+
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(skeleton, lines,
                         m_conf.HoughLines.rho, m_conf.HoughLines.theta, m_conf.HoughLines.threshold,
@@ -139,35 +135,19 @@ namespace rd {
         return parallel && pointInLineC;
     }
 
-    void LineDetector::configuration::save(const std::string &path) {
-        boost::property_tree::ptree conf;
-        conf.put("LineDetector.HoughLines.max_line_gap", HoughLines.max_line_gap);
-        conf.put("LineDetector.HoughLines.min_line_length", HoughLines.min_line_length);
-        conf.put("LineDetector.HoughLines.rho", HoughLines.rho);
-        conf.put("LineDetector.HoughLines.theta", HoughLines.theta);
-        conf.put("LineDetector.HoughLines.threshold", HoughLines.threshold);
-        conf.put("LineDetector.LineEqualPredicate.angle_eps", LineEqualPredicate.angle_eps);
-        conf.put("LineDetector.LineEqualPredicate.error_px", LineEqualPredicate.error_px);
-        conf.put("LineDetector.Preproc.kernel_size", Preproc.kernel_size);
-        conf.put("LineDetector.Preproc.min_thresh", Preproc.min_thresh);
-        boost::property_tree::write_xml(path, conf);
+    void LineDetector::load(const boost::property_tree::ptree &config) {
+        const boost::property_tree::ptree line_config = config.get_child(detectorName());
+
+        m_conf.HoughLines.max_line_gap = line_config.get<double>("HoughLines.max_line_gap");
+        m_conf.HoughLines.min_line_length = line_config.get<double>("HoughLines.min_line_length");
+        m_conf.HoughLines.rho = line_config.get<double>("HoughLines.rho");
+        m_conf.HoughLines.theta = line_config.get<double>("HoughLines.theta");
+        m_conf.HoughLines.threshold = line_config.get<int>("HoughLines.threshold");
+        m_conf.LineEqualPredicate.angle_eps = line_config.get<float>("LineEqualPredicate.angle_eps");
+        m_conf.LineEqualPredicate.error_px = line_config.get<int>("LineEqualPredicate.error_px");
+        m_conf.Preproc.kernel_size = line_config.get<int>("Preproc.kernel_size");
+        m_conf.Preproc.min_thresh = line_config.get<int>("Preproc.min_thresh");
     }
 
-    LineDetector::configuration LineDetector::configuration::load(const std::string &path) {
-        boost::property_tree::ptree conf;
-        boost::property_tree::read_xml(path, conf);
-        configuration c;
 
-        c.HoughLines.max_line_gap = conf.get<double>("LineDetector.HoughLines.max_line_gap");
-        c.HoughLines.min_line_length = conf.get<double>("LineDetector.HoughLines.min_line_length");
-        c.HoughLines.rho = conf.get<double>("LineDetector.HoughLines.rho");
-        c.HoughLines.theta = conf.get<double>("LineDetector.HoughLines.theta");
-        c.HoughLines.threshold = conf.get<int>("LineDetector.HoughLines.threshold");
-        c.LineEqualPredicate.angle_eps = conf.get<float>("LineDetector.LineEqualPredicate.angle_eps");
-        c.LineEqualPredicate.error_px = conf.get<int>("LineDetector.LineEqualPredicate.error_px");
-        c.Preproc.kernel_size = conf.get<int>("LineDetector.Preproc.kernel_size");
-        c.Preproc.min_thresh = conf.get<int>("LineDetector.Preproc.min_thresh");
-
-        return c;
-    }
 }

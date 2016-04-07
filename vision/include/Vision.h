@@ -5,6 +5,8 @@
 #ifndef NAOMECH_VISION_H
 #define NAOMECH_VISION_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <detectors/BallDetector.h>
 #include <detectors/LineDetector.h>
 
@@ -12,15 +14,13 @@ namespace rd {
 
     class Vision {
     public:
-        Vision(const std::string &cfg_path = "/home/nao/vision.conf");
+        Vision(const boost::property_tree::ptree &config);
 
         cv::Rect ballDetect();
 
         std::vector<cv::Vec4i> lineDetect();
 
         void setFrame(const cv::Mat &frame);
-
-        const int m_w, m_h;
 
     private:
         BallDetector m_ballDetector;

@@ -12,11 +12,14 @@ namespace rd {
     class LineDetector : public BaseDetector {
     public:
 
+        LineDetector();
+
+        cv::Mat preproccess(const cv::Mat &image);
+
+        std::vector<cv::Vec4i> detect(const cv::Mat &preprocImage);
+
         struct configuration {
             configuration();
-
-            void save(const std::string &path = "line_detector.conf");
-            static configuration load(const std::string &path = "line_detector.conf");
 
             struct HoughLines {
                 double rho;
@@ -32,20 +35,14 @@ namespace rd {
             } Preproc;
 
             struct LineEqualPredicate {
-                bool operator()(const cv::Vec4i &line1, const cv::Vec4i &line2);
-
                 float angle_eps;
                 int error_px;
+
+                bool operator()(const cv::Vec4i &line1, const cv::Vec4i &line2);
             } LineEqualPredicate;
         };
 
-        LineDetector();
-
-        LineDetector(const configuration &conf);
-
-        cv::Mat preproccess(const cv::Mat &image);
-
-        std::vector<cv::Vec4i> detect(const cv::Mat &preprocImage);
+        void load(const boost::property_tree::ptree &line_config);
 
     private:
         void __get_skeleton(const cv::Mat &img, cv::Mat &result);

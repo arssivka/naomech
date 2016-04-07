@@ -11,12 +11,14 @@ namespace rd {
 
     class BallDetector : public BaseDetector {
     public:
+        BallDetector();
+
+        cv::Mat preproccess(const cv::Mat &image);
+
+        cv::Rect detect(const cv::Mat &image);
+
         struct configuration {
             configuration();
-
-            void save(const std::string &path);
-
-            static configuration load(const std::string &path);
 
             struct {
                 uchar min_1, max_1;
@@ -27,13 +29,7 @@ namespace rd {
             int median_blur_size;
         };
 
-        cv::Mat preproccess(const cv::Mat &image);
-
-        BallDetector();
-
-        BallDetector(const configuration &conf);
-
-        cv::Rect detect(const cv::Mat &image);
+        void load(const boost::property_tree::ptree &ball_config);
 
     private:
 
