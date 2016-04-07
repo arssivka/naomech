@@ -2,17 +2,18 @@
 // Created by arssivka on 11/30/15.
 //
 
+#include <boost/program_options.hpp>
 #include <boost/make_shared.hpp>
 #include <rd/hardware/Robot.h>
 #include <rd/hardware/RemoteJoints.h>
 #include <rd/hardware/RemoteLEDs.h>
 #include <rd/hardware/RemoteCamera.h>
 #include <rd/hardware/RemoteGyro.h>
-#include <rd/network/RPCServer.h>
 #include <rd/hardware/RemoteAccelerometer.h>
 #include <rd/hardware/RemoteKinematics.h>
-#include <boost/program_options.hpp>
 #include <rd/hardware/RemoteAngle.h>
+#include <rd/network/RPCServer.h>
+#include <RemoteVision.h>
 ///testing
 #include <nb/StepGenerator.h>
 #include <rd/hardware/Locomotion.h>
@@ -69,6 +70,7 @@ int main(int argc, const char* const argv[]) {
     srv.addModule(make_shared<rd::RemoteAngle>(robot->getAngle()));
     srv.addModule(make_shared<rd::RemoteKinematics>(kinematics));
     srv.addModule(make_shared<rd::RemoteLocomotion>(locomotion));
+//    srv.addModule(make_shared<rd::RemoteVision>(robot->getVision(), robot->getBotCamera()));
     srv.run();
     return EXIT_SUCCESS;
 }

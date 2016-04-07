@@ -33,6 +33,8 @@ behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
 try:
     pass
     behavior.run()
+    while True:
+        pass
     # pose_switcher.switch_to("prepare_left_kick", "walking_pose")
     # walk.go_to((-500.0, 000.0), 100.0)
     # while walk.get_speed() != 0.0:

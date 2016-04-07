@@ -29,6 +29,8 @@ class CamGeom:
         tr_matrix = self.robot.kinematics.getHead(top_camera).get('data')
         print tr_matrix
         translation = np.array(tr_matrix[0:3])
+        translation[2] += 100 #seems that some mistakes in robot constatns
+        translation[0] += 70 #seems that some mistakes in robot constants
         rotation = np.array([[tr_matrix[3]],
                              [tr_matrix[4]],
                              [tr_matrix[5]]])
@@ -61,7 +63,7 @@ class CamGeom:
         pixel *= (heightDiff/pixel[2])
         print heightDiff
         pixel += translation
-        return [float(pixel[0]), float(pixel[1]), object_height] #normally there will be always true z coordinate, but just in case object height is passed
+        return (float(pixel[0]), float(pixel[1])) #normally there will be always true z coordinate, but just in case object height is passed
 
 
 

@@ -309,6 +309,13 @@ useconds_t rd::Locomotion::getAutoApplyUSleepTime() const {
     return m_auto_update_sleep_time.load();
 }
 
+void rd::Locomotion::reset(bool left) {
+    m_step_generator->setSpeed(0.0, 0.0, 0.0);
+    m_step_generator->resetSteps(left);
+    m_step_generator->resetHard();
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void rd::Locomotion::setHeadPositions(double pitch, double yaw) {

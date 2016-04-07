@@ -5,11 +5,9 @@
 #ifndef NAOMECH_LINEDETECTOR_H
 #define NAOMECH_LINEDETECTOR_H
 
-#include "opencv2/opencv.hpp"
-
 #include "BaseDetector.h"
 
-namespace detector {
+namespace rd {
 
     class LineDetector : public BaseDetector {
     public:
@@ -18,7 +16,6 @@ namespace detector {
             configuration();
 
             void save(const std::string &path = "line_detector.conf");
-
             static configuration load(const std::string &path = "line_detector.conf");
 
             struct HoughLines {
@@ -48,11 +45,10 @@ namespace detector {
 
         cv::Mat preproccess(const cv::Mat &image);
 
-        std::vector<cv::Vec4i> detect(const cv::Mat &binaryImage);
+        std::vector<cv::Vec4i> detect(const cv::Mat &preprocImage);
 
     private:
         void __get_skeleton(const cv::Mat &img, cv::Mat &result);
-
         void __join_lines(std::vector<cv::Vec4i> &lines);
 
         configuration m_conf;

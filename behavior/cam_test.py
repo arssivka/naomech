@@ -6,7 +6,7 @@ import time
 import numpy as np
 
 top_camera = False
-not_walking_look = False
+not_walking_look = True
 robot = Robot("192.168.0.14", "5469")
 cam = CamGeom("config/cameras.json", robot)
 
@@ -23,7 +23,7 @@ def onmouse(event, x, y, flags, params):
         print "time", time.time() - start
         print pix
         if not_walking_look:
-            robot.kinematics.lookAt(pix[0], pix[1], pix[2], top_camera)
+            robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
         else:
             joints = robot.kinematics.jointsLookAt(pix[0], pix[1], pix[2], top_camera)
             robot.locomotion.head.positions(joints[0], joints[1])
@@ -39,8 +39,8 @@ while True:
     raw = robot.cameras.image(top_camera)
     img = camera_calibator.converToCvYUV(raw.get('data').data)
     picturerbg = cv2.cvtColor(img, cv2.COLOR_YUV2RGB)
-    if top_camera:
-        picturerbg = rotateImage(picturerbg, 180.0)
+    # if top_camera:
+    #     picturerbg = rotateImage(picturerbg, 180.0)
     cv2.imshow('mouse_input', picturerbg)
     cv2.waitKey(2)
 

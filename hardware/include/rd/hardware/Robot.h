@@ -13,6 +13,7 @@
 #include <rd/hardware/LEDs.h>
 #include <rd/hardware/Camera.h>
 #include "Angle.h"
+#include <Vision.h>
 
 
 namespace rd {
@@ -88,6 +89,8 @@ namespace rd {
          */
         boost::shared_ptr<boost::property_tree::ptree> getConfig();
 
+//        boost::shared_ptr<Vision> getVision();
+
         /*!
            \brief Destructor
          */
@@ -107,6 +110,7 @@ namespace rd {
         boost::shared_ptr<Accelerometer> m_accelerometer;
         boost::shared_ptr<Camera> m_bot_camera;
         boost::shared_ptr<Camera> m_top_camera;
+//        boost::shared_ptr<Vision> m_vision;
     };
 }
 
