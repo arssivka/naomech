@@ -134,6 +134,11 @@ class Walker:
     def get_speed(self):
         return tuple(self.robot.locomotion.parameters(self.keys)['data'])
 
+    def reset(self):
+        self.speed = 0.0
+        self.target = (0.0, 0.0)
+        self.robot.locomotion.reset(True)
+
     def stop(self):
         self.speed = 0.0
         self.target = (0.0, 0.0)

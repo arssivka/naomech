@@ -28,14 +28,13 @@ robot.joints.hardness(0.8)
 # lleg_keys = ['L_HIP_YAW_PITCH', 'L_HIP_ROLL', 'L_HIP_PITCH', 'L_KNEE_PITCH', 'L_ANKLE_PITCH', 'L_ANKLE_ROLL']
 # robot.joints.hardness(lleg_keys, [0.1 for i in lleg_keys])
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
-
 behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
 
 try:
     pass
     behavior.run()
     # pose_switcher.switch_to("prepare_left_kick", "walking_pose")
-    # walk.go_to((1000.0, 500.0), 100.0)
+    # walk.go_to((-500.0, 000.0), 100.0)
     # while walk.get_speed() != 0.0:
     #     pass
     # pose_switcher.switch_to("prepare_left_kick", "walking pose")
@@ -143,6 +142,5 @@ try:
     # pose_data = [joint / iters for joint in pose_data]
     # print pose_data
 finally:
-    pass
-    # behavior.stop()
+    behavior.stop()
     # robot.joints.hardness(0.0)
