@@ -36,7 +36,7 @@ Robot::Robot(const std::string& name, const std::string& ip, unsigned int port, 
     m_angle = make_shared<Angle>(m_broker);
     m_accelerometer = make_shared<Accelerometer>(m_broker);
     m_clock = make_shared<Clock>(m_broker);
-    m_vision = make_shared<Vision>();
+//    m_vision = make_shared<Vision>();
 
     m_top_camera = make_shared<Camera>("/dev/video0", 320, 240, true, m_broker);
     m_bot_camera = make_shared<Camera>("/dev/video1", 320, 240, true, m_broker);
@@ -101,9 +101,9 @@ boost::shared_ptr<Angle> Robot::getAngle() {
     return m_angle;
 }
 
-boost::shared_ptr<Vision> Robot::getVision() {
-    return m_vision;
-}
+//boost::shared_ptr<Vision> Robot::getVision() {
+//    return m_vision;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

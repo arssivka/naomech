@@ -547,7 +547,7 @@ void StepGenerator::resetSteps(const bool startLeft) {
     m_controller_y->initState(0.0, 0.0, 0.0);
     //Each time we restart, we need to reset the estimated sensor ZMP:
     m_zmp_filter = ZmpEKF();
-    m_sensor_angles->reset();
+//    m_sensor_angles->reset();
 
     //Third, we reset the memory of where to generate ZMP from steps back to
     //the origin
