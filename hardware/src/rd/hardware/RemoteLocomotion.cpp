@@ -23,6 +23,7 @@ rd::RemoteLocomotion::RemoteLocomotion(boost::shared_ptr<Locomotion> locomotion)
     this->addMethod(boost::shared_ptr<RemoteMethod>(new IsDoneMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new AutoUpdateSleepMethod(locomotion)));
+    this->addMethod(boost::shared_ptr<RemoteMethod>(new ResetMethod(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new HeadPositionsMethos(locomotion)));
     this->addMethod(boost::shared_ptr<RemoteMethod>(new HeadHardnessMethos(locomotion)));
 }
@@ -422,6 +423,19 @@ void rd::RemoteLocomotion::AutoUpdateMethod::execute(xmlrpc_c::paramList const& 
         paramList.verifyEnd(0);
         *resultP = xmlrpc_c::value_boolean(m_locomotion->isAutoApplyEnabled());
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+rd::RemoteLocomotion::ResetMethod::ResetMethod(boost::shared_ptr<Locomotion> locomotion)
+        : RemoteMethod("reset", "n:b", "Reset steps method"), m_locomotion(locomotion) {}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void::rd::RemoteLocomotion::ResetMethod::execute(xmlrpc_c::paramList const &paramList,
+                                                 xmlrpc_c::value *const resultP) {
+    m_locomotion->reset(paramList.getBoolean(0));
+    *resultP = xmlrpc_c::value_nil();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

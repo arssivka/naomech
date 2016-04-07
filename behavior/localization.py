@@ -92,6 +92,7 @@ class LocalizationModule:
     map = Map()
     particles_number = 50
     print_once = True
+    position = RobotPose(0.0, 0.0, 0.0)
 
     def __init__(self, robot, cam_geom):
         self.particles = [self.get_random_particle() for i in range(self.particles_number / 2)]
@@ -138,31 +139,33 @@ class LocalizationModule:
     def update_sensors(self):
         vision_lines = self.robot.lineDetect()
         #TODO: make lines from robot like this:
-        parsed_lines = [((1, 2), (3, 4)), ((1, 2), (3, 4))]
-        distances = []
-        for i in parsed_lines:
-            i[0] = self.cam_geom.imagePixelToWorld(i[0][0], i[0][1], True)
-            i[1] = self.cam_geom.imagePixelToWorld(i[1][0], i[1][1], True)
-            distances.append((math.hypot(i[0][0], i[0][1]), math.hypot(i[1][0], i[1][1])))
+        if len(vision_lines) != 0:
+            parsed_lines = []
+            distances = []
+            for i in vision_lines:
+                parsed_lines.append(((i["x1"], i["y1"]),((i["x2"]), (i["y2"]))))
+                parsed_lines[-1][0] = self.cam_geom.imagePixelToWorld(parsed_lines[-1][0][0], parsed_lines[-1][0][1], True)
+                parsed_lines[-1][1] = self.cam_geom.imagePixelToWorld(parsed_lines[-1][1][0], parsed_lines[-1][1][1], True)
+                distances.append((math.hypot(i[0][0], i[0][1]), math.hypot(i[1][0], i[1][1])))
 
-        for p in self.particles:
-            for i in range(parsed_lines):
-                point1 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][0][0], parsed_lines[i][0][1]))
-                point2 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][1][0], parsed_lines[i][1][1]))
-                if point1 != None:
-                    dist = p.point.distance_to(point1)
-                    w = abs(dist - distances[i][0])
-                    p.weight += (1 - w / self.map.max_distance) / 2
-                else:
-                    p.weight = 0.0
-                    continue
-                if point2 != None:
-                    dist = p.point.distance_to(point1)
-                    w = abs(dist - distances[i][1])
-                    p.weight += (1 - w / self.map.max_distance) / 2
-                else:
-                    p.weight = 0.0
-                    continue
+            for p in self.particles:
+                for i in range(parsed_lines):
+                    point1 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][0][0], parsed_lines[i][0][1]))
+                    point2 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][1][0], parsed_lines[i][1][1]))
+                    if point1 != None:
+                        dist = p.point.distance_to(point1)
+                        w = abs(dist - distances[i][0])
+                        p.weight += (1 - w / self.map.max_distance) / 2
+                    else:
+                        p.weight = 0.0
+                        continue
+                    if point2 != None:
+                        dist = p.point.distance_to(point1)
+                        w = abs(dist - distances[i][1])
+                        p.weight += (1 - w / self.map.max_distance) / 2
+                    else:
+                        p.weight = 0.0
+                        continue
 
 
 

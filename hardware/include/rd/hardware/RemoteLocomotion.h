@@ -157,6 +157,16 @@ namespace rd {
             boost::shared_ptr<Locomotion> m_locomotion;
         };
 
+        class ResetMethod: public RemoteMethod {
+        public:
+            ResetMethod(boost::shared_ptr<Locomotion> locomotion);
+
+            virtual void execute(xmlrpc_c::paramList const &paramList,
+                                 xmlrpc_c::value *const resltP);
+        private:
+            boost::shared_ptr<Locomotion> m_locomotion;
+        };
+
         class HeadPositionsMethos : public RemoteMethod {
         public:
             HeadPositionsMethos(boost::shared_ptr<Locomotion> locomotion);

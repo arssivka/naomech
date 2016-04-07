@@ -80,6 +80,8 @@ namespace rd {
 
         bool isAutoApplyEnabled() const;
 
+        void reset(bool left);
+
         void setHeadPositions(double pitch, double yaw);
 
         void setHeadHardness(double pitch, double yaw);
