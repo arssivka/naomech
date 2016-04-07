@@ -30,7 +30,6 @@ namespace rd {
         cv::cvtColor(image, bgrImg, CV_YUV2BGR);
         cv::cvtColor(bgrImg, preprocImage, CV_BGR2GRAY);
 
-
         cv::Mat threshImage;
         cv::threshold(preprocImage, threshImage,
                       m_conf.Preproc.min_thresh,

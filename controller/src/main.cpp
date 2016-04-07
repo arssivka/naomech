@@ -70,7 +70,7 @@ int main(int argc, const char* const argv[]) {
     srv.addModule(make_shared<rd::RemoteAngle>(robot->getAngle()));
     srv.addModule(make_shared<rd::RemoteKinematics>(kinematics));
     srv.addModule(make_shared<rd::RemoteLocomotion>(locomotion));
-//    srv.addModule(make_shared<rd::RemoteVision>(robot->getVision(), robot->getBotCamera()));
+    srv.addModule(make_shared<rd::RemoteVision>(robot->getVision(), robot->getBotCamera()));
     srv.run();
     return EXIT_SUCCESS;
 }

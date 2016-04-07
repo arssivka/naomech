@@ -89,7 +89,7 @@ namespace rd {
          */
         boost::shared_ptr<boost::property_tree::ptree> getConfig();
 
-//        boost::shared_ptr<Vision> getVision();
+        boost::shared_ptr<Vision> getVision();
 
         /*!
            \brief Destructor
@@ -110,7 +110,7 @@ namespace rd {
         boost::shared_ptr<Accelerometer> m_accelerometer;
         boost::shared_ptr<Camera> m_bot_camera;
         boost::shared_ptr<Camera> m_top_camera;
-//        boost::shared_ptr<Vision> m_vision;
+        boost::shared_ptr<Vision> m_vision;
     };
 }
 
