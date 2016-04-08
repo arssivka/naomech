@@ -114,6 +114,12 @@ class LocalizationModule:
         arr_d = np.array([rp.direction for rp in self.particles])
         return (np.std(arr_x), np.std(arr_y), np.std(arr_d))
 
+    def count_mean(self):
+        arr_x = np.array([rp.point.x for rp in self.particles])
+        arr_y = np.array([rp.point.y for rp in self.particles])
+        arr_d = np.array([rp.direction for rp in self.particles])
+        return (np.mean(arr_x), np.mean(arr_y), np.mean(arr_d))
+
     def norm_weights(self):
         m = max([rp.weight for rp in self.particles])
         for p in self.particles:
@@ -136,18 +142,29 @@ class LocalizationModule:
         d = (max(ds), min(ds))
         self.particles = [self.particles, (self.get_random_particle(x[1], y[1], x[0], y[0], d[1], d[0]) for i in range(particles_nedded))]
 
-    def update_sensors(self):
+    #TODO: Test this shit first!
+    def get_sensors(self):
+        self.robot.udateFrame()
         vision_lines = self.robot.lineDetect()
-        #TODO: make lines from robot like this:
         if len(vision_lines) != 0:
             parsed_lines = []
             distances = []
             for i in vision_lines:
-                parsed_lines.append(((i["x1"], i["y1"]),((i["x2"]), (i["y2"]))))
-                parsed_lines[-1][0] = self.cam_geom.imagePixelToWorld(parsed_lines[-1][0][0], parsed_lines[-1][0][1], True)
-                parsed_lines[-1][1] = self.cam_geom.imagePixelToWorld(parsed_lines[-1][1][0], parsed_lines[-1][1][1], True)
-                distances.append((math.hypot(i[0][0], i[0][1]), math.hypot(i[1][0], i[1][1])))
+                c1 = self.cam_geom.imagePixelToWorld(i[0][0], i[0][1], True)
+                c2 = self.cam_geom.imagePixelToWorld(i[1][0], i[1][1], True)
+                if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2 < 0:
+                    continue
+                parsed_lines.append((c1, c2))
+                distances.append((math.hypot(c1[0], c1[1]), math.hypot(c2[0], c2[1])))
+        else:
+            return None
+        return  parsed_lines, distances
 
+
+    #TODO: Test this shit second!
+    def update_sensors(self):
+        parsed_lines, distances = self.get_sensors()
+        if parsed_lines != None:
             for p in self.particles:
                 for i in range(parsed_lines):
                     point1 = self.map.get_intersect_point(p, g.Point(parsed_lines[i][0][0], parsed_lines[i][0][1]))
@@ -166,6 +183,15 @@ class LocalizationModule:
                     else:
                         p.weight = 0.0
                         continue
+
+    #TODO: Test this shit third!
+    def initial_localization(self):
+        while self.count_deviations() > (100.0, 100.0, math.radians(10)):
+            self.update_sensors()
+            self.resample()
+        mean = self.count_mean()
+        self.position.point = g.Point(mean[0], mean[1])
+        self.position.direction = mean[3]
 
 
 
@@ -186,7 +212,3 @@ class LocalizationModule:
     def print_console(self):
         for i in self.particles:
             print ('x: ', i.point.x, 'y: ', i.point.y, 'weight: ', i.weight)
-
-    def testing_shit(self):
-        for rp in self.particles:
-            rp.odoTranslate(2000.0, 1000.0, math.radians(45))

@@ -20,12 +20,12 @@ def onmouse(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDBLCLK:
         start = time.time()
         pix = cam.imagePixelToWorld(x, y, top_camera)
-        print "time", time.time() - start
-        print pix
+        # print "time", time.time() - start
+        # print pix
         if not_walking_look:
             robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
         else:
-            joints = robot.kinematics.jointsLookAt(pix[0], pix[1], pix[2], top_camera)
+            joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, top_camera)
             robot.locomotion.head.positions(joints[0], joints[1])
             robot.locomotion.head.hardness(0.8, 0.8)
     if event == cv2.EVENT_RBUTTONDBLCLK:
@@ -39,6 +39,17 @@ while True:
     raw = robot.cameras.image(top_camera)
     img = camera_calibator.converToCvYUV(raw.get('data').data)
     picturerbg = cv2.cvtColor(img, cv2.COLOR_YUV2RGB)
+    robot.vision.updateFrame()
+    ball = robot.vision.ballDetect()
+    pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], top_camera)
+    print pix
+    if not_walking_look:
+        pass
+        # robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
+    else:
+        joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, top_camera)
+        # robot.locomotion.head.positions(joints[0], joints[1])
+        # robot.locomotion.head.hardness(0.8, 0.8)
     # if top_camera:
     #     picturerbg = rotateImage(picturerbg, 180.0)
     cv2.imshow('mouse_input', picturerbg)

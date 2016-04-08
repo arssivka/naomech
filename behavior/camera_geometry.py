@@ -27,10 +27,10 @@ class CamGeom:
 
     def imagePixelToWorld(self, img_x, img_y, top_camera, object_height = 0.0):
         tr_matrix = self.robot.kinematics.getHead(top_camera).get('data')
-        print tr_matrix
+        # print tr_matrix
         translation = np.array(tr_matrix[0:3])
-        translation[2] += 100 #seems that some mistakes in robot constatns
-        translation[0] += 70 #seems that some mistakes in robot constants
+        # translation[2] += 100 #seems that some mistakes in robot constatns
+        # translation[0] += 70 #seems that some mistakes in robot constants
         rotation = np.array([[tr_matrix[3]],
                              [tr_matrix[4]],
                              [tr_matrix[5]]])
