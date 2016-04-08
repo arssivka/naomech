@@ -7,10 +7,10 @@ from enum import Enum
 
 
 class WalkState(Enum):
-    SO_MUCH_ROTATE = 0,
-    MUCH_ROTATE = 1,
-    ROTATE = 2,
-    GO_CURVE = 3,
+    SO_MUCH_ROTATE = 0
+    MUCH_ROTATE = 1
+    ROTATE = 2
+    GO_CURVE = 3
     GO_STRAIGHT = 4
 
 
@@ -71,7 +71,6 @@ class Walker:
                          (p[index][1] + r * math.sin(phi + q_theta * sign[index])))
                     theta = -sign[index] * self.max_angular_speed
                     update_q = False
-            print state
             if any(state == s for s in (WalkState.SO_MUCH_ROTATE, WalkState.MUCH_ROTATE)):
                 pi3 = math.pi / 3.0
                 abbabbbebe = math.copysign(1.0, angle) # It's rotate direction. We haven't any ideas about its name :D
@@ -115,6 +114,8 @@ class Walker:
                 self.robot.locomotion.parameters(self.keys, [self.speed, 0.0, 0.0])
             self.robot.locomotion.autoapply.enable(True)
             time.sleep(self.sleep_time)
+        while not self.robot.locomotion.is_done():
+            time.sleep(0.1)
         self.robot.locomotion.autoapply.enable(autoapply_enabled)
 
     def go_around(self, point, speed):

@@ -180,38 +180,42 @@ const StringKeyVector& rd::Locomotion::getJointKeys() const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void rd::Locomotion::generateStep() {
-    int now = m_clock->getTime();
-    boost::lock_guard<boost::mutex> lock(m_access);
-    double pitch_p = m_positions_data->data[20];
-    double yaw_p = m_positions_data->data[21];
-    double pitch_h = m_hardness_data->data[20];
-    double yaw_h = m_hardness_data->data[21];
-    m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
-    m_hardness_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
-    m_meta_gait->tick_gait();
-    m_step_generator->tick_controller();
-    const WalkLegsTuple& legs = m_step_generator->tick_legs();
-    const WalkArmsTuple& arms = m_step_generator->tick_arms();
-    const ValuesVector& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
-    const ValuesVector& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
-    const ValuesVector& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
-    const ValuesVector& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
-    const ValuesVector& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
-    const ValuesVector& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
-    const ValuesVector& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
-    const ValuesVector& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
-    std::copy(larm_gains.begin(), larm_gains.end(), m_hardness_data->data.begin() + 0);
-    std::copy(lleg_gains.begin(), lleg_gains.end(), m_hardness_data->data.begin() + 4);
-    std::copy(rleg_gains.begin(), rleg_gains.end(), m_hardness_data->data.begin() + 10);
-    std::copy(rarm_gains.begin(), rarm_gains.end(), m_hardness_data->data.begin() + 16);
-    m_hardness_data->data[20] = pitch_h;
-    m_hardness_data->data[21] = yaw_h;
-    std::copy(larm_joints.begin(), larm_joints.end(), m_positions_data->data.begin() + 0);
-    std::copy(lleg_joints.begin(), lleg_joints.end(), m_positions_data->data.begin() + 4);
-    std::copy(rleg_joints.begin(), rleg_joints.end(), m_positions_data->data.begin() + 10);
-    std::copy(rarm_joints.begin(), rarm_joints.end(), m_positions_data->data.begin() + 16);
-    m_positions_data->data[20] = pitch_p;
-    m_positions_data->data[21] = yaw_p;
+    try {
+        int now = m_clock->getTime();
+        boost::lock_guard<boost::mutex> lock(m_access);
+        double pitch_p = m_positions_data->data[20];
+        double yaw_p = m_positions_data->data[21];
+        double pitch_h = m_hardness_data->data[20];
+        double yaw_h = m_hardness_data->data[21];
+        m_positions_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
+        m_hardness_data = boost::make_shared<SensorData<double> >(m_joint_keys.size(), now);
+        m_meta_gait->tick_gait();
+        m_step_generator->tick_controller();
+        const WalkLegsTuple& legs = m_step_generator->tick_legs();
+        const WalkArmsTuple& arms = m_step_generator->tick_arms();
+        const ValuesVector& lleg_joints = legs.get<LEFT_FOOT>().get<JOINT_INDEX>();
+        const ValuesVector& rleg_joints = legs.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+        const ValuesVector& lleg_gains = legs.get<LEFT_FOOT>().get<STIFF_INDEX>();
+        const ValuesVector& rleg_gains = legs.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+        const ValuesVector& larm_joints = arms.get<LEFT_FOOT>().get<JOINT_INDEX>();
+        const ValuesVector& rarm_joints = arms.get<RIGHT_FOOT>().get<JOINT_INDEX>();
+        const ValuesVector& larm_gains = arms.get<LEFT_FOOT>().get<STIFF_INDEX>();
+        const ValuesVector& rarm_gains = arms.get<RIGHT_FOOT>().get<STIFF_INDEX>();
+        std::copy(larm_gains.begin(), larm_gains.end(), m_hardness_data->data.begin() + 0);
+        std::copy(lleg_gains.begin(), lleg_gains.end(), m_hardness_data->data.begin() + 4);
+        std::copy(rleg_gains.begin(), rleg_gains.end(), m_hardness_data->data.begin() + 10);
+        std::copy(rarm_gains.begin(), rarm_gains.end(), m_hardness_data->data.begin() + 16);
+        m_hardness_data->data[20] = pitch_h;
+        m_hardness_data->data[21] = yaw_h;
+        std::copy(larm_joints.begin(), larm_joints.end(), m_positions_data->data.begin() + 0);
+        std::copy(lleg_joints.begin(), lleg_joints.end(), m_positions_data->data.begin() + 4);
+        std::copy(rleg_joints.begin(), rleg_joints.end(), m_positions_data->data.begin() + 10);
+        std::copy(rarm_joints.begin(), rarm_joints.end(), m_positions_data->data.begin() + 16);
+        m_positions_data->data[20] = pitch_p;
+        m_positions_data->data[21] = yaw_p;
+    } catch (const char * e) {
+        std::cerr << e << std::endl;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
