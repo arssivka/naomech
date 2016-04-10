@@ -44,11 +44,11 @@ namespace rd {
 
         void load(const boost::property_tree::ptree &line_config);
 
+        configuration m_conf;
     private:
         void __get_skeleton(const cv::Mat &img, cv::Mat &result);
-        void __join_lines(std::vector<cv::Vec4i> &lines);
 
-        configuration m_conf;
+        void __join_lines(std::vector<cv::Vec4i> &lines);
     };
 
 
