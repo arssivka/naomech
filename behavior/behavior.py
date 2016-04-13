@@ -29,6 +29,9 @@ class StanceDeterminator:
 
 
 class Behavior:
+    def check(self):
+        pass
+
     def run(self):
         pass
 
@@ -75,8 +78,12 @@ class SwitcherBasedBehavior(Behavior):
             self.prepare()
             switch = self.get_instances()
             if switch:
+                aa = self.robot.locomotion.autoapply.enable()
+                self.robot.locomotion.autoapply.enable(False)
                 self.pose_switcher.switch_to(*switch)
+                self.robot.locomotion.autoapply.enable(aa)
             self.finalize()
+            self._finished = True
 
     def is_done(self):
         return self._finished
@@ -94,7 +101,7 @@ class StandingUpBehavior(SwitcherBasedBehavior):
         while all(self.state != st for st in (Stance.FACE_DOWN, Stance.FACE_UP)):
             time.sleep(1.0)
             self.state = self.stance_determinator.determinate()
-        self.robot.joints.hardness(1.0)
+        self.robot.joints.hardness(0.85)
 
     def get_instances(self):
         if self.state == Stance.FACE_DOWN:
@@ -104,11 +111,14 @@ class StandingUpBehavior(SwitcherBasedBehavior):
 
     def finalize(self):
         self.robot.joints.hardness(0.8)
-        self._finished = True
+        self.stop()
 
 
 class KickBehavior(SwitcherBasedBehavior):
     _left_leg = True
+
+    def prepare(self):
+        self.robot.joints.hardness(0.8)
 
     def set_left_leg(self, left=True):
         self._left_leg = left
@@ -148,19 +158,21 @@ class WalkBehavior(Behavior):
                 self._lock.release()
 
     def go_to(self, target, speed):
-        self._upd_args(target, speed)
+        self._upd_args(WalkBehavior.GO_TO, target, speed)
 
     def go_around(self, target, speed):
-        self._upd_args(target, speed)
+        self._upd_args(WalkBehavior.GO_AROUND, target, speed)
 
     def set_speed(self, x, y, theta):
-        self._upd_args(x, y, theta)
+        self._upd_args(WalkBehavior.SET_SPEED, x, y, theta)
 
-    def _upd_args(self, *args):
+    def _upd_args(self, state, *args):
         self._lock.acquire()
         try:
+            if self._walker.is_done() or self._state != state or self._args != args:
+                self._applied = False
+            self._state = state
             self._args = args
-            self._applied = False
         finally:
             self._lock.release()
 
@@ -171,6 +183,8 @@ class WalkBehavior(Behavior):
 
 
 class BehaviorHandler:
+    sleep_time = 0.01
+
     def __init__(self, robot, walker, pose_handler, pose_switcher):
         self.fall_indicator_count = 5
         self._robot = robot
@@ -192,6 +206,7 @@ class BehaviorHandler:
                 self._lock.release()
                 try:
                     behavior.run()
+                    time.sleep(self.sleep_time)
                 finally:
                     self._lock.acquire()
         finally:
@@ -201,6 +216,7 @@ class BehaviorHandler:
         self._lock.acquire()
         try:
             if not isinstance(self._behavior, behavior):
+                self._behavior.stop()
                 self._behavior = behavior(*args, **kwargs)
         finally:
             self._lock.release()
@@ -210,29 +226,38 @@ class BehaviorHandler:
         start = time.time()
         left_leg = True
         self.__set_behavior(UnknownBehavior)
+        stance = self._stance_determinator.determinate()
+        if stance == Stance.STAND:
+            self._pose_handler.set_pose("walking_pose", 2.0)
         while not self._iterrupt:
             stance = self._stance_determinator.determinate()
             counter = counter + 1 if stance != Stance.STAND else 0
             if counter >= self.fall_indicator_count:
                 self.__set_behavior(StandingUpBehavior, self._robot, self._pose_handler,
-                                    self._pose_switcher, self._stance_determinator)
+                                    self._pose_switcher, self._stance_determinator, self._walker)
                 if self._behavior.is_done():
                     self._behavior.reset()
                 continue
-            if any(isinstance(self._behavior, behavior) for behavior in (StandingUpBehavior, KickBehavior)) and \
-                    not self._behavior.is_done():
-                continue
-            t = round((time.time() - start) % 15.0)
+            if any(isinstance(self._behavior, behavior) for behavior in (StandingUpBehavior, KickBehavior)):
+                if not self._behavior.is_done():
+                    continue
+                else:
+                    self.__set_behavior(UnknownBehavior)
+
+            t = round((time.time() - start) % 20.0)
             print t
+            self.__set_behavior(WalkBehavior, self._walker)
             if t == 3.0:
-                self.__set_behavior(WalkBehavior, self._walker)
-                self._behavior.go_to((0.0, 500.0), 100.0)
+                print "old target"
+                self._behavior.go_to((300.0, 00.0), 100.0)
             elif t == 10.0:
-                self.__set_behavior(KickBehavior, self._robot, self._pose_handler,
-                                    self._pose_switcher, self._stance_determinator)
-                self._behavior.set_left_leg(left_leg)
-                left_leg = not left_leg
-            # self.__set_behavior(UnknownBehavior)
+                print "new target"
+                self._behavior.go_to((000.0, 300.0), 100.0)
+        # elif t == 20.0:
+            #     self.__set_behavior(KickBehavior, self._robot, self._pose_handler,
+            #                         self._pose_switcher, self._stance_determinator, self._walker)
+            #     self._behavior.set_left_leg(left_leg)
+            #     left_leg = not left_leg
 
     def stop(self):
         self._iterrupt = True

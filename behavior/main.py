@@ -30,17 +30,31 @@ robot.joints.hardness(0.8)
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
 behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher)
 
+stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
+step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
+hack = [0.05, 0.05]
+sensor = [0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0]
+stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
+odo = [1.0, 1.0, 1.3]
+arm = [0.0]
+robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
+
 try:
-    pass
     behavior.run()
-    while True:
-        pass
     # pose_switcher.switch_to("prepare_left_kick", "walking_pose")
-    # walk.go_to((-500.0, 000.0), 100.0)
+    # walk.go_to((300.0, 000.0), 100.0)
     # while walk.get_speed() != 0.0:
     #     pass
     # pose_switcher.switch_to("prepare_left_kick", "walking pose")
-    # walk.go_to((0.0, 1000.0), 100.0)
+    # walk.go_to((0.0, 300.0), 100.0)
     # while walk.get_speed() != 0.0:
     #     pass
     # pose_switcher.switch_to("prepare_right_kick", "walking pose")
@@ -93,23 +107,6 @@ try:
     # robot.locomotion.parameters(['X', 'STEP_COUNT' ], [-100.0, 10.0])
     # robot.locomotion.parameters(['Y', 'STEP_COUNT' ], [100.0, 5.0])
 
-
-    stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
-    step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
-    zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
-    hack = [0.05, 0.05]
-    sensor = [0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0]
-    stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
-    odo = [1.0, 1.0, 1.3]
-    arm = [0.0]
-    robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
     # walk.go_to((1000.0, 500.0), 100.0)
     #
 
@@ -145,4 +142,4 @@ try:
     # print pose_data
 finally:
     behavior.stop()
-    # robot.joints.hardness(0.0)
+    robot.joints.hardness(0.0)

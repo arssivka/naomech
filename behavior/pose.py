@@ -64,7 +64,7 @@ class PoseHandler:
             finally:
                 self._lock.release()
         if move_time > 0.0:
-            joints = self.robot.joints.positions()['data']
+            joints = self.robot.joints.positions().get('data')
             initial = Pose(joints)
             count = move_time / self.sleep_time
             dpose = (target - initial) / count
