@@ -31,9 +31,9 @@ namespace rd {
 
         void load(const boost::property_tree::ptree &ball_config);
 
-    private:
-
         configuration m_conf;
+
+    private:
     };
 
 }

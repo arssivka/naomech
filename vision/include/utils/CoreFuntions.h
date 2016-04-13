@@ -51,4 +51,28 @@ namespace utils {
 }
 
 
+    inline
+    void operator+= (cv::Vec4i &line1, const cv::Vec4i &line2)
+    {
+    using utils::cmp;
+
+        const cv::Point a(line1(0), line1(1)), b(line1(2), line1(3));
+        const cv::Point c(line2(0), line2(1)), d(line2(2), line2(3));
+
+if (cv::norm(c - d) < 0.00001) {
+return;
+}
+if (cv::norm(a - b) < 0.00001) {
+line1 = line2;
+return;
+}
+
+const cv::Point min = std::min(a, std::min(b, std::min(c, d, cmp), cmp), cmp);
+const cv::Point max = std::max(a, std::max(b, std::max(c, d, cmp), cmp), cmp);
+
+line1 = cv::Vec4i(min.x, min.y, max.x, max.y);
+return;
+}
+
+
 #endif //NAOMECH_COREFUNTIONS_H

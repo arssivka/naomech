@@ -8,14 +8,21 @@ set(RD_RVISION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
 set(RD_VISION_LIBRARIES vision CACHE STRING "Vision module libs")
 set(RD_RVISION_LIBRARIES rvision CACHE STRING "Vision module libs")
 
-foreach (LIB
-        BOOST OPENCV2_CORE OPENCV2_HIGHGUI OPENCV2_IMGPROC
-        JPEG PNG TIFF GSTREAMER GOBJECT ALVALUE ALCOMMON XML2
-        FFI TBB V4L GLIB2 GTHREAD GSTREAMER GMODULE FFMPEG BZIP2)
-    find_package(${LIB} REQUIRED)
-    set(LIBS ${LIBS} ${${LIB}_LIBRARIES})
-    set(INCLUDE_DIRS ${INCLUDE_DIRS} ${${LIB}_INCLUDE_DIRS})
-endforeach ()
+if (MANAGER_ON)
+    find_package(Boost)
+    find_package(OpenCV)
+    set(LIBS ${Boost_LIBRARIES} ${OpenCV_LIBRAREIS})
+    set(INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+else ()
+    foreach (LIB
+            BOOST OPENCV2_CORE OPENCV2_HIGHGUI OPENCV2_IMGPROC
+            JPEG PNG TIFF GSTREAMER GOBJECT ALVALUE ALCOMMON XML2
+            FFI TBB V4L GLIB2 GTHREAD GSTREAMER GMODULE FFMPEG BZIP2)
+        find_package(${LIB} REQUIRED)
+        set(LIBS ${LIBS} ${${LIB}_LIBRARIES})
+        set(INCLUDE_DIRS ${INCLUDE_DIRS} ${${LIB}_INCLUDE_DIRS})
+    endforeach ()
+endif ()
 
 include_directories(
         include
