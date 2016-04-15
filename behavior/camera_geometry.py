@@ -59,9 +59,9 @@ class CamGeom:
         ###END TO CAMERA COORDINATES
 
         heightDiff = object_height - translation[2]
-        print heightDiff/pixel[2]
+        # print heightDiff/pixel[2]
         pixel *= (heightDiff/pixel[2])
-        print heightDiff
+        # print heightDiff
         pixel += translation
         return (float(pixel[0]), float(pixel[1])) #normally there will be always true z coordinate, but just in case object height is passed
 
