@@ -15,7 +15,7 @@ from localization import LocaTesting
 
 
 
-robot = Robot("192.168.1.64", "5469")
+robot = Robot("192.168.0.14", "5469")
 print robot.system.listMethods()
 print len(robot.joints.keys())
 

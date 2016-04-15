@@ -16,6 +16,7 @@ class RobotPose:
 
     #TODO: this is not working
     def odoTranslate(self, x, y, theta):
+        y *= -1
         dist = math.hypot(x, y)
         angle = math.atan2(y, x)
         self.point.translate(math.cos(self.direction - angle) * dist, math.sin(self.direction - angle) * dist)
@@ -157,14 +158,13 @@ class LocalizationModule:
     def get_sensors(self):
         self.robot.vision.updateFrame()
         vision_lines = self.robot.vision.lineDetect()
-        print "len", len(vision_lines)
         if len(vision_lines) != 0:
             self.parsed_lines = []
             self.distances = []
             for i in vision_lines:
                 c1 = self.cam_geom.imagePixelToWorld(i["x1"], i["y1"], False)
                 c2 = self.cam_geom.imagePixelToWorld(i["x2"], i["y2"], False)
-                if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2 < 0:
+                if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2[0] < 0:
                     continue
                 self.parsed_lines.append((c1, c2))
                 self.distances.append((math.hypot(c1[0], c1[1]), math.hypot(c2[0], c2[1])))
@@ -220,6 +220,7 @@ class LocalizationModule:
     def print_plot(self, once = False):
         self.map.print_map()
         for i in range(len(self.particles)):
+            self.particles[i].odoTranslate(1000.0, -1000.0, math.radians(-60))
             self.particles[i].printPose()
         self.position.printPose()
         if(self.print_once):
@@ -254,7 +255,7 @@ class LocaTesting:
             for i in vision_lines:
                 c1 = self.cam_geom.imagePixelToWorld(i["x1"], i["y1"], False)
                 c2 = self.cam_geom.imagePixelToWorld(i["x2"], i["y2"], False)
-                if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2 < 0:
+                if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2[0] < 0:
                     continue
                 else:
                     print "c1 ", c1, "c2 ", c2
