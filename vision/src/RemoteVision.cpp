@@ -62,7 +62,6 @@ namespace rd {
         paramList.verifyEnd(0);
 
         std::vector<cv::Vec4i> lines = m_vision->lineDetect();
-        std::cout << lines.size();
 
         xmlrpc_env env;
         xmlrpc_env_init(&env);
