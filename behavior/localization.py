@@ -54,6 +54,7 @@ class Map:
                                                    (g.Point(-self.corner_x, -self.penalty_corners_y), g.Point(-self.penalty_corner_x, -self.penalty_corners_y))]]
 
     def get_intersect_point(self, rp, point, distance = None):
+        # point = g.Point(point.x, -point.y)
         direction2 = math.atan2(point.y, point.x)
         int_line = g.Line(rp.point,
                           g.Point((rp.point.x + math.cos(direction2) * self.max_distance),
@@ -134,7 +135,7 @@ class LocalizationModule:
                 p.weight /= m
 
     def resample(self):
-        self.particles = [rp for rp in self.particles if rp.weight >= 0.6]
+        self.particles = [rp for rp in self.particles if rp.weight >= 0.98]
         self.sort_particles()
         particles_nedded = self.particles_number - len(self.particles)
         if particles_nedded == self.particles_number:
@@ -146,9 +147,10 @@ class LocalizationModule:
         if particles_nedded == 0:
             particles_nedded = self.particles_number / 2
             self.particles = self.particles[:particles_nedded]
-        x = (max(self.particles, key=lambda rp: rp.point.x).point.x, min(self.particles, key=lambda rp: rp.point.x).point.x)
-        y = (max(self.particles, key=lambda rp: rp.point.y).point.y, min(self.particles, key=lambda rp: rp.point.y).point.y)
-        d = (max(self.particles, key=lambda rp: rp.direction).direction, min(self.particles, key=lambda rp: rp.direction).direction)
+        dev = self.count_deviations()
+        x = (max(self.particles, key=lambda rp: rp.point.x).point.x + dev[0] * 0.15, min(self.particles, key=lambda rp: rp.point.x).point.x - dev[0] * 0.15)
+        y = (max(self.particles, key=lambda rp: rp.point.y).point.y + dev[1] * 0.15, min(self.particles, key=lambda rp: rp.point.y).point.y - dev[1] * 0.15)
+        d = (max(self.particles, key=lambda rp: rp.direction).direction + dev[2] * 0.15, min(self.particles, key=lambda rp: rp.direction).direction - dev[2] * 0.15)
         self.particles.extend([self.get_random_particle(x[1], y[1], x[0], y[0], d[1], d[0]) for i in range(particles_nedded)])
 
     #TODO: Test this shit first!
@@ -183,12 +185,17 @@ class LocalizationModule:
                         p.weight = 0.0
                         continue
                     else:
-                        dist = p.point.distance_to(point1)
-                        w = abs(dist - self.distances[i][0])
+                        if (math.hypot(point1.x, point1.y) < math.hypot(point2.x, point2.y)):
+                            dist = p.point.distance_to(point1)
+                            ind = 0
+                        else:
+                            dist = p.point.distance_to(point2)
+                            ind = 1
+                        w = abs(dist - self.distances[i][ind])
                         p.weight += (1 - w / self.map.max_distance) / 2
-                        dist = p.point.distance_to(point1)
-                        w = abs(dist - self.distances[i][1])
-                        p.weight += (1 - w / self.map.max_distance) / 2
+                        # dist = p.point.distance_to(point2)
+                        # w = abs(dist - self.distances[i][1])
+                        # p.weight += (1 - w / self.map.max_distance) / 2
         print "update time: ", time.time() - start
 
     def generate_after_fall_particles(self):
@@ -201,7 +208,7 @@ class LocalizationModule:
     #TODO: Test this shit third!
     def localization(self, after_fall = False):
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
-        look_at_points = [(0.0, 1000.0, 0.0), (0.0, -1000.0, 0.0), (1000.0, 0.0, 0.0)]
+        look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
         if after_fall:
             self.generate_after_fall_particles()
@@ -216,10 +223,12 @@ class LocalizationModule:
             if count == 50:
                 count = 0
                 update = True
-                self.robot.kinematics.lookAt(look_at_points[index][0], look_at_points[index][1], look_at_points[index][2], False)
+                self.robot.kinematics.lookAt(look_at_points[index][0], math.copysign(look_at_points[index][1], -self.count_mean()[1]), look_at_points[index][2], False)
+                time.sleep(0.5)
                 index += 1
-                if index > 2:
+                if index > 1:
                     index = 0
+                # self.print_plot(once=True)
             print "deviations", self.count_deviations()
             print "mean", self.count_mean()
         mean = self.count_mean()
@@ -230,9 +239,10 @@ class LocalizationModule:
 
     def print_plot(self, once = False):
         self.map.print_map()
-        for i in range(len(self.particles)):
-            self.particles[i].odoTranslate(1000.0, -1000.0, math.radians(-60))
-            self.particles[i].printPose()
+        # for i in range(len(self.particles)):
+        #     # self.particles[i].odoTranslate(1000.0, -1000.0, math.radians(-60))
+        #     if self.particles[i].weight > 0.8:
+        #         self.particles[i].printPose()
         self.position.printPose()
         if(self.print_once):
             if not once:
