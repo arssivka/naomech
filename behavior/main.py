@@ -111,12 +111,12 @@ try:
              0.0,
              0.0]
     stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
-    odo = [1.0, 1.0, 1.3]
+    odo = [1.3, 1.0, 1.3]
     arm = [0.0]
     robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
 
-    pose_handler.set_pose("walking_pose", 1.0)
-    robot.kinematics.lookAt(1000.0, 000.0, 0.0, False)
+    # pose_handler.set_pose("walking_pose", 1.0)
+    # robot.kinematics.lookAt(1000.0, 000.0, 0.0, False)
     time.sleep(0.5)
     # while True:
 
@@ -153,13 +153,39 @@ try:
     # start = time.time()
     # time.sleep(10.0)
     # print robot.locomotion.odometry()['data']
-    loc = LocaTesting(robot, cam)
-    loc.get_sensors()
-    loc.print_plot()
-    loc = LocalizationModule(robot, cam)
-    loc.initial_localization()
-    print loc.position.point
-    loc.print_plot(once=True)
+    # loc = LocaTesting(robot, cam)
+    # loc.get_sensors()
+    # loc.print_plot()
+    # loc = LocalizationModule(robot, cam)
+    # loc.initial_localization()
+    # print loc.position.point
+    # loc.print_plot(once=True)
+
+
+
+    robot.vision.updateFrame()
+    ball = robot.vision.ballDetect()
+    pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
+    walk = Walker(robot)
+    joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, False)
+    robot.locomotion.head.positions(joints[0], joints[1])
+    robot.locomotion.head.hardness(0.8, 0.8)
+    count = 0
+    while math.hypot(pix[0], pix[1] > 300):
+            robot.vision.updateFrame()
+            ball = robot.vision.ballDetect()
+            pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
+            count += 1
+            if pix is not None and pix[0] > 0:
+                if count == 49:
+                    joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, False)
+                    robot.locomotion.head.positions(joints[0], joints[1])
+                    robot.locomotion.head.hardness(0.8, 0.8)
+                    count = 0
+                print pix
+                walk.go_to((pix[0], pix[1]), 100.0)
+    walk.stop()
+
     # iters = 100
     # keys = robot.joints.keys()
     # pose_data = [0.0] * len(keys)

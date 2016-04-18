@@ -7,7 +7,7 @@ import numpy as np
 
 top_camera = False
 not_walking_look = True
-robot = Robot("192.168.1.64", "5469")
+robot = Robot("192.168.0.14", "5469")
 cam = CamGeom("config/cameras.json", robot)
 
 def rotateImage(img, angle):
@@ -42,7 +42,7 @@ while True:
     robot.vision.updateFrame()
     ball = robot.vision.ballDetect()
     pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], top_camera)
-    # print pix
+    print pix
     if not_walking_look:
         pass
         # robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)

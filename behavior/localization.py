@@ -81,7 +81,6 @@ class Map:
         return None
 
 
-
     def check_if_point_in_line(self, l, p):
         return ((p.x >= l.p1.x and p.x <= l.p2.x) or (p.x <= l.p1.x and p.x >= l.p2.x) or (math.fabs(p.x - l.p1.x) <= 0.01)) and \
                ((p.y >= l.p1.y and p.y <= l.p2.y) or (p.y <= l.p1.y and p.y >= l.p2.y) or (math.fabs(p.y - l.p1.y) <= 0.01))
@@ -103,7 +102,7 @@ class LocalizationModule:
     distances = []
 
     def __init__(self, robot, cam_geom):
-        self.particles = [self.get_random_particle() for i in range(self.particles_number )]
+        self.particles = [self.get_random_particle() for i in range(self.particles_number / 2 )]
         self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
                                                         max_y = 3000, min_dir = math.radians(250),
                                                         max_dir = math.radians(290)) for i in range(self.particles_number / 2)])
@@ -117,14 +116,12 @@ class LocalizationModule:
         self.particles.sort(key=lambda rp: rp.weight)
 
     def count_deviations(self):
-        start = time.time()
         arr_x = np.array([rp.point.x for rp in self.particles])
         arr_y = np.array([rp.point.y for rp in self.particles])
         arr_d = np.array([rp.direction for rp in self.particles])
         return (np.std(arr_x), np.std(arr_y), np.std(arr_d))
 
     def count_mean(self):
-        start = time.time()
         arr_x = np.array([rp.point.x for rp in self.particles])
         arr_y = np.array([rp.point.y for rp in self.particles])
         arr_d = np.array([rp.direction for rp in self.particles])
@@ -194,21 +191,35 @@ class LocalizationModule:
                         p.weight += (1 - w / self.map.max_distance) / 2
         print "update time: ", time.time() - start
 
+    def generate_after_fall_particles(self):
+        self.particles = [self.get_random_particle(min_x = self.position.point.x - 200.0, min_y = self.position.point.y - 200,
+                                                   max_x = self.position.point.x + 200.0,
+                                                        max_y = self.position.point.y + 200, min_dir = self.position.direction - math.radians(10),
+                                                        max_dir = self.position.direction + math.radians(10)) for i in range(self.particles_number)]
+
+
     #TODO: Test this shit third!
-    def initial_localization(self):
+    def localization(self, after_fall = False):
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
+        look_at_points = [(0.0, 1000.0, 0.0), (0.0, -1000.0, 0.0), (1000.0, 0.0, 0.0)]
+        index = 0
+        if after_fall:
+            self.generate_after_fall_particles()
         count = 0
         update = True
         while self.count_deviations() > (150.0, 150.0, math.radians(10)):
             self.update_sensors(update)
             update = False
             self.norm_weights()
-            start = time.time()
             self.resample()
             count += 1
             if count == 50:
                 count = 0
                 update = True
+                self.robot.kinematics.lookAt(look_at_points[index][0], look_at_points[index][1], look_at_points[index][2], False)
+                index += 1
+                if index > 2:
+                    index = 0
             print "deviations", self.count_deviations()
             print "mean", self.count_mean()
         mean = self.count_mean()
@@ -236,6 +247,9 @@ class LocalizationModule:
     def print_console(self):
         for i in self.particles:
             print ('x: ', i.point.x, 'y: ', i.point.y, 'weight: ', i.weight)
+
+    def udapte_odo_pos(self, odometry):
+        self.position.odoTranslate(odometry[0], odometry[1], odometry[2])
 
 #This is only for testing puproses
 class LocaTesting:
