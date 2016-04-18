@@ -19,7 +19,7 @@ import camera_calibator
 import time
 import numpy as np
 
-robot = Robot("192.168.0.29", "5469")
+robot = Robot("192.168.1.64", "5469")
 
 pose_handler = PoseHandler(robot, 30)
 pose.load_poses(pose_handler, "config/poses.json")
@@ -32,6 +32,7 @@ pose_handler.set_pose('walking_pose', 1.0)
 try:
     top_camera = False
 
+    i = 0
     while True:
         raw = robot.cameras.image(top_camera)
         img = camera_calibator.converToCvYUV(raw.get('data').data)
@@ -41,6 +42,8 @@ try:
         robot.vision.updateFrame()
         ball = robot.vision.ballDetect()
         lines = robot.vision.lineDetect()
+        cv2.imwrite('/home/nikitas/bases/2' + '.png', picturerbg)
+        i += 1
 
         end = timeit.default_timer()
         for line in lines:
@@ -48,10 +51,9 @@ try:
         cv2.rectangle(picturerbg, (ball['x'], ball['y']),
                       (ball['x'] + ball['width'], ball['y'] + ball['height']), (0, 255, 255))
         cv2.imshow('robotVis', picturerbg)
-        cv2.imwrite('/home/nikitas/img.png', picturerbg)
 
         cv2.waitKey(1000)
-        print (end - begin)
+        print (end - begin), len(lines)
 
 finally:
     pass

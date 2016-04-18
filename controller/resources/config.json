@@ -159,17 +159,25 @@
       "HoughLines": {
         "max_line_gap": 8,
         "min_line_length": 13,
-        "rho": 1,
+        "rho": 0.5,
         "theta": 0.0027,
-        "threshold": 30
+        "threshold": 28
       },
       "LineEqualPredicate": {
-        "angle_eps": 0,
+        "angle_eps": 0.048,
         "error_px": 4
       },
       "Preproc": {
-        "kernel_size": 13,
-        "min_thresh": 180
+        "kernel_size": 7,
+        "min_thresh": 160,
+        "ColorThresh": {
+          "min_1": 100,
+          "min_2": 90,
+          "min_3": 0,
+          "max_1": 232,
+          "max_2": 238,
+          "max_3": 142
+        }
       }
     },
     "BallDetector": {
