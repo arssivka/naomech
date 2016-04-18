@@ -2,6 +2,7 @@
 // Created by nikitas on 26.03.16.
 //
 
+#include <detectors/LineDetector.h>
 #include "detectors/LineDetector.h"
 #include "utils/CoreFuntions.h"
 
@@ -26,34 +27,46 @@ namespace rd {
 
 
     cv::Mat LineDetector::preproccess(const cv::Mat &image) {
-        cv::Mat preprocImage(image.rows, image.cols, CV_8UC1), bgrImg;
-        cv::cvtColor(image, bgrImg, CV_YUV2BGR);
-        cv::cvtColor(bgrImg, preprocImage, CV_BGR2GRAY);
+        cv::Mat hsv_img, gray_img, bgr_img, buffer;
+        cv::cvtColor(image, bgr_img, CV_YUV2BGR);
+        cv::cvtColor(bgr_img, gray_img, CV_BGR2GRAY);
+        cv::cvtColor(bgr_img, hsv_img, CV_BGR2HSV);
 
-        cv::Mat threshImage;
-        cv::threshold(preprocImage, threshImage,
-                      m_conf.Preproc.min_thresh,
-                      255,
-                      CV_THRESH_BINARY);
+        const cv::Mat kernel = cv::getGaborKernel(cv::Size(3, 3), 10.0, 4.1, M_PI, 0.0);
+        cv::Mat filtred_image, thresh_filt_image;
+        cv::filter2D(bgr_img, filtred_image, -1, kernel);
+        cv::cvtColor(filtred_image, buffer, CV_BGR2Lab);
 
-        const cv::Matx<uchar, 3, 3> k(0, 0, 0, 0, 1, 0, 0, 0, 0);
-        cv::adaptiveThreshold(preprocImage, preprocImage, 255,
-                              CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY,
+        const cv::Scalar min_color(m_conf.Preproc.ColorThresh.min_1,
+                                   m_conf.Preproc.ColorThresh.min_2,
+                                   m_conf.Preproc.ColorThresh.min_3);
+        const cv::Scalar max_color(m_conf.Preproc.ColorThresh.max_1,
+                                   m_conf.Preproc.ColorThresh.max_2,
+                                   m_conf.Preproc.ColorThresh.max_3);
+        cv::inRange(buffer, min_color, max_color, thresh_filt_image);
+
+        cv::adaptiveThreshold(gray_img, gray_img, 255,
+                              CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY,
                               m_conf.Preproc.kernel_size, 0.0);
-        cv::morphologyEx(preprocImage, preprocImage, CV_MOP_OPEN, k);
 
-        cv::Mat colorImg = preprocImage.clone();
+        cv::Mat colorImg = gray_img.clone();
 
         for (int r = 0; r < colorImg.rows; r++) {
             for (int c = 0; c < colorImg.cols; c++) {
-                if (threshImage.at<uchar>(r, c) != 0) {
+                if (thresh_filt_image.at<uchar>(r, c) != 0) {
                     cv::floodFill(colorImg, cv::Point(c, r), 0);
-                    cv::floodFill(threshImage, cv::Point(c, r), 0);
+                    cv::floodFill(thresh_filt_image, cv::Point(c, r), 0);
                 }
             }
         }
+#ifdef IMSHOW_RESULT
+        cv::imshow("adaptive thresh", gray_img);
+        cv::imshow("filt", thresh_filt_image * 255);
+        cv::imshow("filt2", filtred_image);
+#endif
+        const cv::Mat result_matrix = gray_img - colorImg;
 
-        return preprocImage - colorImg;
+        return result_matrix;
     }
 
 
@@ -114,6 +127,13 @@ namespace rd {
 
         Preproc.kernel_size = 3;
         Preproc.min_thresh = 180;
+        Preproc.kernel_size_2 = 2;
+        Preproc.ColorThresh.max_1 = 232;
+        Preproc.ColorThresh.max_2 = 238;
+        Preproc.ColorThresh.max_3 = 113;
+        Preproc.ColorThresh.min_1 = 152;
+        Preproc.ColorThresh.min_2 = 125;
+        Preproc.ColorThresh.min_3 = 0;
 
         LineEqualPredicate.angle_eps = 0.039;
         LineEqualPredicate.error_px = 7;
@@ -146,6 +166,13 @@ namespace rd {
         m_conf.LineEqualPredicate.error_px = line_config.get<int>("LineEqualPredicate.error_px");
         m_conf.Preproc.kernel_size = line_config.get<int>("Preproc.kernel_size");
         m_conf.Preproc.min_thresh = line_config.get<int>("Preproc.min_thresh");
+
+        m_conf.Preproc.ColorThresh.min_1 = line_config.get<uchar>("Preproc.ColorThresh.min_1");
+        m_conf.Preproc.ColorThresh.min_2 = line_config.get<uchar>("Preproc.ColorThresh.min_2");
+        m_conf.Preproc.ColorThresh.min_3 = line_config.get<uchar>("Preproc.ColorThresh.min_3");
+        m_conf.Preproc.ColorThresh.max_1 = line_config.get<uchar>("Preproc.ColorThresh.max_1");
+        m_conf.Preproc.ColorThresh.max_2 = line_config.get<uchar>("Preproc.ColorThresh.max_2");
+        m_conf.Preproc.ColorThresh.max_3 = line_config.get<uchar>("Preproc.ColorThresh.max_3");
     }
 
 

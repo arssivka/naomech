@@ -32,6 +32,12 @@ namespace rd {
             struct Preproc {
                 int min_thresh;
                 int kernel_size;
+                int kernel_size_2;
+                struct {
+                    uchar min_1, max_1;
+                    uchar min_2, max_2;
+                    uchar min_3, max_3;
+                } ColorThresh;
             } Preproc;
 
             struct LineEqualPredicate {
