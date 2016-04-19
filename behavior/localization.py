@@ -14,13 +14,13 @@ class RobotPose:
         self.point = g.Point(x, y)
         self.direction = direct
 
-    #TODO: this is not working
     def odoTranslate(self, x, y, theta):
         y *= -1
         dist = math.hypot(x, y)
         angle = math.atan2(y, x)
         self.point.translate(math.cos(self.direction - angle) * dist, math.sin(self.direction - angle) * dist)
         self.direction += theta
+        self.direction % (math.pi * 2)
 
 
     def printPose(self):
@@ -212,6 +212,7 @@ class LocalizationModule:
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
+        sign = -1
         if after_fall:
             self.generate_after_fall_particles()
         count = 0
@@ -225,7 +226,11 @@ class LocalizationModule:
             if count == 50:
                 count = 0
                 update = True
-                self.robot.kinematics.lookAt(look_at_points[index][0], math.copysign(look_at_points[index][1], -self.count_mean()[1]), look_at_points[index][2], False)
+                if not after_fall:
+                    self.robot.kinematics.lookAt(look_at_points[index][0], math.copysign(look_at_points[index][1], -self.count_mean()[1]), look_at_points[index][2], False)
+                else:
+                    self.robot.kinematics.lookAt(look_at_points[index][0], look_at_points[index][1] * sign, look_at_points[index][2], False)
+                    sign *= -1
                 time.sleep(0.5)
                 index += 1
                 if index > 1:
