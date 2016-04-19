@@ -38,6 +38,8 @@ class Map:
     penalty_corners_y = 1100
     penalty_corner_x = 3900
     max_distance = 7500
+    enemy_point = g.Point(-4100.0, 0.0)
+    friendly_point = g.Point(4100.0, 0.0)
 
     def __init__(self):
 
@@ -261,7 +263,14 @@ class LocalizationModule:
     def udapte_odo_pos(self, odometry):
         self.position.odoTranslate(odometry[0], odometry[1], odometry[2])
 
-#This is only for testing puproses
+    def global_to_local(self, x, y):
+        new_x = x - self.position.point.x
+        new_y = y - self.position.point.y
+        rotated_x = new_x * math.cos(self.position.direction) + new_y * math.sin(self.position.direction)
+        rotated_y = -new_x * math.sin(self.position.direction) + new_y * math.cos(self.position.direction)
+        return (rotated_x, rotated_y, math.atan2(rotated_y, rotated_x))
+
+#This is only for testing puprosesK
 class LocaTesting:
     map = Map()
     particles_number = 100
