@@ -118,27 +118,6 @@ namespace rd {
         }
     }
 
-    LineDetector::configuration::configuration() {
-        HoughLines.rho = 0.5;
-        HoughLines.theta = M_PI / 180.0;
-        HoughLines.min_line_length = 6.5;
-        HoughLines.max_line_gap = 0.0;
-        HoughLines.threshold = 16;
-
-        Preproc.kernel_size = 3;
-        Preproc.min_thresh = 180;
-        Preproc.kernel_size_2 = 2;
-        Preproc.ColorThresh.max_1 = 232;
-        Preproc.ColorThresh.max_2 = 238;
-        Preproc.ColorThresh.max_3 = 113;
-        Preproc.ColorThresh.min_1 = 152;
-        Preproc.ColorThresh.min_2 = 125;
-        Preproc.ColorThresh.min_3 = 0;
-
-        LineEqualPredicate.angle_eps = 0.039;
-        LineEqualPredicate.error_px = 7;
-    }
-
     bool LineDetector::configuration::LineEqualPredicate::operator()
             (const cv::Vec4i &line1, const cv::Vec4i &line2) {
         using namespace utils;
@@ -166,13 +145,36 @@ namespace rd {
         m_conf.LineEqualPredicate.error_px = line_config.get<int>("LineEqualPredicate.error_px");
         m_conf.Preproc.kernel_size = line_config.get<int>("Preproc.kernel_size");
         m_conf.Preproc.min_thresh = line_config.get<int>("Preproc.min_thresh");
-
         m_conf.Preproc.ColorThresh.min_1 = line_config.get<uchar>("Preproc.ColorThresh.min_1");
         m_conf.Preproc.ColorThresh.min_2 = line_config.get<uchar>("Preproc.ColorThresh.min_2");
         m_conf.Preproc.ColorThresh.min_3 = line_config.get<uchar>("Preproc.ColorThresh.min_3");
         m_conf.Preproc.ColorThresh.max_1 = line_config.get<uchar>("Preproc.ColorThresh.max_1");
         m_conf.Preproc.ColorThresh.max_2 = line_config.get<uchar>("Preproc.ColorThresh.max_2");
         m_conf.Preproc.ColorThresh.max_3 = line_config.get<uchar>("Preproc.ColorThresh.max_3");
+    }
+
+
+    boost::property_tree::ptree LineDetector::get_params() {
+        boost::property_tree::ptree line_config, ptree;
+
+        line_config.put("HoughLines.max_line_gap", m_conf.HoughLines.max_line_gap);
+        line_config.put("HoughLines.min_line_length", m_conf.HoughLines.min_line_length);
+        line_config.put("HoughLines.rho", m_conf.HoughLines.rho);
+        line_config.put("HoughLines.theta", m_conf.HoughLines.theta);
+        line_config.put("HoughLines.threshold", m_conf.HoughLines.threshold);
+        line_config.put("LineEqualPredicate.angle_eps", m_conf.LineEqualPredicate.angle_eps);
+        line_config.put("LineEqualPredicate.error_px", m_conf.LineEqualPredicate.error_px);
+        line_config.put("Preproc.kernel_size", m_conf.Preproc.kernel_size);
+        line_config.put("Preproc.min_thresh", m_conf.Preproc.min_thresh);
+        line_config.put("Preproc.ColorThresh.min_1", m_conf.Preproc.ColorThresh.min_1);
+        line_config.put("Preproc.ColorThresh.min_2", m_conf.Preproc.ColorThresh.min_2);
+        line_config.put("Preproc.ColorThresh.min_3", m_conf.Preproc.ColorThresh.min_3);
+        line_config.put("Preproc.ColorThresh.max_1", m_conf.Preproc.ColorThresh.max_1);
+        line_config.put("Preproc.ColorThresh.max_2", m_conf.Preproc.ColorThresh.max_2);
+        line_config.put("Preproc.ColorThresh.max_3", m_conf.Preproc.ColorThresh.max_3);
+
+        ptree.put_child(detectorName(), line_config);
+        return ptree;
     }
 
 

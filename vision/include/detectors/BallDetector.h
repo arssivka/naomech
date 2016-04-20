@@ -18,7 +18,6 @@ namespace rd {
         cv::Rect detect(const cv::Mat &image);
 
         struct configuration {
-            configuration();
 
             struct {
                 uchar min_1, max_1;
@@ -26,14 +25,23 @@ namespace rd {
                 uchar min_3, max_3;
             } ColorThresh;
 
+            struct {
+                uchar min_1, max_1;
+                uchar min_2, max_2;
+                uchar min_3, max_3;
+            } GaborThresh;
+
             int median_blur_size;
         };
 
         void load(const boost::property_tree::ptree &ball_config);
 
+        boost::property_tree::ptree get_params();
+
         configuration m_conf;
 
     private:
+
     };
 
 }

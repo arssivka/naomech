@@ -27,7 +27,7 @@ Camera::Camera(const char *device, int width, int height,
     }
     this->initFMT();
     this->initMMAP();
-    this->autoWhiteBalance();
+//    this->autoWhiteBalance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,6 @@ cv::Mat Camera::getCVImage() {
             decoded.at<cv::Vec3b>(j, i)[0] = (unsigned char) y;
             decoded.at<cv::Vec3b>(j, i)[1] = (unsigned char) u;
             decoded.at<cv::Vec3b>(j, i)[2] = (unsigned char) v;
-
         }
 
     }

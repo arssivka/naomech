@@ -42,7 +42,7 @@ try:
         robot.vision.updateFrame()
         ball = robot.vision.ballDetect()
         lines = robot.vision.lineDetect()
-        cv2.imwrite('/home/nikitas/bases/2' + '.png', picturerbg)
+        cv2.imwrite('/home/nikitas/bases/real_image/' + str(i) + '.png', picturerbg)
         i += 1
 
         end = timeit.default_timer()
@@ -53,7 +53,7 @@ try:
         cv2.imshow('robotVis', picturerbg)
 
         cv2.waitKey(1000)
-        print (end - begin), len(lines)
+        print (end - begin), len(lines), ball
 
 finally:
     pass
