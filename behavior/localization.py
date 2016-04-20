@@ -187,17 +187,22 @@ class LocalizationModule:
                         p.weight = 0.0
                         continue
                     else:
-                        if (math.hypot(point1.x, point1.y) < math.hypot(point2.x, point2.y)):
-                            dist = p.point.distance_to(point1)
-                            ind = 0
+                        if len(self.parsed_lines) > 2:
+                            if (math.hypot(point1.x, point1.y) < math.hypot(point2.x, point2.y)):
+                                dist = p.point.distance_to(point1)
+                                ind = 0
+                            else:
+                                dist = p.point.distance_to(point2)
+                                ind = 1
+                            w = abs(dist - self.distances[i][ind])
+                            p.weight += (1 - w / self.map.max_distance) / 2
                         else:
+                            dist = p.point.distance_to(point1)
+                            w = abs(dist - self.distances[i][0])
+                            p.weight += (1 - w / self.map.max_distance) / 2
                             dist = p.point.distance_to(point2)
-                            ind = 1
-                        w = abs(dist - self.distances[i][ind])
-                        p.weight += (1 - w / self.map.max_distance) / 2
-                        # dist = p.point.distance_to(point2)
-                        # w = abs(dist - self.distances[i][1])
-                        # p.weight += (1 - w / self.map.max_distance) / 2
+                            w = abs(dist - self.distances[i][1])
+                            p.weight += (1 - w / self.map.max_distance) / 2
         print "update time: ", time.time() - start
 
     def generate_after_fall_particles(self):

@@ -39,13 +39,19 @@ while True:
     raw = robot.cameras.image(top_camera)
     img = camera_calibator.converToCvYUV(raw.get('data').data)
     picturerbg = cv2.cvtColor(img, cv2.COLOR_YUV2RGB)
+    time.sleep(0.5)
     robot.vision.updateFrame()
     ball = robot.vision.ballDetect()
     pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], top_camera)
     print pix
     if not_walking_look:
-        pass
-        # robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
+        # pass
+        if pix[0] > 0 and ball["width"] > 0:
+            robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
+        else:
+            pass
+            # robot.kinematics.lookAt(1000.0, 0.0, 0.0, top_camera)
+
     else:
         joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, top_camera)
         robot.locomotion.head.positions(joints[0], joints[1])
