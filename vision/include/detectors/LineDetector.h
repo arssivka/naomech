@@ -19,7 +19,6 @@ namespace rd {
         std::vector<cv::Vec4i> detect(const cv::Mat &preprocImage);
 
         struct configuration {
-            configuration();
 
             struct HoughLines {
                 double rho;
@@ -49,6 +48,8 @@ namespace rd {
         };
 
         void load(const boost::property_tree::ptree &line_config);
+
+        boost::property_tree::ptree get_params();
 
         configuration m_conf;
     private:

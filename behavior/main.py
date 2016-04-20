@@ -13,9 +13,7 @@ from camera_geometry import CamGeom
 from localization import LocalizationModule
 from localization import LocaTesting
 
-
-
-robot = Robot("192.168.0.14", "5469")
+robot = Robot("192.168.1.64", "5469")
 print robot.system.listMethods()
 print len(robot.joints.keys())
 
@@ -98,28 +96,43 @@ try:
     # robot.locomotion.parameters(['Y', 'STEP_COUNT' ], [100.0, 5.0])
 
 
-    stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
-    step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
-    zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
-    hack = [0.05, 0.05]
-    sensor = [0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0]
-    stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
-    odo = [1.3, 1.0, 1.3]
-    arm = [0.0]
-    robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
+    # stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
+    # step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+    # zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
+    # hack = [0.05, 0.05]
+    # sensor = [0.0,
+    #          0.0,
+    #          0.0,
+    #          0.0,
+    #          0.0,
+    #          0.0,
+    #          0.0,
+    #          0.0]
+    # stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
+    # odo = [1.3, 1.0, 1.3]
+    # arm = [0.0]
+    # robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
 
     # pose_handler.set_pose("walking_pose", 1.0)
     # robot.kinematics.lookAt(1000.0, 000.0, 0.0, False)
-    time.sleep(0.5)
+    # time.sleep(0.5)
     # while True:
-
+    # stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
+    #  step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+    #  zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
+    #  hack = [0.05, 0.05]
+    #  sensor = [0.0,
+    #           0.0,
+    #           0.0,
+    #           0.0,
+    #           0.0,
+    #           0.0,
+    #           0.0,
+    #           0.0]
+    #  stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
+    #  odo = [1.3, 1.0, 1.3]
+    #  arm = [0.0]
+    #  robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
 
 
     # walk.go_to((480.6, 100.0), 100.0)
@@ -134,7 +147,7 @@ try:
     #
 
     # robot.locomotion.autoapply.enable(False)
-    # robot.locomotion.odo3etry(True)
+    # robot.locomotion.odo3etry(True)max_3
     # print robot.locomotion.odometry()
     # robot.locomotion.odometry(True)
     # print robot.locomotion.odometry()
@@ -161,8 +174,27 @@ try:
     # print loc.position.point
     # loc.print_plot(once=True)
 
+    robot.kinematics.lookAt(934.89109993663044, 242.15456379326832, 0.0, True)
+    count = 0
+    while True:
+        time.sleep(1)
+        robot.vision.updateFrame()
+        ball = robot.vision.ballDetect()
+        pix = cam.imagePixelToWorld(ball["x"] + ball["width"] / 2, ball["y"], False)
+        count += 1
+        if pix is not None and pix[0] > 0:
+            robot.kinematics.lookAt(pix[0], pix[1], 0.0, True)
+            # if count == 49:
+            #
+            #     joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, False)
+            #     robot.locomotion.head.positions(joints[0], joints[1])
+            #     robot.locomotion.head.hardness(0.8, 0.8)
+            #     count = 0
+            print pix
 
+        robot.kinematics.lookAt(934.89109993663044, 242.15456379326832, 0.0, True)
 
+    walk.stop()
     robot.vision.updateFrame()
     ball = robot.vision.ballDetect()
     pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
@@ -185,6 +217,7 @@ try:
                 print pix
                 walk.go_to((pix[0], pix[1]), 100.0)
     walk.stop()
+
 
     # iters = 100
     # keys = robot.joints.keys()
