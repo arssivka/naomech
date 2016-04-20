@@ -22,9 +22,9 @@ namespace rd {
 
         void setFrame(const cv::Mat &frame);
 
-    private:
         BallDetector m_ballDetector;
         LineDetector m_lineDetector;
+    private:
         cv::Mat m_image;
     };
 

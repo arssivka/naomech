@@ -19,7 +19,6 @@ namespace rd {
         std::vector<cv::Vec4i> detect(const cv::Mat &preprocImage);
 
         struct configuration {
-            configuration();
 
             struct HoughLines {
                 double rho;
@@ -32,6 +31,12 @@ namespace rd {
             struct Preproc {
                 int min_thresh;
                 int kernel_size;
+                int kernel_size_2;
+                struct {
+                    uchar min_1, max_1;
+                    uchar min_2, max_2;
+                    uchar min_3, max_3;
+                } ColorThresh;
             } Preproc;
 
             struct LineEqualPredicate {
@@ -43,6 +48,8 @@ namespace rd {
         };
 
         void load(const boost::property_tree::ptree &line_config);
+
+        boost::property_tree::ptree get_params();
 
         configuration m_conf;
     private:

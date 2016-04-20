@@ -159,28 +159,44 @@
       "HoughLines": {
         "max_line_gap": 8,
         "min_line_length": 13,
-        "rho": 1,
+        "rho": 0.5,
         "theta": 0.0027,
-        "threshold": 30
+        "threshold": 28
       },
       "LineEqualPredicate": {
-        "angle_eps": 0,
+        "angle_eps": 0.048,
         "error_px": 4
       },
       "Preproc": {
-        "kernel_size": 13,
-        "min_thresh": 180
+        "kernel_size": 7,
+        "min_thresh": 160,
+        "ColorThresh": {
+          "min_1": 100,
+          "min_2": 90,
+          "min_3": 0,
+          "max_1": 232,
+          "max_2": 238,
+          "max_3": 142
+        }
       }
     },
     "BallDetector": {
       "median_blur_size": 7,
       "ColorThresh": {
+        "min_3": 0,
+        "min_2": 60,
         "min_1": 0,
-        "min_2": 35,
-        "min_3": 167,
-        "max_1": 86,
-        "max_2": 210,
-        "max_3": 221
+        "max_3": 255,
+        "max_2": 255,
+        "max_1": 55
+      },
+      "GaborThresh": {
+        "min_3": 0,
+        "min_2": 0,
+        "min_1": 60,
+        "max_3": 0,
+        "max_2": 0,
+        "max_1": 255
       }
     }
   }
