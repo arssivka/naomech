@@ -29,8 +29,8 @@ class StanceDeterminator:
 
 
 class Behavior:
-    def check(self):
-        pass
+    def accept(self):
+        return False
 
     def run(self):
         pass
@@ -94,13 +94,21 @@ class SwitcherBasedBehavior(Behavior):
 
 
 class StandingUpBehavior(SwitcherBasedBehavior):
+    def accept(self):
+        self.state = self.stance_determinator.determinate()
+        return self.state != Stance.STAND
+
     def prepare(self):
         self.robot.joints.hardness(0.0)
         self.state = self.stance_determinator.determinate()
         time.sleep(1.0)
-        while all(self.state != st for st in (Stance.FACE_DOWN, Stance.FACE_UP)):
+        counter = 10
+        while all(self.state != st for st in (Stance.FACE_DOWN, Stance.FACE_UP)) and counter > 0:
             time.sleep(1.0)
             self.state = self.stance_determinator.determinate()
+            counter -= 1
+        if counter <= 0:
+            self.stop()
         self.robot.joints.hardness(0.85)
 
     def get_instances(self):
