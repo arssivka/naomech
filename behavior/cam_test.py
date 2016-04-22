@@ -49,7 +49,7 @@ while True:
         if pix[0] > 0 and ball["width"] > 0:
             robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
         else:
-            pass
+            robot.kinematics.lookAt(900.0, 0.0, 0.0, top_camera)
             # robot.kinematics.lookAt(1000.0, 0.0, 0.0, top_camera)
 
     else:

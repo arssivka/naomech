@@ -59,11 +59,12 @@ class Map:
         # point = g.Point(point.x, -point.y)
         direction2 = math.atan2(point.y, point.x)
         int_line = g.Line(rp.point,
-                          g.Point((rp.point.x + math.cos(direction2) * self.max_distance),
-                                  (rp.point.y + math.sin(direction2) * self.max_distance)))
+                          g.Point((rp.point.x + math.cos(direction2 + rp.direction) * self.max_distance),
+                                  (rp.point.y + math.sin(direction2 + rp.direction) * self.max_distance)))
         i_p = g.Point()
         found = False
         dist = self.max_distance
+        neededline = None
         for l in self.lines:
             temp = l.intersection(int_line)
             if temp != None and temp != float("inf") and self.check_if_point_in_lines(l, int_line, temp):
@@ -72,16 +73,18 @@ class Map:
                     if tmp_dist < dist:
                         i_p = temp
                         dist = tmp_dist
+                        neededline = l
                         found = True
                 else:
                     t_d = abs(distance - tmp_dist)
                     if t_d <= dist:
                         dist = t_d
                         i_p = temp
+                        neededline = l
                         found = True
         if found:
-            return i_p
-        return None
+            return i_p, neededline
+        return None, None
 
 
     def check_if_point_in_line(self, l, p):
@@ -91,6 +94,9 @@ class Map:
     def check_if_point_in_lines(self, l1, l2, p):
         return self.check_if_point_in_line(l1, p) and self.check_if_point_in_line(l2, p)
 
+    def lines_eq(self, l1, l2):
+        return l1.p1.x == l2.p1.x and l1.p1.y == l2.p1.y and l1.p2.x == l2.p2.x and l1.p2.y == l2.p2.y
+
     def print_map(self):
         for line in self.lines:
             plt.plot((line.p1.x, line.p2.x), (line.p1.y, line.p2.y), 'g-')
@@ -98,7 +104,7 @@ class Map:
 
 class LocalizationModule:
     map = Map()
-    particles_number = 100
+    particles_number = 200
     print_once = True
     position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
@@ -178,31 +184,33 @@ class LocalizationModule:
         if need_get:
             self.get_sensors()
         start = time.time()
+        print "len ", len(self.parsed_lines)
         if len(self.parsed_lines) > 0:
             for p in self.particles:
                 for i in range(len(self.parsed_lines)):
-                    point1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
-                    point2 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][1][0], self.parsed_lines[i][1][1]), distance=self.distances[i][1])
-                    if point1 is None or point2 is None:
+                    point1, l1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
+                    point2, l2 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][1][0], self.parsed_lines[i][1][1]), distance=self.distances[i][1])
+
+                    if point1 is None or point2 is None or  not self.map.lines_eq(l1 ,l2):
                         p.weight = 0.0
                         continue
                     else:
-                        if len(self.parsed_lines) > 2:
-                            if (math.hypot(point1.x, point1.y) < math.hypot(point2.x, point2.y)):
-                                dist = p.point.distance_to(point1)
-                                ind = 0
-                            else:
-                                dist = p.point.distance_to(point2)
-                                ind = 1
-                            w = abs(dist - self.distances[i][ind])
-                            p.weight += (1 - w / self.map.max_distance) / 2
-                        else:
+                        # if len(self.parsed_lines) > 2:
+                        if (math.hypot(point1.x, point1.y) < math.hypot(point2.x, point2.y)):
                             dist = p.point.distance_to(point1)
-                            w = abs(dist - self.distances[i][0])
-                            p.weight += (1 - w / self.map.max_distance) / 2
+                            ind = 0
+                        else:
                             dist = p.point.distance_to(point2)
-                            w = abs(dist - self.distances[i][1])
-                            p.weight += (1 - w / self.map.max_distance) / 2
+                            ind = 1
+                        w = abs(dist - self.distances[i][ind])
+                        p.weight += (1 - w / self.map.max_distance) / 2
+                        # else:
+                        # dist = p.point.distance_to(point1)
+                        # w = abs(dist - self.distances[i][0])
+                        # p.weight += (1 - w / self.map.max_distance) / 2
+                        # dist = p.point.distance_to(point2)
+                        # w = abs(dist - self.distances[i][1])
+                        # p.weight += (1 - w / self.map.max_distance) / 2
         print "update time: ", time.time() - start
 
     def generate_after_fall_particles(self):
@@ -295,6 +303,7 @@ class LocaTesting:
         vision_lines = self.robot.vision.lineDetect()
         if len(vision_lines) != 0:
             self.parsed_lines = []
+            print "vision lines", len(vision_lines)
             for i in vision_lines:
                 c1 = self.cam_geom.imagePixelToWorld(i["x1"], i["y1"], False)
                 c2 = self.cam_geom.imagePixelToWorld(i["x2"], i["y2"], False)
