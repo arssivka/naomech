@@ -43,10 +43,10 @@ while True:
     robot.vision.updateFrame()
     ball = robot.vision.ballDetect()
     pix = cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], top_camera)
-    print pix
     if not_walking_look:
         # pass
         if pix[0] > 0 and ball["width"] > 0:
+            print pix
             robot.kinematics.lookAt(pix[0], pix[1], 0.0, top_camera)
         else:
             robot.kinematics.lookAt(900.0, 0.0, 0.0, top_camera)
@@ -56,6 +56,7 @@ while True:
         joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, top_camera)
         robot.locomotion.head.positions(joints[0], joints[1])
         robot.locomotion.head.hardness(0.8, 0.8)
+        print "fuck"
     # if top_camera:
     #     picturerbg = rotateImage(picturerbg, 180.0)
     cv2.imshow('mouse_input', picturerbg)

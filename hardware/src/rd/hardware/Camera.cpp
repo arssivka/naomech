@@ -27,7 +27,7 @@ Camera::Camera(const char *device, int width, int height,
     }
     this->initFMT();
     this->initMMAP();
-//    this->autoWhiteBalance();
+    this->autoWhiteBalance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -121,14 +121,19 @@ try:
     time.sleep(0.5)
     # while Tr
 
-    # # walk.go_to((480.6, 100.0), 100.0)
-    # robot.vision.updateFrame()
-    # ball = robot.vision.ballDetect()
-    # pix = cg.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
-    # robot.kinematics.lookAt(2000.0, 0.0, 0.0, False)
-    # time.sleep(3.0)
+    walk.smart_go_to(480.6, 100.0, 100.0)
+    # was_found = False
+    # while not was_found:
+    #     robot.vision.updateFrame()
+    #     ball = robot.vision.ballDetect()
+    #     pix = cg.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
+    #     robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
+    #     if pix["width"] > 0:
+    #         was_found = True
+    # was_found = False
+    # time.sleep(1.0)
     # if pix[0] > 0.0 and ball["width"] > 0.0:
-    #     while math.hypot(pix[0], pix[1]) > 150.0:
+    #     while math.hypot(pix[0], pix[1]) > 200.0:
     #         robot.vision.updateFrame()
     #         ball = robot.vision.ballDetect()
     #         pix = cg.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
@@ -137,16 +142,18 @@ try:
     #             joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, False)
     #             robot.locomotion.head.hardness(0.8, 0.8)
     #             robot.locomotion.head.positions(joints[0], joints[1])
-    #             walk.go_to(pix, 100.0)
+    #             walk.smart_go_to(pix[0], pix[1], 100.0)
+    #             was_found = True
     #             time.sleep(1.0)
     #     walk.stop()
     # robot.locomotion.autoapply.enable(False)
     # robot.joints.hardness(0.85)
-    # if pix[1] < 0.0:
-    #     pose_switcher.switch_to("prepare_right_kick", "walking_pose")
-    # else:
-    #     pose_switcher.switch_to("prepare_left_kcik", "walking_pose")
     #
+    # if pix[1] < 0.0 and was_found:
+    #     pose_switcher.switch_to("prepare_right_kick", "walking_pose")
+    # elif was_found:
+    #     pose_switcher.switch_to("prepare_left_kick", "walking_pose")
+    # #
 
     # robot.locomotion.autoapply.enable(False)
     # robot.locomotion.odo3etry(True)
@@ -167,13 +174,13 @@ try:
     # start = time.time()
     # time.sleep(10.0)
     # print robot.locomotion.odometry()['data']
-    loc = LocaTesting(robot, cg)
-    loc.get_sensors()
-    loc.print_plot()
-    loc = LocalizationModule(robot, cg)
-    loc.localization()
-    print loc.position.point
-    loc.print_plot(once = True)
+    # loc = LocaTesting(robot, cg)
+    # loc.get_sensors()
+    # loc.print_plot()
+    # loc = LocalizationModule(robot, cg)
+    # loc.localization()
+    # print loc.position.point
+    # loc.print_plot(once = True)
     # point = loc.global_to_local(loc.map.friendly_point.x + 200, 0)
     # loc.print_plot(once=True)
     # robot.kinematics.lookAt(0.0, 000.0, 0.0, False)
