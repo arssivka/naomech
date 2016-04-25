@@ -37,7 +37,7 @@ class Map:
     central_y = 0
     penalty_corners_y = 1100
     penalty_corner_x = 3900
-    max_distance = 7500
+    max_distance = 8000
     enemy_point = g.Point(-4100.0, 0.0)
     friendly_point = g.Point(4100.0, 0.0)
 
@@ -104,14 +104,14 @@ class Map:
 
 class LocalizationModule:
     map = Map()
-    particles_number = 200
+    particles_number = 100
     print_once = True
     position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
     distances = []
 
     def __init__(self, robot, cam_geom):
-        self.particles = [self.get_random_particle() for i in range(self.particles_number / 2 )]
+        self.particles = [self.get_random_particle() for i in range(self.particles_number / 2)]
         self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
                                                         max_y = 3000, min_dir = math.radians(250),
                                                         max_dir = math.radians(290)) for i in range(self.particles_number / 2)])
@@ -191,7 +191,7 @@ class LocalizationModule:
                     point1, l1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
                     point2, l2 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][1][0], self.parsed_lines[i][1][1]), distance=self.distances[i][1])
 
-                    if point1 is None or point2 is None or  not self.map.lines_eq(l1 ,l2):
+                    if point1 is None or point2 is None:# or  not self.map.lines_eq(l1 ,l2):
                         p.weight = 0.0
                         continue
                     else:
@@ -240,7 +240,7 @@ class LocalizationModule:
                 count = 0
                 update = True
                 if not after_fall:
-                    self.robot.kinematics.lookAt(look_at_points[index][0], math.copysign(look_at_points[index][1], -self.count_mean()[1]), look_at_points[index][2], False)
+                    self.robot.kinematics.lookAt(look_at_points[index][0], math.copysign(look_at_points[index][1], self.count_mean()[1]), look_at_points[index][2], False)
                 else:
                     self.robot.kinematics.lookAt(look_at_points[index][0], look_at_points[index][1] * sign, look_at_points[index][2], False)
                     sign *= -1
@@ -252,8 +252,8 @@ class LocalizationModule:
             print "deviations", self.count_deviations()
             print "mean", self.count_mean()
         mean = self.count_mean()
-        self.position.point = g.Point(mean[0], -mean[1])
-        self.position.direction = mean[2] + math.pi
+        self.position.point = g.Point(mean[0], mean[1])
+        self.position.direction = mean[2]# + math.pi
 
 
 
