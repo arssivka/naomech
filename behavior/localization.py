@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import math
 import random
 import time
+from walker import OdoListener
 
-class RobotPose:
+class RobotPose():
     point = g.Point(0, 0)
     direction = 0.0
     distance = 100
@@ -102,7 +103,7 @@ class Map:
             plt.plot((line.p1.x, line.p2.x), (line.p1.y, line.p2.y), 'g-')
             plt.axis([-4800, 4800, -3600, 3600])
 
-class LocalizationModule:
+class LocalizationModule(OdoListener):
     map = Map()
     particles_number = 100
     print_once = True
@@ -176,6 +177,12 @@ class LocalizationModule:
                 self.parsed_lines.append((c1, c2))
                 self.distances.append((math.hypot(c1[0], c1[1]), math.hypot(c2[0], c2[1])))
         # self.print_plot(once=True)
+
+    def notify(self, frodo):
+        self.odo = frodo
+        print frodo
+        self.udapte_odo_pos(self.odo)
+
 
 
 
