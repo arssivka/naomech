@@ -98,6 +98,9 @@ class WalkingState(ThreadSafe, State):
         if self.get_parameters() == [0.0, 0.0, 0.0]:
             self.robot.locomotion.autoapply.enable(self.autoapply_enabled)
 
+    def is_done(self):
+        return True
+
 
 class Waiting(WalkingState):
     def run(self):
@@ -151,7 +154,13 @@ class LinearGoTo(WalkingState):
     def finalize(self):
         self.iterrupt = True
         self.worker.join()
+        while not self.robot.locomotion.is_done() \
+                and self.get_parameters() == [0.0, 0.0, 0.0]:
+            time.sleep(self.SLEEP_TIME)
         self.restore_autoapply()
+
+    def is_done(self):
+        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
     
 
 class SmartGoTo(WalkingState, ThreadSafe):
@@ -284,6 +293,9 @@ class SmartGoTo(WalkingState, ThreadSafe):
 
     def run(self):
         pass
+
+    def is_done(self):
+        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
     
     
 class GoAround(WalkingState):
@@ -371,5 +383,5 @@ class Walker:
         self.sm.current_state.ctx = Walker.odo_listeners
 
     def is_done(self):
-        return self.action.name == "stop"
+        return self.sm.current_state.is_done()
 
