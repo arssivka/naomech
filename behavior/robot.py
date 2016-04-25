@@ -12,11 +12,8 @@ class _ThreadSafeMethod:
         return _ThreadSafeMethod(getattr(self.function, item), self.lock)
 
     def __call__(self, *args, **kwargs):
-        self.lock.acquire()
-        try:
+        with self.lock:
             data = self.function(*args, **kwargs)
-        finally:
-            self.lock.release()
         return data
 
 

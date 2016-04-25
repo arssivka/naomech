@@ -6,18 +6,15 @@ def threadsafe(fn, lock=None):
     lock = lock or threading.Lock()
 
     def new(*args, **kwargs):
-        lock.acquire()
-        try:
+        with lock:
             res = fn(*args, **kwargs)
-        finally:
-            lock.release()
         return res
     return new
 
 
 class ThreadSafe(object):
     def __init__(self):
-        super(ThreadSafe, self).__setattr__("_lock", threading.Lock())
+        super(ThreadSafe, self).__setattr__("_lock", threading.RLock())
         super(ThreadSafe, self).__setattr__("_thr_safe_func", dict())
         super(ThreadSafe, self).__setattr__("_thr_safe_vars", set())
 
@@ -32,6 +29,10 @@ class ThreadSafe(object):
             self._thr_safe_func[name] = threadsafe(attr, self._lock)
         else:
             self._thr_safe_vars.add(name)
+
+    def set_thread_safe_all(self, iterable):
+        for attr in iterable:
+            self.set_thread_safe(attr)
 
     def __setattr__(self, key, value):
         if key in ("_lock", "_thr_safe_func", "_thr_safe_vars"):

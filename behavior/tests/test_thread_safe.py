@@ -46,3 +46,13 @@ class TestThreadSafe(TestCase):
             ts.set_thread_safe("_thr_safe_func")
         with self.assertRaises(RuntimeError):
             ts.set_thread_safe("_thr_safe_vars")
+
+    def test_set_ts_all(self):
+        ts = ThreadSafe()
+        items = ("var1", "var2", "var3")
+        for item in items:
+            setattr(ts, item, item)
+            self.assertFalse(ts.is_thread_safe(item))
+        ts.set_thread_safe_all(items)
+        for item in items:
+            self.assertTrue(ts.is_thread_safe(item))
