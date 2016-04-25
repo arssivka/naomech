@@ -65,10 +65,11 @@ class WalkingState(ThreadSafe, State):
     def odo_reset(self):
         # Notify listeners about odometry will be changed.
         # Some systems may be sensitive to reset odometry
-        odo = self.robot.locomotion.odometry()
+        odo = self.get_odo()
         self.robot.locomotion.odometry(True)
-        listeners = getattr(self.ctx, "odo_listeners", None)
-        if listeners:
+        listeners = self.ctx
+        print listeners
+        if listeners is not None:
             for lstr in listeners:
                 lstr.notify(odo)
 
@@ -276,6 +277,9 @@ class SmartGoTo(WalkingState, ThreadSafe):
     def finalize(self):
         self.iterrupt = True
         self.worker.join()
+        while not self.robot.locomotion.is_done() \
+                and self.get_parameters() == [0.0, 0.0, 0.0]:
+            time.sleep(self.SLEEP_TIME)
         self.restore_autoapply()
 
     def run(self):
@@ -325,7 +329,14 @@ WalkingStateMachine.linear_motion = LinearMotion()
 WalkingStateMachine.angular_motion = AngularMotion()
 
 
+class OdoListener:
+    def notify(self, frodo):
+        self.odo = frodo
+
+
 class Walker:
+    odo_listeners = []
+
     def __init__(self, robot):
         self.robot = robot
         self.sm = WalkingStateMachine(walker=self)
@@ -357,6 +368,8 @@ class Walker:
 
     def update_state_machine(self):
         self.sm.update(self.action)
+        self.sm.current_state.ctx = Walker.odo_listeners
 
     def is_done(self):
         return self.action.name == "stop"
+
