@@ -121,6 +121,7 @@ class LinearGoTo(WalkingState):
                 action = _action
                 self.odo_reset()
                 odo = [0.0, 0.0, 0.0]
+                reached = False
             else:
                 odo = self.get_odo()
             dx = action.x - odo[0]
@@ -131,6 +132,9 @@ class LinearGoTo(WalkingState):
                 vy = action.speed * math.sin(angle)
                 self.set_parameters(vx, vy, 0.0)
             else:
+                if not reached:
+                    self.odo_reset()
+                reached = True
                 self.set_parameters(0.0, 0.0, 0.0)
             self.set_autoupdate(True)
             time.sleep(self.SLEEP_TIME)
@@ -257,6 +261,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 # Target reached check
                 if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY:
                     reached = True
+                    self.odo_reset()
                     time.sleep(self.SLEEP_TIME)
                     continue
                 # Q reached check
@@ -271,6 +276,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY or \
                                 math.hypot(odo[0], odo[1]) >= math.hypot(action.x, action.y):
                     reached = True
+                    self.odo_reset()
                     continue
                 # Speed update
                 self.set_parameters(action.speed, 0.0, 0.0)
