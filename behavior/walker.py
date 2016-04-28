@@ -3,6 +3,7 @@ import time
 from abc import ABCMeta
 from operator import itemgetter
 from threading import Thread
+import numpy as np
 
 from enum import Enum
 
@@ -33,8 +34,6 @@ class WalkCmd:
     linear_go_to = ActionFactory("linear_set_target", args=("robot", "x", "y", "speed"))
     smart_go_to = ActionFactory("smart_set_target", args=("robot", "x", "y", "speed"))
     go_around = ActionFactory("set_rotation_target", args=("robot", "x", "y", "angle", "speed"))
-    linear_motion = ActionFactory("set_linear_speed", args=("robot", "x", "y", "theta"))
-    angular_motion = ActionFactory("set_angular_speed", args=("robot", "x", "y", "speed"))
 
 
 class WalkingState(ThreadSafe, State):
@@ -68,7 +67,6 @@ class WalkingState(ThreadSafe, State):
         odo = self.get_odo()
         self.robot.locomotion.odometry(True)
         listeners = self.ctx
-        print listeners
         if listeners is not None:
             for lstr in listeners:
                 lstr.notify(odo)
@@ -80,8 +78,6 @@ class WalkingState(ThreadSafe, State):
             "linear_set_target": WalkingStateMachine.linear_go_to,
             "smart_set_target": WalkingStateMachine.smart_go_to,
             "set_rotation_target": WalkingStateMachine.go_around,
-            "set_linear_speed": WalkingStateMachine.linear_motion,
-            "set_angular_speed": WalkingStateMachine.angular_motion,
         }.get(str(action), self)
         return state
 
@@ -238,8 +234,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                         state = _WalkState.MUCH_ROTATE
                     c = math.cos(-self._PI3 * abbabbbebe)
                     s = math.sin(-self._PI3 * abbabbbebe)
-                    self.action.x = action.x * c - action.y * s
-                    self.action.y = action.x * s + action.y * c
+                    self.action.x, self.action.y = action.x * c - action.y * s, action.x * s + action.y * c
                     continue
                 if angle < self._PI3:
                     state = _WalkState.ROTATE
@@ -299,36 +294,96 @@ class SmartGoTo(WalkingState, ThreadSafe):
     
     
 class GoAround(WalkingState):
-    def update(self, action):
-        pass
+    SLEEP_TIME = 0.2
+    POSITION_INACCURACY = 50.0
+    MAX_ANGULAR_SPEED = math.radians(10.0)
+    ANGLE_INACCURACY = math.radians(15.0)
 
-    def run(self):
-        pass
-    
-    
-class LinearMotion(WalkingState):
+    def __init__(self, ctx=None, action=None):
+        super(GoAround, self).__init__(ctx, action)
+        self.iterrupt = False
+        self.set_thread_safe_all(("iterrupt",))
+
+    def _worker(self):
+        action = None
+        self.iterrupt = False
+        while not self.iterrupt:
+            _action = self.action
+            if action != _action:
+                action = _action
+                self.odo_reset()
+                odo = [0.0, 0.0, 0.0]
+                radius = math.hypot(action.x, action.y)
+                angle = math.atan2(-action.y, -action.x)
+                rotdir = math.copysign(1.0, action.angle)
+                x = -math.cos(action.angle + angle) * radius + action.x
+                y = -math.sin(action.angle + angle) * radius + action.y
+                angular_speed = radius / action.speed
+                finished = False
+            else:
+                odo = self.get_odo()
+            dx = x - odo[0]
+            dy = y - odo[1]
+            dtheta = action.angle - odo[2]
+            target_reached = math.hypot(dx, dy) < self.POSITION_INACCURACY
+            angle_reached = abs(dtheta) < self.ANGLE_INACCURACY
+            vx = vy = theta = 0.0
+            print '#' * 40
+            print "angle = ", angle
+            print "x = ", x, "y = ", y, "radius = ", radius, "odo = ", odo
+            print "dx = ", dx, "dy = ", dy, "dtheta = ", math.degrees(dtheta)
+            alpha = math.atan2(odo[1] - action.y, odo[0] - action.x)
+            print "angle_erached = ", angle_reached, "target_reached = ", target_reached
+            if target_reached and angle_reached:
+                finished = True
+            if not finished:
+                if not angle_reached:
+                    print "dangle", math.degrees(angle - alpha)
+                    theta = (angular_speed + angular_speed * math.sin(angle - alpha - odo[2])) * rotdir
+                if not target_reached:
+                    if not angle_reached:
+                        print 'angular'
+                        vx = -math.hypot(odo[0] - action.x , odo[1] - action.y) / radius * action.speed
+                        vy = radius / theta * rotdir
+                        c = math.cos(angle)
+                        s = math.sin(angle)
+                        vx, vy = vx * c - vy * s, vx * s + vy * c
+                    else:
+                        print 'linear'
+                        beta = math.atan2(dy, dx) + odo[2]
+                        vx = math.sin(beta) * action.speed
+                        vy = math.cos(beta) * action.speed
+            print "action", action.x, action.y, math.degrees(action.angle), action.speed, "alpha = ", math.degrees(alpha)
+            self.set_parameters(vx, vy, theta)
+            self.set_autoupdate(True)
+            print "cmd", vx, vy, math.degrees(theta)
+            time.sleep(self.SLEEP_TIME)
+
+        self.set_parameters(0.0, 0.0, 0.0)
+
     def prepare(self, action):
         self.action = action
         self.update_robot(action)
-        self.update_speed()
         self.backup_autoapply()
         self.iterrupt = False
-
-    def update(self, action):
-        self.action = action
-
-    def run(self):
-        pass
-
-
-class AngularMotion(State):
-    def update(self, action):
-        pass
+        self.worker = Thread(target=GoAround._worker, args=(self,))
+        self.worker.start()
 
     def run(self):
         pass
-    
-    
+
+    def finalize(self):
+        self.iterrupt = True
+        self.worker.join()
+        while not self.robot.locomotion.is_done() \
+                and self.get_parameters() == [0.0, 0.0, 0.0]:
+            time.sleep(self.SLEEP_TIME)
+        self.restore_autoapply()
+
+    def is_done(self):
+        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
+
+
 class WalkingStateMachine(StateMachine):
     def __init__(self, walker):
         StateMachine.__init__(self, Waiting(action=WalkCmd.stop(robot=walker.robot)))
@@ -337,8 +392,6 @@ WalkingStateMachine.waiting = Waiting()
 WalkingStateMachine.linear_go_to = LinearGoTo()
 WalkingStateMachine.smart_go_to = SmartGoTo()
 WalkingStateMachine.go_around = GoAround()
-WalkingStateMachine.linear_motion = LinearMotion()
-WalkingStateMachine.angular_motion = AngularMotion()
 
 
 class OdoListener:
@@ -354,14 +407,6 @@ class Walker:
         self.sm = WalkingStateMachine(walker=self)
         self.action = self.sm.current_state.action
 
-    def angular_motion(self, x, y, speed):
-        self.action = WalkCmd.angular_motion(robot=self.robot, x=x, y=y, speed=speed)
-        self.update_state_machine()
-
-    def set_speed(self, x, y, theta):
-        self.action = WalkCmd.linear_motion(robot=self.robot, x=x, y=y, theta=theta)
-        self.update_state_machine()
-
     def stop(self):
         self.action = WalkCmd.stop(robot=self.robot)
         self.update_state_machine()
@@ -374,7 +419,7 @@ class Walker:
         self.action = WalkCmd.linear_go_to(robot=self.robot, x=x, y=y, speed=speed)
         self.update_state_machine()
 
-    def rotate_around(self, x, y, angle, speed):
+    def go_around(self, x, y, angle, speed):
         self.action = WalkCmd.go_around(robot=self.robot, x=x, y=y, angle=angle, speed=speed)
         self.update_state_machine()
 
