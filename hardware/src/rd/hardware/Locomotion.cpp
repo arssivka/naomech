@@ -12,7 +12,7 @@ rd::Locomotion::Locomotion(boost::shared_ptr<Robot> robot)
           m_step_generator(new StepGenerator(robot, m_meta_gait.get())), m_joints(robot->getJoints()),
           m_clock(robot->getClock()), m_joint_keys(20), m_head_joint_keys(2), m_parameter_keys(PARAMETERS_COUNT),
           m_odometry_keys(ODOMETRY_COUNT), m_auto_apply_flag(false),
-          m_auto_apply_worker(boost::bind(&rd::Locomotion::autoUpdater, this)), m_auto_update_sleep_time(0) {
+          m_auto_apply_worker(boost::bind(&rd::Locomotion::autoUpdater, this)), m_auto_update_sleep_time(1024) {
     Gait default_gait(DEFAULT_GAIT);
     m_meta_gait->setStartGait(default_gait);
     m_meta_gait->setNewGaitTarget(default_gait);
