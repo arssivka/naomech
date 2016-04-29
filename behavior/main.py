@@ -99,20 +99,20 @@ try:
 
 
     stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
-    step = [0.5, 0.50, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+    step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
     zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
     hack = [0.05, 0.05]
     sensor = [0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0,
-              0.0]
+             0.0,
+             0.0,
+             0.0,
+             0.0,
+             0.0,
+             0.0,
+             0.0]
     stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
     odo = [1.0, 1.0, 1.3]
-    arm = [1.0]
+    arm = [0.3]
     robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
 
     pose_handler.set_pose("walking_pose", 1.0)
@@ -121,7 +121,7 @@ try:
     time.sleep(0.5)
     # while Tr
 
-    # walk.smart_go_to(480.6, 100.0, 100.0)
+    walk.smart_go_to(500, 0.0, 100.0)
     # was_found = False
     # while not was_found:
     #     robot.vision.updateFrame()
@@ -174,29 +174,13 @@ try:
     # start = time.time()
     # time.sleep(10.0)
     # print robot.locomotion.odometry()['data']
-    loc = LocaTesting(robot, cg)
-    loc.get_sensors()
-    loc.print_plot()
-    loc = LocalizationModule(robot, cg)
+    # loc = LocaTesting(robot, cg)
+    # loc.get_sensors()
+    # loc.print_plot()
+    # loc = LocalizationModule(robot, cg)
     # loc.localization()
     # print loc.position.point
     # loc.print_plot(once = True)
-    walk.odo_listeners.append(loc)
-    pp = loc.global_to_local(loc.map.friendly_point.x, loc.map.friendly_point.y)
-    print "mew"
-    walk.smart_go_to(500, 0, 0.0)
-    print "mew"
-    # walk.smart_go_to(pp[0], pp[1], 100.0)
-    # time.sleep(10)
-    while not walk.is_done():
-        print "mew1"
-        print walk.sm.current_state
-        print "mew2"
-        # print walk.is_done()
-        pass
-    walk.stop()
-    loc.print_plot(once=True)
-
     # point = loc.global_to_local(loc.map.friendly_point.x + 200, 0)
     # loc.print_plot(once=True)
     # robot.kinematics.lookAt(0.0, 000.0, 0.0, False)
