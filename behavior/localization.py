@@ -217,7 +217,6 @@ class LocalizationModule(OdoListener):
     def update_sensors(self, need_get):
         if need_get:
             self.get_sensors()
-        start = time.time()
         # deb_lines = []
         if len(self.parsed_lines) > 0:
             for p in self.particles:
@@ -244,7 +243,7 @@ class LocalizationModule(OdoListener):
                                                    max_y=self.position.point.y + 200, min_dir=self.position.direction - math.radians(10),
                                                    max_dir=self.position.direction + math.radians(10)) for i in range(self.particles_number)]
 
-    def localization(self, after_fall = False):
+    def localization(self, after_fall=False):
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
@@ -271,8 +270,8 @@ class LocalizationModule(OdoListener):
                 index += 1
                 if index > 1:
                     index = 0
-            print "dv", self.count_deviations()
-            print "mean", self.count_mean()
+            # print "dv", self.count_deviations()
+            # print "mean", self.count_mean()
         mean = self.count_mean()
         self.position.point = g.Point(mean[0], mean[1])
         self.position.direction = mean[2]
