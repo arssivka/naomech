@@ -211,7 +211,7 @@ class LocalizationModule(OdoListener):
 
     def notify(self, frodo):
         self.odo = frodo
-        print frodo
+        # print frodo
         self.udapte_odo_pos(self.odo)
 
     def update_sensors(self, need_get):
@@ -219,6 +219,7 @@ class LocalizationModule(OdoListener):
             self.get_sensors()
         # deb_lines = []
         if len(self.parsed_lines) > 0:
+            # start = time.time()
             for p in self.particles:
                 for i in range(len(self.parsed_lines)):
                     point1, l1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
@@ -234,8 +235,9 @@ class LocalizationModule(OdoListener):
                         dist = p.point.distance_to(point2)
                         w = abs(dist - self.distances[i][1])
                         p.weight += (1 - w / self.map.max_distance) / 2
-                # self.deb_print(p, deb_lines)
-                # deb_lines = []
+                        # self.deb_print(p, deb_lines)
+                        # deb_lines = []
+            # print "particle tut", time.time() - start
 
     def generate_after_fall_particles(self):
         self.particles = [self.get_random_particle(min_x=self.position.point.x - 200.0, min_y=self.position.point.y - 200,

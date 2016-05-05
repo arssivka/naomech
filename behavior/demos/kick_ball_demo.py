@@ -46,7 +46,8 @@ def ball_finder():
     step = 100.0
     if ball_w == 0:
         while ball_w == 0:
-            robot.kinematics.lookAt(la_coords[0], la_coords[1] + step, 0.0, False)
+            la_coords[1] += step
+            robot.kinematics.lookAt(la_coords[0], la_coords[1], 0.0, False)
             time.sleep(0.5)
             ball_w, pix = ball_recognitor()
             if abs(la_coords[1]) >= 1000.0:
@@ -55,13 +56,13 @@ def ball_finder():
 
 def ball_kicker():
     ball_w, pix = ball_recognitor()
-    while math.hypot(pix[0], pix[1]) > 300:
+    while math.hypot(pix[0], pix[1]) > 400:
             ball_w, pix = ball_recognitor()
             if pix is not None and pix[0] > 0 and ball_w > 0:
                 joints = robot.kinematics.jointsLookAt(pix[0], pix[1], 0.0, False)
                 robot.locomotion.head.positions(joints[0], joints[1])
                 robot.locomotion.head.hardness(0.8, 0.8)
-                walk.smart_go_to((pix[0], pix[1]), 100.0)
+                walk.smart_go_to(pix[0], pix[1], 100.0)
                 time.sleep(0.5)
     walk.stop()
     robot.locomotion.autoapply.enable(False)
