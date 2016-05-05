@@ -15,7 +15,7 @@ from localization import LocaTesting
 
 
 
-robot = Robot("192.168.1.64", "5469")
+robot = Robot("192.168.1.2", "5469")
 print robot.system.listMethods()
 print len(robot.joints.keys())
 
@@ -27,7 +27,8 @@ cg = CamGeom("config/cameras.json", robot)
 walk = Walker(robot)
 print robot.joints.keys()
 robot.joints.hardness(0.8)
-# robot.joints.hardness([0, 1], [0.0, 0.0])
+robot.joints.hardness([0, 1], [0.0, 0.0])
+print robot.joints.positions([0, 1])
 # rleg_keys = ['R_HIP_YAW_PITCH', 'R_HIP_ROLL', 'R_HIP_PITCH', 'R_KNEE_PITCH', 'R_ANKLE_PITCH', 'R_ANKLE_ROLL']
 # lleg_keys = ['L_HIP_YAW_PITCH', 'L_HIP_ROLL', 'L_HIP_PITCH', 'L_KNEE_PITCH', 'L_ANKLE_PITCH', 'L_ANKLE_ROLL']
 # robot.joints.hardness(lleg_keys, [0.1 for i in lleg_keys])
@@ -96,32 +97,33 @@ try:
     # robot.locomotion.parameters(['X', 'STEP_COUNT' ], [100.0, 10.0])
     # robot.locomotion.parameters(['X', 'STEP_COUNT' ], [-100.0, 10.0])
     # robot.locomotion.parameters(['Y', 'STEP_COUNT' ], [100.0, 5.0])
-
-
-    stance = [310.0, 14.5, 100.0, 0.05, 0.0, 0.1]
-    step = [0.6, 0.45, 10.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
-    zmp = [0.0, 0.9, 4.0, 4.0, 0.01, 6.6]
-    hack = [0.05, 0.05]
+    stance = [310.0, 14.5, 100.0, 0.0, 0.0, 0.1]
+    step = [0.75, 0.50, 15.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+    zmp = [0.0, 0.0, 20.0, 20.0, 0.01, 1.6]
+    hack = [0.0, 0.0]
     sensor = [0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0,
-             0.0]
-    stiff = [0.85, 0.3, 0.4, 0.3, 0.2, 0.2]
-    odo = [1.0, 1.0, 1.3]
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0]
+    stiff = [0.85, 0.7, 0.4, 0.3, 0.2, 0.2]
+    odo = [1.0, 1.0, 1.5]
     arm = [0.3]
+
+
     robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
 
-    pose_handler.set_pose("walking_pose", 1.0)
-    robot.kinematics.lookAt(1000.0, 000.0, 0.0, False)
+
+# pose_handler.set_pose("walking_pose", 1.0)
+    # robot.kinematics.lookAt(1000.0, 000.0, 0.0, False)
     # robot.kinematics.lookAt(1000.0, 00.0, 0.0, False)
-    time.sleep(0.5)
+    # time.sleep(0.5)
     # while Tr
 
-    walk.smart_go_to(500, 0.0, 100.0)
+    # walk.smart_go_to(480.6, 100.0, 100.0)
     # was_found = False
     # while not was_found:
     #     robot.vision.updateFrame()
@@ -177,10 +179,27 @@ try:
     # loc = LocaTesting(robot, cg)
     # loc.get_sensors()
     # loc.print_plot()
-    # loc = LocalizationModule(robot, cg)
+    loc = LocalizationModule(robot, cg)
     # loc.localization()
     # print loc.position.point
     # loc.print_plot(once = True)
+    # walk.odo_listeners.append(loc)
+    # pp = loc.global_to_local(loc.map.friendly_point.x, loc.map.friendly_point.y)
+    # # print "mew"
+    walk.smart_go_to(500.0, 500.0, 100.0)
+    # # print "mew"
+    # # # walk.smart_go_to(pp[0], pp[1], 100.0)
+    # # # time.sleep(10)
+    # while not walk.is_done():
+    #     # print walk.odo_listeners
+    #     # print "mew1"
+    #     # print walk.sm.current_state
+    #     # print "mew2"
+    #     # print walk.is_done()
+    #     pass
+    # walk.stop()
+    # loc.print_plot(once=True)
+
     # point = loc.global_to_local(loc.map.friendly_point.x + 200, 0)
     # loc.print_plot(once=True)
     # robot.kinematics.lookAt(0.0, 000.0, 0.0, False)

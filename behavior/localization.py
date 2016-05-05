@@ -308,7 +308,6 @@ class LocalizationModule(OdoListener):
 class LocaTesting:
 
     map = Map()
-    particles_number = 100
     position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
     def __init__(self, robot, cam_geom):
@@ -320,14 +319,12 @@ class LocaTesting:
         vision_lines = self.robot.vision.lineDetect()
         if len(vision_lines) != 0:
             self.parsed_lines = []
-            print "vision lines", len(vision_lines)
             for i in vision_lines:
                 c1 = self.cam_geom.imagePixelToWorld(i["x1"], i["y1"], False)
                 c2 = self.cam_geom.imagePixelToWorld(i["x2"], i["y2"], False)
                 if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2[0] < 0:
                     continue
                 else:
-                    print "c1 ", c1, "c2 ", c2
                     p1 = g.Point(self.position.point.x, self.position.point.y)
                     p2 = g.Point(self.position.point.x, self.position.point.y)
                     dist = math.hypot(c1[0], c1[1])
@@ -336,12 +333,11 @@ class LocaTesting:
                     dist = math.hypot(c2[0], c2[1])
                     angle = math.atan2(c2[1], c2[0])
                     p2.translate(math.cos(self.position.direction - angle) * dist, math.sin(self.position.direction - angle) * dist)
-                    print "p1 ", p1, "p2 ", p2
                     self.parsed_lines.append((c1, c2))
 
     def print_plot(self):
-        self.map.print_map()
         self.position.printPose()
         for i in self.parsed_lines:
             plt.plot((i[0][0], i[1][0]),(i[0][1], i[1][1]))
+        plt.axis([-200, 4800, -3600, 3600])
         plt.show()
