@@ -3,7 +3,6 @@ import time
 from abc import ABCMeta
 from operator import itemgetter
 from threading import Thread
-import numpy as np
 
 from enum import Enum
 
@@ -41,7 +40,8 @@ class WalkingState(ThreadSafe, State):
         ThreadSafe.__init__(self)
         State.__init__(self, ctx, action)
         self.update_robot(action)
-        self.set_thread_safe_all(("update_robot", "action", "odo_reset"))
+        self.look_target = (0.0, 0.0, 0.0)
+        self.set_thread_safe_all(("update_robot", "action", "odo_reset", "look_target"))
 
     def update_robot(self, action):
         robot = getattr(action, "robot", None)
@@ -97,6 +97,10 @@ class WalkingState(ThreadSafe, State):
     def is_done(self):
         return True
 
+    def look_at(self, x, y, z=0.0):
+        self.look_target = (x, y, z)
+
+
 
 class Waiting(WalkingState):
     def run(self):
@@ -126,7 +130,7 @@ class LinearGoTo(WalkingState):
                 odo = self.get_odo()
             dx = action.x - odo[0]
             dy = action.y - odo[1]
-            if math.hypot(dx, dy) > self.POSITION_INACCURACY:
+            if math.hypot(dx, dy) > self.POSITION_INACCURACY and not reached:
                 angle = math.atan2(dy, dx)
                 vx = action.speed * math.cos(angle)
                 vy = action.speed * math.sin(angle)
@@ -134,8 +138,8 @@ class LinearGoTo(WalkingState):
             else:
                 if not reached:
                     self.odo_reset()
-                reached = True
-                self.set_parameters(0.0, 0.0, 0.0)
+                    reached = True
+                    self.set_parameters(0.0, 0.0, 0.0)
             self.set_autoupdate(True)
             time.sleep(self.SLEEP_TIME)
         self.set_parameters(0.0, 0.0, 0.0)
@@ -160,13 +164,13 @@ class LinearGoTo(WalkingState):
         self.restore_autoapply()
 
     def is_done(self):
-        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
+        return self.robot.locomotion.is_done()# and self.get_parameters() == [0.0, 0.0, 0.0]
     
 
 class SmartGoTo(WalkingState, ThreadSafe):
     SLEEP_TIME = 0.5
     MAX_ANGULAR_SPEED = math.radians(10.0)
-    ANGLE_INACCURACY = math.radians(25.0)
+    ANGLE_INACCURACY = math.radians(15.0)
     POSITION_INACCURACY = 70.0
     _PI3 = math.pi / 3.0
 
@@ -189,9 +193,10 @@ class SmartGoTo(WalkingState, ThreadSafe):
         self.odo_reset()
         state = _WalkState.SO_MUCH_ROTATE
         self.iterrupt = False
+        update_action = False;
         while not self.iterrupt:
             # Update speed and target. Or action.
-            if action != self.action:
+            if action != self.action or update_action:
                 reached = False
                 action = self.action
                 r = action.speed / self.MAX_ANGULAR_SPEED
@@ -200,6 +205,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 odo = [0.0, 0.0, 0.0]
                 update_q = True
                 state = _WalkState.SO_MUCH_ROTATE
+                update_action = False
             else:
                 odo = self.get_odo()
             if reached:
@@ -239,6 +245,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                     c = math.cos(-self._PI3 * abbabbbebe)
                     s = math.sin(-self._PI3 * abbabbbebe)
                     self.action.x, self.action.y = action.x * c - action.y * s, action.x * s + action.y * c
+                    update_action = True
                     continue
                 if angle < self._PI3:
                     state = _WalkState.ROTATE
@@ -253,20 +260,24 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 if q and abs(a) < self.ANGLE_INACCURACY:
                     state = _WalkState.GO_CURVE
                     continue
+                elif  abs(a) < math.degrees(7):
+                    state = _WalkState.GO_STRAIGHT
+                    continue
                 update_q = True
                 # Speed update
                 self.set_parameters(0.0, 0.0, math.copysign(self.MAX_ANGULAR_SPEED, a))
             # Go to target along curve
             elif state == _WalkState.GO_CURVE:
                 # Target reached check
-                if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY:
+                if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY or \
+                                math.hypot(odo[0], odo[1]) >= math.hypot(action.x, action.y):
                     reached = True
                     self.odo_reset()
                     time.sleep(self.SLEEP_TIME)
                     continue
                 # Q reached check
                 dist_left = (q[0] - odo[0], q[1] - odo[1])
-                if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY:
+                if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY or abs(a) < math.radians(10.0):
                     state = _WalkState.GO_STRAIGHT
                     continue
                 # Speed update
@@ -435,4 +446,7 @@ class Walker:
 
     def is_done(self):
         return self.sm.current_state.is_done()
+
+    def look_at(self, x, y, z=0.0):
+        self.sm.current_state.look_at(x, y, z)
 
