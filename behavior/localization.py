@@ -211,15 +211,15 @@ class LocalizationModule(OdoListener):
 
     def notify(self, frodo):
         self.odo = frodo
-        print frodo
+        # print frodo
         self.udapte_odo_pos(self.odo)
 
     def update_sensors(self, need_get):
         if need_get:
             self.get_sensors()
-        start = time.time()
         # deb_lines = []
         if len(self.parsed_lines) > 0:
+            # start = time.time()
             for p in self.particles:
                 for i in range(len(self.parsed_lines)):
                     point1, l1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
@@ -235,8 +235,9 @@ class LocalizationModule(OdoListener):
                         dist = p.point.distance_to(point2)
                         w = abs(dist - self.distances[i][1])
                         p.weight += (1 - w / self.map.max_distance) / 2
-                # self.deb_print(p, deb_lines)
-                # deb_lines = []
+                        # self.deb_print(p, deb_lines)
+                        # deb_lines = []
+            # print "particle tut", time.time() - start
 
     def generate_after_fall_particles(self):
         self.particles = [self.get_random_particle(min_x=self.position.point.x - 200.0, min_y=self.position.point.y - 200,
@@ -244,7 +245,7 @@ class LocalizationModule(OdoListener):
                                                    max_y=self.position.point.y + 200, min_dir=self.position.direction - math.radians(10),
                                                    max_dir=self.position.direction + math.radians(10)) for i in range(self.particles_number)]
 
-    def localization(self, after_fall = False):
+    def localization(self, after_fall=False):
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
@@ -271,8 +272,8 @@ class LocalizationModule(OdoListener):
                 index += 1
                 if index > 1:
                     index = 0
-            print "dv", self.count_deviations()
-            print "mean", self.count_mean()
+            # print "dv", self.count_deviations()
+            # print "mean", self.count_mean()
         mean = self.count_mean()
         self.position.point = g.Point(mean[0], mean[1])
         self.position.direction = mean[2]
@@ -308,7 +309,6 @@ class LocalizationModule(OdoListener):
 class LocaTesting:
 
     map = Map()
-    particles_number = 100
     position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
     def __init__(self, robot, cam_geom):
@@ -320,14 +320,12 @@ class LocaTesting:
         vision_lines = self.robot.vision.lineDetect()
         if len(vision_lines) != 0:
             self.parsed_lines = []
-            print "vision lines", len(vision_lines)
             for i in vision_lines:
                 c1 = self.cam_geom.imagePixelToWorld(i["x1"], i["y1"], False)
                 c2 = self.cam_geom.imagePixelToWorld(i["x2"], i["y2"], False)
                 if c1[0] > self.map.max_distance or c1[0] < 0 or c2[0] > self.map.max_distance or c2[0] < 0:
                     continue
                 else:
-                    print "c1 ", c1, "c2 ", c2
                     p1 = g.Point(self.position.point.x, self.position.point.y)
                     p2 = g.Point(self.position.point.x, self.position.point.y)
                     dist = math.hypot(c1[0], c1[1])
@@ -336,12 +334,11 @@ class LocaTesting:
                     dist = math.hypot(c2[0], c2[1])
                     angle = math.atan2(c2[1], c2[0])
                     p2.translate(math.cos(self.position.direction - angle) * dist, math.sin(self.position.direction - angle) * dist)
-                    print "p1 ", p1, "p2 ", p2
                     self.parsed_lines.append((c1, c2))
 
     def print_plot(self):
-        self.map.print_map()
         self.position.printPose()
         for i in self.parsed_lines:
             plt.plot((i[0][0], i[1][0]),(i[0][1], i[1][1]))
+        plt.axis([-200, 4800, -3600, 3600])
         plt.show()
