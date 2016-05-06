@@ -32,7 +32,7 @@ class WalkCmd:
     stop = ActionFactory("stop", args=("robot"))
     linear_go_to = ActionFactory("linear_set_target", args=("robot", "x", "y", "speed"))
     smart_go_to = ActionFactory("smart_set_target", args=("robot", "x", "y", "speed"))
-    go_around = ActionFactory("set_rotation_target", args=("robot", "x", "y", "angle", "speed"))
+    go_around = ActionFactory("set_rotation_target", args=("robot", "angle"))
 
 
 class WalkingState(ThreadSafe, State):
@@ -324,58 +324,32 @@ class GoAround(WalkingState):
     def _worker(self):
         action = None
         self.iterrupt = False
+        angl = math.radians(5.0)
         while not self.iterrupt:
             _action = self.action
             if action != _action:
                 action = _action
                 self.odo_reset()
                 odo = [0.0, 0.0, 0.0]
-                radius = math.hypot(action.x, action.y)
-                angle = math.atan2(-action.y, -action.x)
+                angle = action.angle
                 rotdir = math.copysign(1.0, action.angle)
-                x = -math.cos(action.angle + angle) * radius + action.x
-                y = -math.sin(action.angle + angle) * radius + action.y
-                angular_speed = radius / action.speed
                 finished = False
             else:
                 odo = self.get_odo()
-            dx = x - odo[0]
-            dy = y - odo[1]
-            dtheta = action.angle - odo[2]
-            target_reached = math.hypot(dx, dy) < self.POSITION_INACCURACY
-            angle_reached = abs(dtheta) < self.ANGLE_INACCURACY
-            vx = vy = theta = 0.0
-            print '#' * 40
-            print "angle = ", angle
-            print "x = ", x, "y = ", y, "radius = ", radius, "odo = ", odo
-            print "dx = ", dx, "dy = ", dy, "dtheta = ", math.degrees(dtheta)
-            alpha = math.atan2(odo[1] - action.y, odo[0] - action.x)
-            print "angle_erached = ", angle_reached, "target_reached = ", target_reached
-            if target_reached and angle_reached:
+            if finished:
+                self.set_parameters(0.0, 0.0, 0.0)
+                time.sleep(self.SLEEP_TIME)
+                continue
+            if abs(odo[2]) > math.pi / 3:
+                self.odo_reset()
+                odo = [0.0, 0.0, 0.0]
+                angle -= math.pi / 3 * rotdir
+            if abs(angle - odo[2]) < angl:
                 finished = True
-            if not finished:
-                if not angle_reached:
-                    print "dangle", math.degrees(angle - alpha)
-                    theta = (angular_speed + angular_speed * math.sin(angle - alpha - odo[2])) * rotdir
-                if not target_reached:
-                    if not angle_reached:
-                        print 'angular'
-                        vx = -math.hypot(odo[0] - action.x , odo[1] - action.y) / radius * action.speed
-                        vy = radius / theta * rotdir
-                        c = math.cos(angle)
-                        s = math.sin(angle)
-                        vx, vy = vx * c - vy * s, vx * s + vy * c
-                    else:
-                        print 'linear'
-                        beta = math.atan2(dy, dx) + odo[2]
-                        vx = math.sin(beta) * action.speed
-                        vy = math.cos(beta) * action.speed
-            print "action", action.x, action.y, math.degrees(action.angle), action.speed, "alpha = ", math.degrees(alpha)
-            self.set_parameters(vx, vy, theta)
+                continue
+            self.set_parameters(0.0, 0.0, self.MAX_ANGULAR_SPEED * rotdir)
             self.set_autoupdate(True)
-            print "cmd", vx, vy, math.degrees(theta)
             time.sleep(self.SLEEP_TIME)
-
         self.set_parameters(0.0, 0.0, 0.0)
 
     def prepare(self, action):
@@ -436,8 +410,8 @@ class Walker:
         self.action = WalkCmd.linear_go_to(robot=self.robot, x=x, y=y, speed=speed)
         self.update_state_machine()
 
-    def go_around(self, x, y, angle, speed):
-        self.action = WalkCmd.go_around(robot=self.robot, x=x, y=y, angle=angle, speed=speed)
+    def go_around(self, angle):
+        self.action = WalkCmd.go_around(robot=self.robot, angle=angle)
         self.update_state_machine()
 
     def update_state_machine(self):
