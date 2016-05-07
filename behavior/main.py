@@ -73,16 +73,17 @@ def localize():
     time.sleep(5.0)
     robot.leds.brightness(leds_keys, leds_off)
     loc.localization()
-    print loc.position
+    print loc.position.point
 
 
 try:
     print "localization started"
     localize()
     print "localization ended"
+    # walk.linear_go_to(00, 300, 100)
     behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher, cg, loc)
     behavior.run()
 finally:
     pass
-    # behavior.stop()
+    behavior.stop()
     # robot.joints.hardness(0.0)

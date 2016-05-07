@@ -131,7 +131,7 @@ class LinearGoTo(WalkingState):
             else:
                 odo = self.get_odo()
             dx = action.x - odo[0]
-            dy = action.y - odo[1]
+            dy = action.y + odo[1]
             if math.hypot(dx, dy) > self.POSITION_INACCURACY and not reached:
                 angle = math.atan2(dy, dx)
                 vx = action.speed * math.cos(angle)
@@ -374,7 +374,9 @@ class GoAround(WalkingState):
         self.restore_autoapply()
 
     def is_done(self):
-        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
+        parameters_______ = self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
+        print "paramer", parameters_______
+        return parameters_______
 
 
 class WalkingStateMachine(StateMachine):
