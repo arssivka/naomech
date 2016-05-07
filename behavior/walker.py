@@ -98,7 +98,9 @@ class WalkingState(ThreadSafe, State):
         return True
 
     def look_at(self, x, y, z=0.0):
-        self.look_target = (x, y, z)
+        joints = self.robot.kinematics.jointsLookAt(x, y, z, False)
+        self.robot.locomotion.head.positions(joints[0], joints[1])
+        self.robot.locomotion.head.hardness(0.8, 0.8)
 
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 import geo2d.geometry as g
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import math
 import random
 import time
@@ -118,7 +118,6 @@ class LocalizationModule(OdoListener):
         self.robot = robot
         self.cam_geom = cam_geom
         self.side = math.copysign(self.side, robot.joints.positions([1])["data"][0])
-        robot.joints.hardness([0, 1], [0.8, 0.8])
         if self.side < 0:
             self.particles = [self.get_random_particle() for i in range(self.particles_number)]
         else:
@@ -246,6 +245,7 @@ class LocalizationModule(OdoListener):
                                                    max_dir=self.position.direction + math.radians(10)) for i in range(self.particles_number)]
 
     def localization(self, after_fall=False):
+        self.robot.joints.hardness([0, 1], [0.8, 0.8])
         self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
@@ -254,6 +254,7 @@ class LocalizationModule(OdoListener):
             self.generate_after_fall_particles()
         count = 0
         update = True
+        print "OLOLO!"
         while self.count_deviations() > (150.0, 150.0, math.radians(10)):
             self.update_sensors(update)
             update = False
@@ -272,8 +273,8 @@ class LocalizationModule(OdoListener):
                 index += 1
                 if index > 1:
                     index = 0
-            # print "dv", self.count_deviations()
-            # print "mean", self.count_mean()
+            print "dv", self.count_deviations()
+            print "mean", self.count_mean()
         mean = self.count_mean()
         self.position.point = g.Point(mean[0], mean[1])
         self.position.direction = mean[2]

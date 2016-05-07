@@ -1,3 +1,4 @@
+from itertools import izip
 from threading import Thread, Lock
 
 import time
@@ -77,7 +78,7 @@ class SwitcherBasedBehavior(Behavior):
 
     def run(self):
         if not self._finished:
-            self.walker.reset()
+            self.walker.stop()
             self.prepare()
             switch = self.get_instances()
             if switch:
@@ -237,6 +238,10 @@ class BehaviorHandler:
             "width": 0,
             "height": 0,
         }
+        timestamp = 0
+        pix = [0.0, 0.0]
+        reached = False
+        dode = False
         while not self._iterrupt:
             stance = self._stance_determinator.determinate()
             counter = counter + 1 if stance != Stance.STAND else 0
@@ -245,29 +250,59 @@ class BehaviorHandler:
                                     self._pose_switcher, self._stance_determinator, self._walker)
                 if self._behavior.is_done():
                     self._behavior.reset()
+                timer = timer + 1
                 time.sleep(self.sleep_time)
                 continue
             if any(isinstance(self._behavior, behavior) for behavior in (StandingUpBehavior, KickBehavior)):
                 if not self._behavior.is_done():
+                    timer = timer + 1
                     time.sleep(self.sleep_time)
                     continue
                 else:
                     if isinstance(self._behavior, StandingUpBehavior):
                         self._localization.localization(True)
                     self.__set_behavior(UnknownBehavior)
-
-            if timer % 2 == 0:
-                self._robot.vision.updateFrame()
-                ball = self._robot.vision.ballDetect()
-                ball_found = ball["width"] == 0.0
-                pix = self._cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
-            if not ball_found:
-                self.__set_behavior(WalkBehavior, self._walker)
-                self._behavior.go_around(math.pi)
-            elif math.hypot(pix[0], pix[1]) > 250.0:
-                self.__set_behavior(WalkBehavior, self._walker)
+            if timestamp + 24 < timer or pix == [0.0, 0.0, 0.0]:
+                reached = False
+            dode = False
+            if reached:
                 self._walker.look_at(pix[0], pix[1])
-                self._behavior.smart_go_to(pix[0], pix[1], 100)
+                enemy_point = self._localization.map.enemy_point
+                gates = self._localization.global_to_local(enemy_point.x, enemy_point.y)
+                dx = pix[0] - gates[0]
+                dy = pix[1] - gates[1]
+                angle = math.atan2(dy, dx)
+                distance = math.hypot(dx, dy)
+                target = (math.cos(angle) * distance, math.sin(angle) * distance)
+                self.__set_behavior(WalkBehavior, self._walker)
+                if math.hypot(target[0], target[1]) > 50:
+                    print target
+                    self._walker.linear_go_to(target[0], target[1], 100)
+                    timer = timer + 1
+                else:
+                    self._walker.stop()
+                time.sleep(self.sleep_time)
+                dode = True
+
+            self._robot.vision.updateFrame()
+            ball = self._robot.vision.ballDetect()
+            ball_found = (ball["width"] != 0.0)
+            if ball_found:
+                timestamp = timer
+                pix = self._cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
+            if not dode:
+                if timestamp + 8 < timer or pix == [0.0, 0.0, 0.0] or pix[0] < 0.0:
+                    print "finding"
+                    self.__set_behavior(WalkBehavior, self._walker)
+                    self._walker.look_at(500.0, 0.0)
+                    self._behavior.go_around(math.pi)
+                elif math.hypot(pix[0], pix[1]) > 350.0:
+                    print pix
+                    self.__set_behavior(WalkBehavior, self._walker)
+                    self._walker.look_at(pix[0], pix[1])
+                    self._behavior.smart_go_to(pix[0], pix[1], 100)
+                else:
+                    reached = True
             timer = timer + 1
             time.sleep(self.sleep_time)
         # elif t == 20.0:
