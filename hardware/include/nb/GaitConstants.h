@@ -242,11 +242,11 @@ namespace WP {
              0.1};
     //transition time
     static const double STEP_DEFAULT[LEN_STEP_CONFIG] =
-            {0.8,//step time
+            {0.75,//step time
              0.45,//25,//dblSupFrac
-             15.0,//step height
+             20.0,//step height
              0.0,//lift angle
-             70.0,//max forward vel x
+             90.0,//max forward vel x
              -50.0,//max backward vel x
              70.0,//max vel y
              0.35,//max vel t
@@ -258,8 +258,8 @@ namespace WP {
     static const double ZMP_DEFAULT[LEN_ZMP_CONFIG] =
             {0.0,//foot center
              0.9,//zmp static perc// 0/4
-             4.0,//l zmp off
-             4.0,//r zmp off
+             30.0,//l zmp off
+             30.0,//r zmp off
              0.01,//strafe zmp off
              6.6,};
     //turn zmp off
@@ -279,7 +279,7 @@ namespace WP {
     //angle xy scale
     static const double STIFF_DEFAULT[LEN_STIFF_CONFIG] =
             {0.85,//hip
-             0.3,//knee
+             0.7,//knee
              0.4,//ap
              0.3,//ar
              0.2,//arm
@@ -288,10 +288,10 @@ namespace WP {
     static const double ODO_DEFAULT[LEN_ODO_CONFIG] =
             {1.0,//xodoscale
              1.0,//yodoscale
-             1.0};
+             1.8};
     //thetaodoscale
     static const double ARM_DEFAULT[LEN_ARM_CONFIG] =
-            {0.0};//arm amplitude
+            {0.3};//arm amplitude
 
 };//End namespace WP
 #endif
