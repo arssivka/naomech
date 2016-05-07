@@ -1,6 +1,8 @@
+from itertools import izip
+
 import numpy as np
 import geo2d.geometry as g
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import math
 import random
 import time
@@ -43,6 +45,7 @@ class Map:
     max_distance = 8000
     enemy_point = g.Point(-4100.0, 0.0)
     friendly_point = g.Point(4100.0, 0.0)
+    start_point = g.Point(600.0, 0.0)
 
     def __init__(self):
 
@@ -59,6 +62,7 @@ class Map:
                                                    (g.Point(-self.corner_x, -self.penalty_corners_y), g.Point(-self.penalty_corner_x, -self.penalty_corners_y))]]
 
     def get_intersect_point(self, rp, point, distance = None):
+        start = time.time()
         direction2 = math.atan2(point.y, point.x)
         int_line = g.Line(rp.point,
                           g.Point((rp.point.x + math.cos(direction2 + rp.direction) * self.max_distance),
@@ -67,10 +71,17 @@ class Map:
         found = False
         dist = self.max_distance
         neededline = None
+        # 
         for l in self.lines:
+            start = time.time()
             temp = l.intersection(int_line)
+            # 
+            start = time.time()
             if temp != None and temp != float("inf") and self.check_if_point_in_lines(l, int_line, temp):
+                # 
+                start = time.time()
                 tmp_dist = rp.point.distance_to(temp)
+                # 
                 if distance is None:
                     if tmp_dist < dist:
                         i_p = temp
@@ -86,6 +97,7 @@ class Map:
                         found = True
         if found:
             return i_p, neededline
+        # 
         return None, None
 
     def check_if_point_in_line(self, l, p):
@@ -106,7 +118,7 @@ class Map:
 class LocalizationModule(OdoListener):
 
     map = Map()
-    particles_number = 200
+    particles_number = 50
     print_once = True
     position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
@@ -118,19 +130,21 @@ class LocalizationModule(OdoListener):
         self.robot = robot
         self.cam_geom = cam_geom
         self.side = math.copysign(self.side, robot.joints.positions([1])["data"][0])
-        robot.joints.hardness([0, 1], [0.8, 0.8])
+
+    def initial_generation(self):
         if self.side < 0:
             self.particles = [self.get_random_particle() for i in range(self.particles_number)]
         else:
             self.particles = [self.get_random_particle(min_x=0, min_y=3200, max_x=4500,
-                                                            max_y=3000, min_dir=math.radians(250),
-                                                            max_dir=math.radians(290)) for i in range(self.particles_number)]
+                                                       max_y=3000, min_dir=math.radians(250),
+                                                       max_dir=math.radians(290)) for i in range(self.particles_number)]
 
     def get_random_particle(self, min_x = 0, min_y = -3200, max_x = 4500, max_y = -3000, min_dir = math.radians(70), max_dir = math.radians(110)):
         return RobotPose(random.uniform(min_x, max_x), random.uniform(min_y, max_y), random.uniform(min_dir, max_dir))
 
     def sort_particles(self):
         self.particles.sort(key=lambda rp: rp.weight)
+
 
     def count_deviations(self):
         arr_x = np.array([rp.point.x for rp in self.particles])
@@ -185,6 +199,7 @@ class LocalizationModule(OdoListener):
         self.particles.extend([self.get_random_particle(x[1], y[1], x[0], y[0], d[1], d[0]) for i in range(particles_nedded)])
 
     def get_sensors(self):
+        # hui = g.Point(0, 0)
         self.robot.vision.updateFrame()
         vision_lines = self.robot.vision.lineDetect()
         if len(vision_lines) != 0:
@@ -197,11 +212,12 @@ class LocalizationModule(OdoListener):
                     continue
                 self.parsed_lines.append((c1, c2))
                 self.distances.append((math.hypot(c1[0], c1[1]), math.hypot(c2[0], c2[1])))
+        # self.parsed_lines.sort(key=lambda e: hui.distance_to(e))
 
     def deb_print(self, rp, lines):
         self.map.print_map()
         rp.printPose()
-        print "weight", rp.weight
+        
         for line in lines:
             plt.plot((line.p1.x, line.p2.x), (line.p1.y, line.p2.y), 'r-')
             plt.plot((rp.point.x, line.p1.x), (rp.point.y, line.p1.y), 'b-')
@@ -211,33 +227,34 @@ class LocalizationModule(OdoListener):
 
     def notify(self, frodo):
         self.odo = frodo
-        # print frodo
+        # 
         self.udapte_odo_pos(self.odo)
 
     def update_sensors(self, need_get):
         if need_get:
             self.get_sensors()
-        # deb_lines = []
+        
         if len(self.parsed_lines) > 0:
-            # start = time.time()
+            start = time.time()
             for p in self.particles:
-                for i in range(len(self.parsed_lines)):
-                    point1, l1 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][0][0], self.parsed_lines[i][0][1]), distance=self.distances[i][0])
-                    point2, l2 = self.map.get_intersect_point(p, g.Point(self.parsed_lines[i][1][0], self.parsed_lines[i][1][1]), distance=self.distances[i][1])
+                for i, (l, d) in enumerate(izip(self.parsed_lines, self.distances)):#range(len(self.parsed_lines)):
+                    start = time.time()
+                    point1, l1 = self.map.get_intersect_point(p, g.Point(l[0][0], l[0][1]), distance=d[0])
+                    
+                    start = time.time()
+                    point2, l2 = self.map.get_intersect_point(p, g.Point(l[1][0], l[1][1]), distance=d[1])
+                    
                     if point1 is None or point2 is None or not self.map.lines_eq(l1 ,l2):
                         p.weight = 0.0
                         continue
                     else:
                         # deb_lines.append(g.Line(point1, point2))
                         dist = p.point.distance_to(point1)
-                        w = abs(dist - self.distances[i][0])
+                        w = abs(dist - d[0])
                         p.weight += (1 - w / self.map.max_distance) / 2
                         dist = p.point.distance_to(point2)
-                        w = abs(dist - self.distances[i][1])
+                        w = abs(dist - d[1])
                         p.weight += (1 - w / self.map.max_distance) / 2
-                        # self.deb_print(p, deb_lines)
-                        # deb_lines = []
-            # print "particle tut", time.time() - start
 
     def generate_after_fall_particles(self):
         self.particles = [self.get_random_particle(min_x=self.position.point.x - 200.0, min_y=self.position.point.y - 200,
@@ -246,19 +263,29 @@ class LocalizationModule(OdoListener):
                                                    max_dir=self.position.direction + math.radians(10)) for i in range(self.particles_number)]
 
     def localization(self, after_fall=False):
-        self.robot.kinematics.lookAt(1000.0, 0.0, 0.0, False)
+        self.side = math.copysign(self.side, self.robot.joints.positions([1])["data"][0])
+        
+        self.robot.joints.hardness([0, 1], [0.8, 0.8])
+        self.robot.kinematics.lookAt(1000.0, 500.0 * self.side, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
         sign = -1
         if after_fall:
             self.generate_after_fall_particles()
+        else:
+            self.initial_generation()
         count = 0
         update = True
-        while self.count_deviations() > (150.0, 150.0, math.radians(10)):
+        while self.count_deviations() > (300.0, 150.0, math.radians(10)):
+            start = time.time()
             self.update_sensors(update)
             update = False
+            start = time.time()
             self.norm_weights()
+            
+            start = time.time()
             self.resample(after_fall)
+            
             count += 1
             if count == 50:
                 count = 0
@@ -272,8 +299,8 @@ class LocalizationModule(OdoListener):
                 index += 1
                 if index > 1:
                     index = 0
-            # print "dv", self.count_deviations()
-            # print "mean", self.count_mean()
+            
+            
         mean = self.count_mean()
         self.position.point = g.Point(mean[0], mean[1])
         self.position.direction = mean[2]
@@ -290,10 +317,6 @@ class LocalizationModule(OdoListener):
             plt.draw()
             time.sleep(0.05)
             plt.clf()
-
-    def print_console(self):
-        for i in self.particles:
-            print ('x: ', i.point.x, 'y: ', i.point.y, 'weight: ', i.weight)
 
     def udapte_odo_pos(self, odometry):
         self.position.odoTranslate(odometry[0], odometry[1], odometry[2])

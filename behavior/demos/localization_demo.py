@@ -47,17 +47,17 @@ loc.localization()
 loc.print_plot(once=True)
 
 
-tuc = loc.global_to_local(loc.map.friendly_point.x, loc.map.friendly_point.y)
+tuc = loc.global_to_local(loc.map.start_point.x, loc.map.start_point.y)
 print tuc
 walk.odo_listeners.append(loc)
 while math.hypot(tuc[0], tuc[1]) > 100:
-    tuc = loc.global_to_local(loc.map.friendly_point.x, loc.map.friendly_point.y)
+    tuc = loc.global_to_local(loc.map.start_point.x, loc.map.start_point.y)
     print tuc
     walk.smart_go_to(tuc[0], tuc[1], 100.0)
     joints = robot.kinematics.jointsLookAt(500.0, 0.0, 0.0, False)
     robot.locomotion.head.positions(joints[0], joints[1])
     robot.locomotion.head.hardness(0.8, 0.8)
-    time.sleep(1.0)
+    time.sleep(2.0)
 walk.stop()
 robot.locomotion.autoapply.enable(False)
 loc.print_plot(once=True)

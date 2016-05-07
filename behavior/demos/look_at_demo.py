@@ -31,7 +31,6 @@ def onmouse(event, x, y, flags, params):
     if event == cv2.EVENT_RBUTTONDBLCLK:
         robot.kinematics.lookAt(100.0, 0.0, 0.0, top_camera)
 
-
 cv2.namedWindow('mouse_input')
 cv2.setMouseCallback('mouse_input', onmouse)
 
