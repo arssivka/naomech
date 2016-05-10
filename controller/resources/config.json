@@ -183,12 +183,12 @@
     "BallDetector": {
       "median_blur_size": 7,
       "ColorThresh": {
-        "min_1": 0,
-        "min_2": 60,
         "min_3": 0,
-        "max_1": 255,
+        "min_2": 60,
+        "min_1": 0,
+        "max_3": 255,
         "max_2": 255,
-        "max_3": 55
+        "max_1": 55
       },
       "GaborThresh": {
         "min_3": 60,
