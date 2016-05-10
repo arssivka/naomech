@@ -9,7 +9,7 @@ import numpy as np
 
 top_camera = False
 not_walking_look = True
-robot = Robot("192.168.1.2", "5469")
+robot = Robot("192.168.1.3", "5469")
 cg = CamGeom("../config/cameras.json", robot)
 pose_handler = PoseHandler(robot, 30)
 pose.load_poses(pose_handler, "../config/poses.json")

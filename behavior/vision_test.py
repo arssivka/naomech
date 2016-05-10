@@ -42,14 +42,14 @@ try:
         robot.vision.updateFrame()
         ball = robot.vision.ballDetect()
         lines = robot.vision.lineDetect()
-        cv2.imwrite('/home/tekatod/bases/real_image/' + str(i) + '.png', picturerbg)
+        # cv2.imwrite('/home/tekatod/bases/real_image/' + str(i) + '.png', picturerbg)
         i += 1
 
         end = timeit.default_timer()
-        # for line in lines:
-        #     cv2.line(picturerbg, (line['x1'], line['y1']), (line['x2'], line['y2']), (255, 0, 255))
-        # cv2.rectangle(picturerbg, (ball['x'], ball['y']),
-        #               (ball['x'] + ball['width'], ball['y'] + ball['height']), (0, 255, 255))
+        for line in lines:
+            cv2.line(picturerbg, (line['x1'], line['y1']), (line['x2'], line['y2']), (255, 0, 255))
+        cv2.rectangle(picturerbg, (ball['x'], ball['y']),
+                      (ball['x'] + ball['width'], ball['y'] + ball['height']), (0, 255, 255))
         cv2.imshow('robotVis', picturerbg)
 
         cv2.waitKey(1000)
