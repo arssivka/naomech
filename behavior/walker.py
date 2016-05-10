@@ -374,9 +374,7 @@ class GoAround(WalkingState):
         self.restore_autoapply()
 
     def is_done(self):
-        parameters_______ = self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
-        print "paramer", parameters_______
-        return parameters_______
+        return self.robot.locomotion.is_done() and self.get_parameters() == [0.0, 0.0, 0.0]
 
 
 class WalkingStateMachine(StateMachine):
