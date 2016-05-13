@@ -150,11 +150,11 @@
     ],
     [
       "after_left_kick_2",
-      1.0
+      1.2
     ],
     [
       "walking_pose",
-      0.7
+      1.3
     ]
   ],
   "right_kick": [
@@ -184,11 +184,11 @@
     ],
     [
       "after_right_kick_2",
-      1.0
+      1.2
     ],
     [
       "walking_pose",
-      0.7
+      1.3
     ]
   ]
 }

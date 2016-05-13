@@ -19,7 +19,7 @@ import camera_calibator
 import time
 import numpy as np
 
-robot = Robot("192.168.1.2", "5469")
+robot = Robot("192.168.1.3", "5469")
 
 pose_handler = PoseHandler(robot, 30)
 pose.load_poses(pose_handler, "config/poses.json")

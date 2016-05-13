@@ -9,7 +9,7 @@ from behavior.walker import Walker
 import math
 import time
 
-robot = Robot("192.168.1.2", "5469")
+robot = Robot("192.168.1.3", "5469")
 cg = CamGeom("../config/cameras.json", robot)
 pose_handler = PoseHandler(robot, 30)
 pose.load_poses(pose_handler, "../config/poses.json")
@@ -18,8 +18,8 @@ pose.load_switches(pose_switcher, "../config/switches.json")
 walk = Walker(robot)
 
 stance = [310.0, 14.5, 100.0, 0.0, 0.0, 0.1]
-step = [0.75, 0.50, 15.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
-zmp = [0.0, 0.0, 20.0, 20.0, 0.01, 1.6]
+step = [0.8, 0.30, 15.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+zmp = [0.0, 0.0, 30.0, 30.0, 0.01, 1.6]
 hack = [0.0, 0.0]
 sensor = [0.0,
           0.0,

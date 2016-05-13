@@ -36,15 +36,15 @@ class RobotPose():
 class Map:
 
     central_line_corner_x = 0
-    central_line_corner_y = 3000
-    corner_x = 4500
-    corner_y = 3000
+    central_line_corner_y = 2000
+    corner_x = 3000
+    corner_y = 2000
     central_y = 0
     penalty_corners_y = 1100
-    penalty_corner_x = 3900
-    max_distance = 8000
-    enemy_point = g.Point(-4100.0, 0.0)
-    friendly_point = g.Point(4100.0, 0.0)
+    penalty_corner_x = 2400
+    max_distance = 5000
+    enemy_point = g.Point(-2800.0, 0.0)
+    friendly_point = g.Point(2800.0, 0.0)
     start_point = g.Point(600.0, 0.0)
 
     def __init__(self):
@@ -113,7 +113,7 @@ class Map:
     def print_map(self):
         for line in self.lines:
             plt.plot((line.p1.x, line.p2.x), (line.p1.y, line.p2.y), 'g-')
-            plt.axis([-4800, 4800, -3600, 3600])
+            plt.axis([-3800, 3800, -2600, 2600])
 
 class LocalizationModule(OdoListener):
 
@@ -135,11 +135,11 @@ class LocalizationModule(OdoListener):
         if self.side < 0:
             self.particles = [self.get_random_particle() for i in range(self.particles_number)]
         else:
-            self.particles = [self.get_random_particle(min_x=0, min_y=3200, max_x=4500,
-                                                       max_y=3000, min_dir=math.radians(250),
-                                                       max_dir=math.radians(290)) for i in range(self.particles_number)]
+            self.particles = [self.get_random_particle(min_x=0, min_y=1800, max_x=3000,
+                                                       max_y=2050, min_dir=math.radians(260),
+                                                       max_dir=math.radians(280)) for i in range(self.particles_number)]
 
-    def get_random_particle(self, min_x = 0, min_y = -3200, max_x = 4500, max_y = -3000, min_dir = math.radians(70), max_dir = math.radians(110)):
+    def get_random_particle(self, min_x = 0, min_y = -2200, max_x = 3000, max_y = -2000, min_dir = math.radians(70), max_dir = math.radians(110)):
         return RobotPose(random.uniform(min_x, max_x), random.uniform(min_y, max_y), random.uniform(min_dir, max_dir))
 
     def sort_particles(self):
@@ -183,9 +183,9 @@ class LocalizationModule(OdoListener):
                 if self.side < 0:
                     self.particles = [self.get_random_particle() for i in range(self.particles_number)]
                 else:
-                    self.particles.extend([self.get_random_particle(min_x = 0, min_y = 3200, max_x = 4500,
-                                                                max_y = 3000, min_dir = math.radians(250),
-                                                                max_dir = math.radians(290)) for i in range(self.particles_number)])
+                    self.particles = [self.get_random_particle(min_x = 0, min_y = 1800, max_x = 3000,
+                                                                max_y = 2050, min_dir = math.radians(260),
+                                                                max_dir = math.radians(280)) for i in range(self.particles_number)]
             else:
                 self.generate_after_fall_particles()
             return
@@ -266,7 +266,7 @@ class LocalizationModule(OdoListener):
         self.side = math.copysign(self.side, self.robot.joints.positions([1])["data"][0])
         
         self.robot.joints.hardness([0, 1], [0.8, 0.8])
-        self.robot.kinematics.lookAt(1000.0, 500.0 * self.side, 0.0, False)
+        self.robot.kinematics.lookAt(500.0, 500.0 * self.side, 0.0, False)
         look_at_points = [(1000.0, 500.0, 0.0), (1000.0, 0.0, 0.0)]
         index = 0
         sign = -1
