@@ -6,9 +6,10 @@ import time
 import math
 from enum import Enum
 
+from localization import RobotPose
 from camera_geometry import CamGeom
 from threadsafe import ThreadSafe
-from walker import Walker
+from walker import Walker, OdoListener
 
 
 class Stance(Enum):
@@ -173,8 +174,8 @@ class WalkBehavior(Behavior):
     def smart_go_to(self, x, y, speed):
         self._upd_args(WalkBehavior.SMART_GO_TO, x, y, speed)
 
-    def go_around(self, angle):
-        self._upd_args(WalkBehavior.GO_AROUND, angle)
+    def go_around(self, angle, scale=1.0):
+        self._upd_args(WalkBehavior.GO_AROUND, angle, scale)
 
     def linear_go_to(self, x, y, theta):
         self._upd_args(WalkBehavior.LINEAR_GO_TO, x, y, theta)
@@ -195,8 +196,11 @@ class WalkBehavior(Behavior):
         return self._walker.is_done()
 
 
-class BehaviorHandler:
-    sleep_time = 0.01
+class BehaviorHandler(OdoListener):
+    FINDING_SECTOR_ANGLE = math.radians(60.0)
+    HEAD_PITCH_STEP = math.radians(30.0)
+    HEAD_YAW_STEP = math.radians(15.0)
+    SLEEP_TIME = 0.01
 
     def __init__(self, robot, walker, pose_handler, pose_switcher, cam, localization):
         self.fall_indicator_count = 3
@@ -212,6 +216,10 @@ class BehaviorHandler:
         self._lock = Lock()
         self._worker = Thread(target=BehaviorHandler.__worker, args=(self,))
         self._worker.start()
+        self.odo = RobotPose(0.0, 0.0, 0.0)
+
+    def notify(self, frodo):
+        self.odo.odoTranslate(frodo[0], frodo[1], frodo[2])
 
     def __worker(self):
         self._lock.acquire()
@@ -221,7 +229,7 @@ class BehaviorHandler:
                 self._lock.release()
                 try:
                     behavior.run()
-                    time.sleep(self.sleep_time)
+                    time.sleep(self.SLEEP_TIME)
                 finally:
                     self._lock.acquire()
         finally:
@@ -253,6 +261,10 @@ class BehaviorHandler:
         pix = [0.0, 0.0]
         reached = False
         dode = 0
+        fff = False
+        initialized = False
+        tuc = None
+        print "Behavior was started"
         while not self._iterrupt:
             stance = self._stance_determinator.determinate()
             counter = counter + 1 if stance != Stance.STAND else 0
@@ -264,12 +276,12 @@ class BehaviorHandler:
                     self._behavior.reset()
                 self._behavior.start()
                 timer = timer + 1
-                time.sleep(self.sleep_time)
+                time.sleep(self.SLEEP_TIME)
                 continue
             if any(isinstance(self._behavior, behavior) for behavior in (StandingUpBehavior, KickBehavior,)):
                 if not self._behavior.is_done():
                     timer = timer + 1
-                    time.sleep(self.sleep_time)
+                    time.sleep(self.SLEEP_TIME)
                     continue
                 else:
                     if isinstance(self._behavior, StandingUpBehavior):
@@ -277,85 +289,118 @@ class BehaviorHandler:
                     self.__set_behavior(UnknownBehavior)
             if timestamp + 24 < timer or pix == [0.0, 0.0, 0.0]:
                 reached = False
-            # dode = False
-            if reached or dode > 0:
-                if math.hypot(pix[0], pix[1]) > 500.0:
-                    dode = 0
-                    reached = False
-                    continue
-                print "dode", dode
-                self._walker.look_at(pix[0], pix[1])
-                enemy_point = self._localization.map.enemy_point
-                gates = self._localization.global_to_local(enemy_point.x, enemy_point.y)
-                dx = pix[0] - gates[0]
-                dy = pix[1] - gates[1]
-                angle = math.atan2(dy, dx)
-                distance = math.hypot(dx, dy)
-                new_dist = distance + 200
-                target = (math.cos(angle) * (distance + new_dist) - dx, math.sin(angle) * (distance + new_dist) - dy)
-                self.__set_behavior(WalkBehavior, self._walker)
-                print "target", target
-                if ball_found:
-                    self._walker.look_at(pix[0], pix[1])
-                if dode == 0:
-                    dode = 1
-                    if math.hypot(target[0], target[1]) > 50:
-                        print "linear"
-                        self.__set_behavior(WalkBehavior, self._walker)
-                        self._behavior.linear_go_to(target[0], target[1], 100)
-                        time.sleep(0.2)
-                bdone = self._behavior.is_done()
-                print "bdone", bdone
-                if dode == 1 and bdone:
-                    self.__set_behavior(WalkBehavior, self._walker)
-                    self._behavior.go_around(gates[2])
-                    dode = 2
-                    bdone = False
-                    time.sleep(0.2)
-                if dode == 2 and bdone:
-                    self.__set_behavior(WalkBehavior, self._walker)
-                    self._behavior.stop()
-                    dode = 3
-                    bdone = False
-                    time.sleep(0.2)
-                if dode == 3 and bdone:
-                    self.__set_behavior(KickBehavior, self._robot, self._pose_handler, self._pose_switcher,
-                                        self._stance_determinator, self._walker)
-                    if pix[1] > 0:
-                        self._behavior.set_left_leg(True);
-                    else:
-                        self._behavior.set_left_leg(False);
-                    self._behavior.start()
-                    dode = 4
-                    bdone = False
-                    time.sleep(0.2)
-                if dode == 4 and bdone:
-                    self.__set_behavior(UnknownBehavior)
-                    dode = 0
+
             self._robot.vision.updateFrame()
             ball = self._robot.vision.ballDetect()
             ball_found = (ball["width"] != 0.0)
             if ball_found:
                 timestamp = timer
                 pix = self._cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
-            if dode == 0:
-                if timestamp + 8 < timer or pix == [0.0, 0.0, 0.0] or pix[0] < 0.0:
-                    print "finding"
-                    self.__set_behavior(WalkBehavior, self._walker)
-                    if pix == [0.0, 0.0, 0.0] or pix[0] < 0.0:
-                        self._walker.look_at(500.0, 0.0)
-                    else:
+            # dode = False
+            # if not initialized:
+            #     print "go to start"
+            #     if tuc is None or math.hypot(tuc[0], tuc[1]) > 100:
+            #         tuc = self._localization.global_to_local(self._localization.map.start_point.x, self._localization.map.start_point.y)
+            #         self.__set_behavior(WalkBehavior, self._walker)
+            #         self._behavior.smart_go_to(tuc[0], tuc[1], 100)
+            #         self._walker.look_at(500.0, 0.0, 0.0)
+            #         time.sleep(2.0)
+            #         timer += 1
+            #         continue
+            #     else:
+            #         initialized = True
+
+            if ball_found:
+                print "FOUND!!!!!!"
+            if reached or dode > 0:
+                fff = False
+                bdone = self._behavior.is_done()
+                if ball_found:
+                    if pix[0] > 0.0:
                         self._walker.look_at(pix[0], pix[1])
-                    self._behavior.go_around(math.pi)
-                elif math.hypot(pix[0], pix[1]) > 350.0:
-                    print pix
+                if dode == 0:
+                    enemy_point = self._localization.map.enemy_point
+                    gates = self._localization.global_to_local(enemy_point.x, enemy_point.y)
                     self.__set_behavior(WalkBehavior, self._walker)
-                    self._walker.look_at(pix[0], pix[1])
-                    self._behavior.smart_go_to(pix[0], pix[1], 100)
-                else:
+                    if gates[2] > math.radians(30):
+                        self._behavior.go_around(gates[2])
+                        dode = 1
+                        bdone = False
+                        time.sleep(0.2)
+                    else:
+                        dode = 1
+                        bdone = True
+                if dode == 1 and bdone:
+                    self.__set_behavior(KickBehavior, self._robot, self._pose_handler,
+                                        self._pose_switcher, self._stance_determinator, self._walker)
+                    self._behavior.set_left_leg(pix[1] > 0)
+                    aa = self._robot.locomotion.autoapply.enable(False)
+                    self._behavior.start()
+                    dode = 2
+                    bdone = False
+                    time.sleep(0.2)
+                if dode == 2 and bdone:
+                    dode = 0
+                    time.sleep(0.5)
+
+            if dode == 0:
+                if timestamp == 0 or timestamp + 54 < timer or pix == [0.0, 0.0, 0.0] or pix[0] < 0.0:
+                    self.__set_behavior(WalkBehavior, self._walker)
+                    if not ball_found:
+                        if fff == False:
+                            h_angle = 0.0
+                            low = True
+                            to_left = True
+                            fff = True
+                        print "h_angle", math.degrees(h_angle), to_left, low,
+                        if to_left:
+                            if h_angle == -self.FINDING_SECTOR_ANGLE / 2.0:
+                                low = True
+                                to_left = False
+                                h_angle += self.HEAD_YAW_STEP
+                            else:
+                                h_angle -= self.HEAD_YAW_STEP
+                        else:
+                            if h_angle == self.FINDING_SECTOR_ANGLE / 2.0:
+                                low = False
+                                to_left = True
+                                h_angle -= self.HEAD_YAW_STEP
+                            else:
+                                h_angle += self.HEAD_YAW_STEP
+                        h_y = 0.0
+                        h_x = 300.0 if low else 1000.0
+                        c = math.cos(h_angle)
+                        s = math.sin(h_angle)
+                        h_x, h_y = h_x * c - h_y * s, h_x * s + h_y * c
+                        print "h x, y", h_x, h_y
+                        self._walker.look_at(h_x, h_y, 0.0)
+                    else:
+                        print "!!!"
+                        if pix[0] > 0.0:
+                            self._walker.look_at(pix[0], pix[1])
+                    self._behavior.go_around(math.pi, 0.5)
+                elif math.hypot(pix[0], pix[1]) > 350.0:
+                    fff = False
+                    # print pix
+                    if pix[0] > 0.0:
+                        self._walker.look_at(pix[0], pix[1])
+                    enemy_point = self._localization.map.enemy_point
+                    gates = self._localization.global_to_local(enemy_point.x, enemy_point.y)
+                    dx = pix[0] - gates[0]
+                    dy = pix[1] - gates[1]
+                    angle = math.atan2(dy, dx)
+                    distance = math.hypot(dx, dy)
+                    new_dist = distance + 180
+                    target = (pix[0] + math.cos(angle) * (new_dist) - dx, pix[1] + math.sin(angle) * (new_dist) - dy)
+                    print "target", target
+                    self.__set_behavior(WalkBehavior, self._walker)
+                    print repr(self._behavior)
+                    self._behavior.smart_go_to(target[0], target[1], 100)
+                elif pix != [0.0, 0.0, 0,0] and  pix[0] > 0.0:
+                    fff = False
                     reached = True
             timer = timer + 1
-            time.sleep(self.sleep_time)
+            time.sleep(self.SLEEP_TIME)
             # elif t == 20.0:
             #     self.__set_behavior(KickBehavior, self._robot, self._pose_handler,
             #                         self._pose_switcher, self._stance_determinator, self._walker)

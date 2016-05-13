@@ -32,7 +32,7 @@ class WalkCmd:
     stop = ActionFactory("stop", args=("robot"))
     linear_go_to = ActionFactory("linear_set_target", args=("robot", "x", "y", "speed"))
     smart_go_to = ActionFactory("smart_set_target", args=("robot", "x", "y", "speed"))
-    go_around = ActionFactory("set_rotation_target", args=("robot", "angle"))
+    go_around = ActionFactory("set_rotation_target", args=("robot", "angle", "scale"))
 
 
 class WalkingState(ThreadSafe, State):
@@ -172,7 +172,7 @@ class LinearGoTo(WalkingState):
 class SmartGoTo(WalkingState, ThreadSafe):
     SLEEP_TIME = 0.5
     MAX_ANGULAR_SPEED = math.radians(10.0)
-    ANGLE_INACCURACY = math.radians(15.0)
+    ANGLE_INACCURACY = math.radians(35.0)
     POSITION_INACCURACY = 70.0
     _PI3 = math.pi / 3.0
 
@@ -199,6 +199,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
         while not self.iterrupt:
             # Update speed and target. Or action.
             if action != self.action or update_action:
+                q = None
                 reached = False
                 action = self.action
                 r = action.speed / self.MAX_ANGULAR_SPEED
@@ -216,27 +217,26 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 continue
             a = angle - odo[2]
             dist_left = (action.x - odo[0],
-                         action.y - odo[1])
-            if update_q and abs(a) < self.ANGLE_INACCURACY:
+                         action.y + odo[1])
+            if q is None or update_q:
                 q_target = (action.x, action.y)
                 sign = (1.0, -1.0)
                 angle_to_p = tuple(odo[2] - math.pi / 2.0 * s for s in sign)
                 p = tuple((odo[0] + r * math.cos(angle),
-                           (odo[1] + r * math.sin(angle))) for angle in angle_to_p)
+                          (odo[1] + r * math.sin(angle))) for angle in angle_to_p)
                 d = tuple((q_target[0] - point[0], q_target[1] - point[1]) for point in p)
                 h = tuple(math.hypot(d_i[0], d_i[1]) for d_i in d)
                 index, _ = min(enumerate(h), key=itemgetter(1))
-                if r > h[index]:
-                    q = None
-                else:
+                # print 'r', r, 'h', h[index]
+                if r < h[index]:
                     phi = math.atan2(d[index][1], d[index][0])
                     q_theta = math.acos(r / h[index])
                     q = (p[index][0] + r * math.cos(phi + q_theta * sign[index]),
-                         (p[index][1] + r * math.sin(phi + q_theta * sign[index])))
+                        (p[index][1] + r * math.sin(phi + q_theta * sign[index])))
                     theta = -sign[index] * self.MAX_ANGULAR_SPEED
                     update_q = False
             # Rotate at an angle greater than PI / 3
-            # print 'state = ', str(state), ', q = ', q, ', odo = ', _odo, ', target = ', target
+            # print 'state = ', str(state), ', q = ', q, ', odo = ', odo, ', target = ', action.x, action.y
             if any(state == s for s in (_WalkState.SO_MUCH_ROTATE, _WalkState.MUCH_ROTATE)):
                 abbabbbebe = math.copysign(1.0, angle) # It's rotate direction. We haven't any ideas about its name :D
                 if abs(odo[2]) >= self._PI3:
@@ -262,9 +262,9 @@ class SmartGoTo(WalkingState, ThreadSafe):
                 if q and abs(a) < self.ANGLE_INACCURACY:
                     state = _WalkState.GO_CURVE
                     continue
-                elif  abs(a) < math.degrees(7):
-                    state = _WalkState.GO_STRAIGHT
-                    continue
+                # elif abs(a) < math.degrees(7):
+                #     state = _WalkState.GO_STRAIGHT
+                #     continue
                 update_q = True
                 # Speed update
                 self.set_parameters(0.0, 0.0, math.copysign(self.MAX_ANGULAR_SPEED, a))
@@ -278,7 +278,7 @@ class SmartGoTo(WalkingState, ThreadSafe):
                     time.sleep(self.SLEEP_TIME)
                     continue
                 # Q reached check
-                dist_left = (q[0] - odo[0], q[1] - odo[1])
+                dist_left = (q[0] - odo[0], q[1] + odo[1])
                 if math.hypot(dist_left[0], dist_left[1]) < self.POSITION_INACCURACY or abs(a) < math.radians(10.0):
                     state = _WalkState.GO_STRAIGHT
                     continue
@@ -349,7 +349,7 @@ class GoAround(WalkingState):
             if abs(angle - odo[2]) < angl:
                 finished = True
                 continue
-            self.set_parameters(0.0, 0.0, self.MAX_ANGULAR_SPEED * rotdir)
+            self.set_parameters(0.0, 0.0, self.MAX_ANGULAR_SPEED * rotdir * action.scale)
             self.set_autoupdate(True)
             time.sleep(self.SLEEP_TIME)
         self.set_parameters(0.0, 0.0, 0.0)
@@ -367,7 +367,8 @@ class GoAround(WalkingState):
 
     def finalize(self):
         self.iterrupt = True
-        self.worker.join()
+        if self.worker is not None:
+            self.worker.join()
         while not self.robot.locomotion.is_done() \
                 and self.get_parameters() == [0.0, 0.0, 0.0]:
             time.sleep(self.SLEEP_TIME)
@@ -412,8 +413,8 @@ class Walker:
         self.action = WalkCmd.linear_go_to(robot=self.robot, x=x, y=y, speed=speed)
         self.update_state_machine()
 
-    def go_around(self, angle):
-        self.action = WalkCmd.go_around(robot=self.robot, angle=angle)
+    def go_around(self, angle, scale=1.0):
+        self.action = WalkCmd.go_around(robot=self.robot, angle=angle, scale=scale)
         self.update_state_machine()
 
     def update_state_machine(self):

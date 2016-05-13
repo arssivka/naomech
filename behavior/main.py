@@ -36,8 +36,8 @@ walk.odo_listeners.append(loc)
 # robot.joints.hardness(rleg_keys, [0.1 for i in rleg_keys])
 
 stance = [310.0, 14.5, 100.0, 0.0, 0.0, 0.1]
-step = [0.75, 0.50, 15.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
-zmp = [0.0, 0.0, 20.0, 20.0, 0.01, 1.6]
+step = [0.8, 0.30, 15.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+zmp = [0.0, 0.0, 30.0, 30.0, 0.01, 1.6]
 hack = [0.0, 0.0]
 sensor = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 stiff = [0.85, 0.7, 0.4, 0.3, 0.2, 0.2]
@@ -70,7 +70,7 @@ def localize():
     leds_on = [1.0, 0.0, 0.0] * (len(leds_keys) / 3)
     leds_off = [0.0] * len(leds_keys)
     robot.leds.brightness(leds_keys, leds_on)
-    time.sleep(5.0)
+    time.sleep(2.5)
     robot.leds.brightness(leds_keys, leds_off)
     loc.localization()
     print loc.position.point
@@ -78,11 +78,13 @@ def localize():
 
 try:
     print "localization started"
-    localize()
+    # localize()
     print "localization ended"
     # walk.linear_go_to(00, 300, 100)
     behavior = BehaviorHandler(robot, walk, pose_handler, pose_switcher, cg, loc)
+    walk.odo_listeners.append(behavior)
     behavior.run()
+    # walk.smart_go_to(500.0, 300.0, 100.0)
 finally:
     pass
     behavior.stop()
