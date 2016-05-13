@@ -42,7 +42,7 @@ try:
         robot.vision.updateFrame()
         ball = robot.vision.ballDetect()
         lines = robot.vision.lineDetect()
-        # cv2.imwrite('/home/tekatod/bases/real_image/' + str(i) + '.png', picturerbg)
+        cv2.imwrite('/home/tekatod/bases/real_image/_nosee' + str(i) + '.png', picturerbg)
         i += 1
 
         end = timeit.default_timer()

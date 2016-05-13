@@ -120,16 +120,20 @@ class LocalizationModule(OdoListener):
     map = Map()
     particles_number = 50
     print_once = True
-    position = RobotPose(0.0, 0.0, 0.0)
     parsed_lines = []
     distances = []
     corners = []
     side = 1
 
-    def __init__(self, robot, cam_geom):
+    def __init__(self, robot, cam_geom, goalie = False):
         self.robot = robot
         self.cam_geom = cam_geom
         self.side = math.copysign(self.side, robot.joints.positions([1])["data"][0])
+        if goalie:
+            self.position = RobotPose(2400.0, 0.0, math.pi)
+        else:
+            self.position = RobotPose(1500.0, -2000.0, math.pi / 2)
+
 
     def initial_generation(self):
         if self.side < 0:

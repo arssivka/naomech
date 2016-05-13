@@ -410,3 +410,92 @@ class BehaviorHandler(OdoListener):
     def stop(self):
         self._iterrupt = True
         self._worker.join()
+
+class GoalieBehaviourHandler(BehaviorHandler):
+    def run(self):
+        la_coords = [1000.0, 0.0]
+        step = 100.0
+        counter = 0
+        start = time.time()
+        left_leg = True
+        self.__set_behavior(UnknownBehavior)
+        stance = self._stance_determinator.determinate()
+        if stance == Stance.STAND:
+            self._pose_handler.set_pose("walking_pose", 2.0)
+        timer = 0
+        ball_found = False
+        ball = {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+        }
+        timestamp = 0
+        pix = [0.0, 0.0]
+        reached = False
+        dode = 0
+        initialized = False
+        while not self._iterrupt:
+            stance = self._stance_determinator.determinate()
+            counter = counter + 1 if stance != Stance.STAND else 0
+            if counter >= self.fall_indicator_count:
+                dode = 0
+                self.__set_behavior(StandingUpBehavior, self._robot, self._pose_handler,
+                                    self._pose_switcher, self._stance_determinator, self._walker)
+                if self._behavior.is_done():
+                    self._behavior.reset()
+                timer = timer + 1
+                time.sleep(self.sleep_time)
+                continue
+            if any(isinstance(self._behavior, behavior) for behavior in (StandingUpBehavior, KickBehavior)):
+                if not self._behavior.is_done():
+                    timer = timer + 1
+                    time.sleep(self.sleep_time)
+                    continue
+                else:
+                    if isinstance(self._behavior, StandingUpBehavior):
+                        self._localization.localization(True)
+                    self.__set_behavior(UnknownBehavior)
+
+            self._robot.vision.updateFrame()
+            ball = self._robot.vision.ballDetect()
+            ball_found = (ball["width"] != 0.0)
+            if ball_found:
+                timestamp = timer
+                pix = self._cam.imagePixelToWorld(ball["x"] + ball["width"]/2, ball["y"], False)
+            if timestamp + 8 < timer or pix == [0.0, 0.0, 0.0] or pix[0] < 0.0:
+                print "finding"
+                self._robot.locomotion.autoapply.enable(False)
+                la_coords[1] += step
+                self._robot.kinematics.lookAt(la_coords[0], la_coords[1], 0.0, False)
+                if abs(la_coords[1]) >= 1000.0:
+                    step *= -1
+                    self._pose_handler.set_pose("walking_pose", 1.0)
+                    la_coords[1] = 0
+            elif abs(pix[1]) > 100.0:
+                print pix
+                self._robot.locomotion.autoapply.enable(True)
+                self.__set_behavior(WalkBehavior, self._walker)
+                self._walker.look_at(pix[0], pix[1])
+                tmp_p = self._localization.position.point.y + pix[1]
+                if tmp_p > 1100.0 or tmp_p < -1100.0:
+                    self._behavior.linear_go_to(0.0, math.copysign((1100.0 - abs(tmp_p)), pix[1]), 100.0)
+                else:
+                    self._behavior.inear_go_to(0.0, pix[1], 100.0)
+                time.sleep(0.3)
+            elif math.hypot(pix[0], pix[1]) < 200.0:
+                self.__set_behavior(KickBehavior, self._robot, self._pose_handler,
+                                    self._pose_switcher, self._stance_determinator, self._walker)
+                self._behavior.set_left_leg(pix[1] > 0)
+                aa = self._robot.locomotion.autoapply.enable(False)
+                self._behavior.start()
+                time.sleep(0.3)
+            timer = timer + 1
+            time.sleep(self.sleep_time)
+
+    def __set_behavior(self, behavior, *args, **kwargs):
+        with self._lock:
+            if not isinstance(self._behavior, behavior):
+                self._behavior.stop()
+                self._behavior = behavior(*args, **kwargs)
+

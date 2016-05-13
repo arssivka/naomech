@@ -51,6 +51,7 @@ def ball_finder():
             time.sleep(0.5)
             ball_w, pix = ball_recognitor()
             if abs(la_coords[1]) >= 1000.0:
+                la_coords[1] = 0
                 step *= -1
     robot.kinematics.lookAt(pix[0], pix[1], 0.0, False)
 
@@ -71,6 +72,7 @@ def ball_kicker():
         pose_switcher.switch_to("prepare_left_kick", "walking_pose")
     else:
         pose_switcher.switch_to("prepare_right_kick", "walking_pose")
+
 
 ball_finder()
 ball_kicker()

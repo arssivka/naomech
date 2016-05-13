@@ -15,7 +15,7 @@ from localization import LocaTesting
 
 
 
-robot = Robot("192.168.1.2", "5469")
+robot = Robot("127.0.0.1", "5469")
 print robot.system.listMethods()
 print len(robot.joints.keys())
 
@@ -27,7 +27,7 @@ cg = CamGeom("config/cameras.json", robot)
 walk = Walker(robot)
 print robot.joints.keys()
 robot.joints.hardness(0.8)
-loc = LocalizationModule(robot, cg)
+loc = LocalizationModule(robot, cg, goalie=True)
 walk.odo_listeners.append(loc)
 # robot.joints.hardness([0, 1], [0.0, 0.0])
 # rleg_keys = ['R_HIP_YAW_PITCH', 'R_HIP_ROLL', 'R_HIP_PITCH', 'R_KNEE_PITCH', 'R_ANKLE_PITCH', 'R_ANKLE_ROLL']
@@ -62,14 +62,15 @@ def ball_finder():
     ball_w, pix = ball_recognitor()
     la_coords = [1000.0, 0.0]
     step = 100.0
-    if ball_w == 0:
-        while ball_w == 0:
+    if ball_w == 0 or pix[0] < 0.0:
+        while ball_w == 0 and pix[0] < 0.0:
             la_coords[1] += step
             robot.kinematics.lookAt(la_coords[0], la_coords[1], 0.0, False)
             time.sleep(0.5)
             ball_w, pix = ball_recognitor()
             if abs(la_coords[1]) >= 1000.0:
                 step *= -1
+                la_coords[1] = 0.0
                 pose_handler.set_pose("walking_pose", 1.0)
     robot.kinematics.lookAt(pix[0], pix[1], 0.0, False)
 
@@ -91,8 +92,10 @@ def ball_blocker():
     robot.locomotion.autoapply.enable(False)
 
 def go_to_posuture():
+    print "ksdfmsd;f"
     tuc = loc.global_to_local(loc.map.start_point.x, loc.map.start_point.y)
-    while math.hypot(tuc[0], tuc[1]) > 100:
+    while math.hypot(tuc[0], tuc[1]) > 300:
+        print tuc
         tuc = loc.global_to_local(loc.map.start_point.x, loc.map.start_point.y)
         walk.smart_go_to(tuc[0], tuc[1], 100.0)
         joints = robot.kinematics.jointsLookAt(500.0, 0.0, 0.0, False)
@@ -100,8 +103,11 @@ def go_to_posuture():
         robot.locomotion.head.hardness(0.8, 0.8)
         time.sleep(2.0)
     walk.stop()
-    tuc = loc.global_to_local(loc.map.start_point.x, loc.map.start_point.y)
-    walk.go_around(tuc[2])
+    tuc = loc.global_to_local(loc.map.enemy_point.x, loc.map.enemy_point.y)
+    walk.go_around(-tuc[2])
+    while walk.is_done():
+        pass
+    walk.stop()
     robot.locomotion.autoapply.enable(False)
 
 def localize():
@@ -130,15 +136,35 @@ def localize():
     robot.leds.brightness(leds_keys, leds_on)
     time.sleep(5.0)
     robot.leds.brightness(leds_keys, leds_off)
-    loc.localization()
+    # loc.localization()
     print loc.position.point
 
 try:
     print "localization started"
     localize()
     print "localization ended"
-    go_to_posuture()
+    stance = [310.0, 14.5, 100.0, 0.0, 0.0, 0.1]
+    step = [0.8, 0.30, 12.0, 0.0, 70.0, -50.0, 70.0, 0.35, 70.0, 70.0, 0.35, 1.0]
+    zmp = [0.0, 0.0, 30.0, 30.0, 0.01, 1.6]
+    hack = [0.0, 0.0]
+    sensor = [0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0]
+    stiff = [0.85, 0.7, 0.4, 0.3, 0.2, 0.2]
+    odo = [1.0, 1.0, 1.5]
+    arm = [0.3]
+    robot.locomotion.gait(stance, step, zmp, hack, sensor, stiff, odo, arm)
+    # go_to_posuture()
     behavior = GoalieBehaviourHandler(robot, walk, pose_handler, pose_switcher, cg, loc)
+    behavior.run()
+    # while True:
+    #     ball_finder()
+    #     ball_blocker()
 
 finally:
     pass
