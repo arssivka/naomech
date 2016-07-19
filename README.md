@@ -1,7 +1,7 @@
 # RDot Naomech
 This is the system that allows you to control Nao locally or remote.
 
-### Warning!
+### WARNING!
 
 This repo contains a lot of wery ugly solutions. You don't want use it and if you thing otherwise you must have very-very strong reason and very-very strong neural system.
 
